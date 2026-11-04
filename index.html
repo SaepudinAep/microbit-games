@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Game micro:bit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/app.css">
+</head>
+<body>
+<main>
+
+<section class="screen on" id="home">
+  <div class="hero">
+    <span class="ball"></span>
+    <h1>Game micro:bit</h1>
+    <p>Hubungkan micro:bit, lalu pilih game dan jumlah pemain.</p>
+    <div class="row center"><button class="btn big" id="start">Mulai</button></div>
+  </div>
+</section>
+
+<section class="screen" id="connect">
+  <h2>Hubungkan pemain</h2>
+  <p>Hubungkan micro:bit, atau pilih keyboard untuk testing. Keyboard: satu pemain bebas memakai panah atau WASD; dua pemain, Player 1 memakai panah dan Player 2 memakai WASD.</p>
+  <div class="slots" id="slots"></div>
+  <p id="msg" role="status"></p>
+  <div class="row"><button class="btn alt" id="toHome">Kembali</button><button class="btn" id="toPick">Lanjut</button></div>
+</section>
+
+<section class="screen" id="pick">
+  <h2>Pilih game</h2>
+  <div id="games"></div>
+  <p id="pickHint"></p>
+  <div class="row"><button class="btn alt" id="backConnect">Kembali</button></div>
+</section>
+
+<section class="screen" id="game">
+  <div class="stage">
+    <canvas id="cv" width="600" height="800"></canvas>
+    <button class="snd" id="snd" aria-label="Suara">🔊</button>
+    <button class="fs" id="fs" aria-label="Layar penuh">⛶</button>
+    <div id="result"><h2 id="resText"></h2><button class="btn big" id="toLobby">Kembali ke lobi</button></div>
+  </div>
+  <div class="row center"><button class="btn alt" id="quit">Keluar ke lobi</button></div>
+</section>
+
+<section id="monitor" aria-label="Monitor masukan">
+  <header>
+    <h3>Monitor masukan</h3>
+    <div class="row" style="margin:0">
+      <button class="btn alt mini" id="logPause">Jeda</button>
+      <button class="btn alt mini" id="logClear">Bersihkan</button>
+    </div>
+  </header>
+  <div id="log" aria-live="off"></div>
+  <p class="keys">RX = data mentah dari micro:bit (teks dan byte heksadesimal, ↵ = newline). TX = kode yang dikirim ke micro:bit. Baris hijau = perintah yang dibaca kernel.</p>
+</section>
+
+</main>
+<script type="module" src="shell/app.js"></script>
+</body>
+</html>
