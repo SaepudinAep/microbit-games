@@ -400,8 +400,8 @@ export default {
     // =====================================================
     // Handler input
     // =====================================================
-    function onInput(slot, cmd) {
-      const pi = slotToP[slot];
+    function onInput({player, cmd}) {
+      const pi = slotToP[player];
       if (pi == null) return;
 
       if (!st.ready) {

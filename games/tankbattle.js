@@ -533,8 +533,8 @@ export default {
     // =====================================================
     // Handler input
     // =====================================================
-    function onInput(slot, cmd) {
-      const ti = slotToTank[slot];
+    function onInput({player, cmd}) {
+      const ti = slotToTank[player];
       if (ti == null) return; // slot bukan pemain aktif
 
       // Mulai game: 99# atau 5# dari Player 1 (slot index 0)
