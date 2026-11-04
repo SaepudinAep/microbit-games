@@ -32,8 +32,8 @@ Pemain di bawah menembak pasukan alien yang bergerak turun. Mendukung 1P (Solo) 
 
 | Perintah | Aksi |
 |---|---|
-| `99#` | Mulai permainan (Player 1 saja) |
-| `5#` | Alternatif mulai (juga menembak saat bermain) |
+| `99#` | Mulai permainan (Player 1 saja — mulai hanya lewat `99#` atau klik layar) |
+| `5#` | Menembak laser (saat bermain) |
 | `1#` / `3#` | Pesawat ke kiri |
 | `2#` / `4#` | Pesawat ke kanan |
 | `0#` | Pesawat berhenti |

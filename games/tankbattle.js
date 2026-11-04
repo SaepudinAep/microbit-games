@@ -551,7 +551,7 @@ export default {
         ctx.font = '17px sans-serif';
         ctx.fillStyle = '#aaa';
         ctx.fillText('Kirim  99#  dari micro:bit Player 1', W/2, H/2);
-        ctx.fillText('atau tekan  Enter  /  Spasi  untuk mulai', W/2, H/2 + 28);
+        ctx.fillText('atau klik layar untuk mulai', W/2, H/2 + 28);
         ctx.font = '13px sans-serif';
         ctx.fillStyle = '#6af';
         ctx.fillText('← → ↑ ↓ gerak  |  Enter = tembak', W/2, H/2 + 60);
@@ -597,9 +597,9 @@ export default {
       const ti = slotToTank[player];
       if (ti == null) return; // slot bukan pemain aktif
 
-      // Mulai game: 99# atau 5# dari Player 1 (slot index 0)
+      // Mulai game: 99# dari Player 1
       if (!st.ready) {
-        if (cmd === '99' || (cmd === '5' && ti === 0)) {
+        if (cmd === '99') {
           beginGame();
         }
         return;

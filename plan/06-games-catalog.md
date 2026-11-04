@@ -13,6 +13,7 @@ Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/i
 | 2 | `spaceinvaders` | Space Invaders | 👾 | 1P, 2P (Co-op) | `games/spaceinvaders.js` | [plan/games/spaceinvaders.md](games/spaceinvaders.md) |
 | 3 | `tankbattle` | Tank Battle | 🪖 | 1v1, 2v2, 4P FFA | `games/tankbattle.js` | [plan/games/tankbattle.md](games/tankbattle.md) |
 | 4 | `endlessracer` | Endless Racer | 🚗 | 1P, 2P | `games/endlessracer.js` | [plan/games/endlessracer.md](games/endlessracer.md) |
+| 5 | `dinorush` | Dino Jump | 🦖 | 1P – 4P | `games/dinorush.js` | [plan/games/dinorush.md](games/dinorush.md) |
 
 > **Konvensi umum** (lihat `01-core-kernel.md`): kernel meneruskan angka standar `0#`–`9#` + `99#` berlabel pemain;
 > **arti angka bersifat milik tiap game** (*deterministic commands*). Semua game memakai ready-state: permainan
@@ -151,6 +152,12 @@ Balap *endless scroller* *top-down*: pemain menyusuri jalan 4 jalur dan menghind
 - Mobil hanya bisa berpindah antar lajur dalam batas jalan (diclamp ke `ROAD_LEFT..ROAD_RIGHT-CAR_W`).
 
 **Efek suara:** `start`, `lose` (saat tabrakan).
+
+---
+
+## 5. Dino Jump (`games/dinorush.js`)
+
+Endless *runner* mirip dino saat kehilangan koneksi. **Tiap pemain punya lintasan sendiri** (1–4, tersusun dari atas ke bawah) sehingga posisi teratur; skor = jarak tempuh; menabrak rintangan = mati; pemenang = jarak terjauh (bertahan paling lama). Hanya ada satu aksi: **lompat** (tombol apa pun). Rincian: [plan/games/dinorush.md](games/dinorush.md).
 
 ---
 

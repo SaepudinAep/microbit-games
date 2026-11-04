@@ -359,7 +359,7 @@ export default {
         ctx.font = '17px sans-serif';
         ctx.fillStyle = '#aaa';
         ctx.fillText('Kirim  99#  dari micro:bit Player 1', W/2, H/2 + 2);
-        ctx.fillText('atau tekan  Enter  /  Spasi  untuk mulai', W/2, H/2 + 30);
+        ctx.fillText('atau klik layar untuk mulai', W/2, H/2 + 30);
         ctx.font = '13px sans-serif';
         ctx.fillStyle = '#6af';
         ctx.fillText('← → geser  |  hindari kendaraan dari atas!', W/2, H/2 + 60);
@@ -405,7 +405,7 @@ export default {
       if (pi == null) return;
 
       if (!st.ready) {
-        if (cmd === '99' || (cmd === '5' && pi === 0)) beginGame();
+        if (cmd === '99') beginGame();
         return;
       }
       if (st.over) return;

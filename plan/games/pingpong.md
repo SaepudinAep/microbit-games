@@ -31,8 +31,7 @@ Tenis meja klasik berorientasi vertikal (aspek 3:4, 600×800). Player 1 di bawah
 
 | Perintah | Aksi |
 |---|---|
-| `99#` | Mulai permainan (Player 1 saja) |
-| `5#` | Alternatif mulai |
+| `99#` | Mulai permainan (Player 1 saja — mulai hanya lewat `99#` atau klik layar) |
 | `1#` / `3#` | Paddle ke kiri |
 | `2#` / `4#` | Paddle ke kanan |
 | `0#` | Paddle berhenti |

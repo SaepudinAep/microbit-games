@@ -18,6 +18,7 @@ games/pingpong.js     game Ping Pong (1P & 2P)
 games/spaceinvaders.js game Space Invaders (1P Solo & 2P Co-op)
 games/tankbattle.js   game Tank Battle (1v1, 2v2 & 4P FFA)
 games/endlessracer.js game Endless Racer (1P & 2P)
+games/dinorush.js     game Dino Jump (1P – 4P, 4 lintasan)
 styles/app.css        gaya bersama
 ```
 
@@ -47,7 +48,7 @@ Daftar angkanya milik kernel (`0#` sampai `9#`), tetapi **artinya milik tiap gam
 | `2#` | paddle ke kanan | pesawat ke kanan | tank mundur (bawah) | geser ke kanan |
 | `3#` | paddle ke kiri | pesawat ke kiri | tank belok kiri | geser ke kiri |
 | `4#` | paddle ke kanan | pesawat ke kanan | tank belok kanan | geser ke kanan |
-| `5#` | alternatif mulai | tembak laser (juga alternatif mulai) | tembak peluru | alternatif mulai |
+| `5#` | diabaikan | menembak laser | tembak peluru | diabaikan |
 | lainnya | diabaikan | diabaikan | diabaikan | diabaikan |
 
 Kernel juga membaca baris berakhir newline, mis. `Mbit:3`, sebagai perintah `3`.

@@ -399,7 +399,7 @@ export default {
 
         ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
         ctx.font = '500 16px Fredoka, system-ui, sans-serif';
-        ctx.fillText('(atau tekan Enter / Spasi / Klik layar)', W / 2, H / 2 + 45);
+        ctx.fillText('(atau klik layar untuk mulai)', W / 2, H / 2 + 45);
         ctx.restore();
       }
     }
@@ -415,7 +415,7 @@ export default {
     // Penanganan input dari kernel
     const off = kernel.on('input', ({player, cmd}) => {
       // Perintah 99# atau 5# dari Player 1 memulai game
-      if (!st.ready && player === players[0] && (cmd === '99' || cmd === '5')) {
+      if (!st.ready && player === players[0] && cmd === '99') {
         beginGame();
         return;
       }

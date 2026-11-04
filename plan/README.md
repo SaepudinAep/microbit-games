@@ -44,7 +44,8 @@ microbit-games/
 │       ├── pingpong.md     # Ping Pong
 │       ├── spaceinvaders.md# Space Invaders
 │       ├── tankbattle.md   # Tank Battle
-│       └── endlessracer.md # Endless Racer
+│       ├── endlessracer.md # Endless Racer
+│       └── dinorush.md     # Dino Jump
 └── README.md               # Panduan cepat menjalankan proyek
 ```
 
@@ -62,7 +63,7 @@ Setiap sektor didokumentasikan secara mandiri dan mendalam di dalam folder ini:
 | [04-firmware-microbit.md](04-firmware-microbit.md) | Konfigurasi MakeCode micro:bit v1/v2, mapping tombol & akselerometer (gesture tilt) ke perintah `0#`-`9#`, penanganan feedback haptic/audio RX (`!#`), dan panduan troubleshooting flashing. |
 | [05-future-roadmap-and-features.md](05-future-roadmap-and-features.md) | Rencana pengembangan game baru (Tank Battle 2v2, Tug of War, Maze Runner), Web Audio FX di browser, fitur auto-reconnect BLE, export/save telemetry log, dan persiapan untuk deployment kelas. |
 | [06-games-catalog.md](06-games-catalog.md) | Indeks & ringkasan katalog game aktif; menautkan ke dokumentasi individual tiap game di `plan/games/`. |
-| [games/](games/) | Dokumentasi **individual** per game: `pingpong.md`, `spaceinvaders.md`, `tankbattle.md`, `endlessracer.md` (mode, kontrol, mekanik, fisika, audio). |
+| [games/](games/) | Dokumentasi **individual** per game: `pingpong.md`, `spaceinvaders.md`, `tankbattle.md`, `endlessracer.md`, `dinorush.md` (mode, kontrol, mekanik, fisika, audio). |
 
 ---
 

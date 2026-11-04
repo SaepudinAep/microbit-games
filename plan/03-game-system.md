@@ -93,7 +93,7 @@ Pada mode 1 pemain, paddle atas dikendalikan secara otomatis:
   - Bola diam di titik tengah arena $(W/2, H/2)$ dan gameplay dibekukan.
   - Paddle tetap dapat digerakkan ke kiri/kanan sebagai sarana pemanasan (*controller check*).
   - Ditampilkan kartu instruksi kontras tinggi di tengah lapangan: *"SIAP BERMAIN? Kirim perintah 99# dari Player 1 (atau tekan Enter / Spasi / Klik layar)"*.
-  - Ketika micro:bit Player 1 mengirim perintah `99#` (atau tombol aksi `5#` / `Enter` / klik layar), permainan memutar audio `start`, kartu instruksi ditutup, dan bola baru diluncurkan (*serve*).
+  - Ketika micro:bit Player 1 mengirim perintah `99#` (atau klik layar untuk keyboard), permainan memutar audio `start`, kartu instruksi ditutup, dan bola baru diluncurkan (*serve*).
 
 ---
 

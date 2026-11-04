@@ -125,7 +125,7 @@ export default {
 
         x.fillStyle = 'rgba(255, 255, 255, 0.7)';
         x.font = '500 16px Fredoka, system-ui, sans-serif';
-        x.fillText('(atau tekan Enter / Spasi / Klik layar)', W / 2, H / 2 + 45);
+        x.fillText('(atau klik layar untuk mulai)', W / 2, H / 2 + 45);
         x.restore();
       }
     }
@@ -137,7 +137,7 @@ export default {
 
     // Masukan: 99 = mulai dari Player 1, 1 atau 3 = kiri, 2 atau 4 = kanan, 0 = berhenti.
     const off = kernel.on('input', ({player, cmd}) => {
-      if (!st.ready && player === players[0] && (cmd === '99' || cmd === '5')) {
+      if (!st.ready && player === players[0] && cmd === '99') {
         beginGame();
         return;
       }
