@@ -16,7 +16,7 @@ shell/monitor.js      monitor masukan (RX, TX, perintah, peringatan)
 games/index.js        daftar game
 games/pingpong.js     game Ping Pong (1P & 2P)
 games/spaceinvaders.js game Space Invaders (1P Solo & 2P Co-op)
-games/tankbattle.js   game Tank Battle (1v1 & 4P FFA)
+games/tankbattle.js   game Tank Battle (1v1, 2v2 & 4P FFA)
 games/endlessracer.js game Endless Racer (1P & 2P)
 styles/app.css        gaya bersama
 ```

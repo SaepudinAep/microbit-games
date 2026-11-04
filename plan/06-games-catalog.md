@@ -11,7 +11,7 @@ Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/i
 |---|------|------|:---:|------|-----------|-------------|
 | 1 | `pingpong` | Ping Pong | 🏓 | 1P, 2P | `games/pingpong.js` | [plan/games/pingpong.md](games/pingpong.md) |
 | 2 | `spaceinvaders` | Space Invaders | 👾 | 1P, 2P (Co-op) | `games/spaceinvaders.js` | [plan/games/spaceinvaders.md](games/spaceinvaders.md) |
-| 3 | `tankbattle` | Tank Battle | 🪖 | 1v1, 4P FFA | `games/tankbattle.js` | [plan/games/tankbattle.md](games/tankbattle.md) |
+| 3 | `tankbattle` | Tank Battle | 🪖 | 1v1, 2v2, 4P FFA | `games/tankbattle.js` | [plan/games/tankbattle.md](games/tankbattle.md) |
 | 4 | `endlessracer` | Endless Racer | 🚗 | 1P, 2P | `games/endlessracer.js` | [plan/games/endlessracer.md](games/endlessracer.md) |
 
 > **Konvensi umum** (lihat `01-core-kernel.md`): kernel meneruskan angka standar `0#`–`9#` + `99#` berlabel pemain;

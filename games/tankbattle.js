@@ -1,10 +1,13 @@
-// GAME: Tank Battle (Top-down tank combat, 2P duel atau 4P FFA)
+// GAME: Tank Battle (Top-down tank combat, 2P duel, 2v2 tim, atau 4P FFA)
 //
 // Kontrak game:
 //   id, name, icon, description
 //   modes: [{id, label, sub, players}]
 //   canvas: {width, height}
 //   create({canvas, kernel, players, mode, finish, audio}) -> {stop()}
+//
+// Sistem skor: tiap tank lawan dihancurkan memberi 1 poin ke tim penembak.
+// Menang: sisi pertama mencapai SCORE_TARGET poin ATAU mengeliminasi semua lawan.
 //
 // Kontrol (via kernel.js):
 //   1# = maju (atas)   2# = mundur (bawah)   3# = kiri   4# = kanan
@@ -20,12 +23,16 @@ const SPEED   = 175;     // kecepatan tank px/dtk
 const BSPEED  = 440;     // kecepatan peluru px/dtk
 const SHOOT_CD = 0.4;    // cooldown tembak (detik)
 const LIVES   = 3;       // nyawa per tank
+const SCORE_TARGET = 5;  // poin kemenangan per sisi (SkorTim/eliminasi)
 const INVULN  = 2.2;     // durasi invulnerable setelah kena (detik)
 const BORDER  = 10;      // tebal border arena
 const RESPAWN_DELAY = 1000; // ms sebelum respawn
 
 // Warna per player (P1=biru, P2=oranye, P3=hijau, P4=ungu)
 const PCOLORS = ['#4b83ff', '#ff9a2e', '#3ccf8e', '#b98cff'];
+
+// Warna tim untuk mode 2v2 (Merah vs Biru)
+const TEAM_COLORS = ['#f5484d', '#3c9eff'];
 
 // Vektor arah
 const DVEC = {
@@ -71,10 +78,11 @@ export default {
   id: 'tankbattle',
   name: 'Tank Battle',
   icon: '🪖',
-  description: 'Duel sengit antar tank! Tembak lawan sebelum nyawamu habis. Dukung 2P duel atau 4P semua lawan semua.',
+  description: 'Duel tank! Hancurkan tank lawan & raih poin tim. Dukung 1v1, 2v2 tim (Merah vs Biru), dan 4P FFA.',
   modes: [
-    {id:'1v1', label:'1 vs 1',       sub:'Duel Satu Lawan Satu',  players:2},
-    {id:'ffa', label:'4 Player FFA', sub:'Semua Lawan Semua',      players:4},
+    {id:'1v1', label:'1 vs 1',          sub:'Duel Satu Lawan Satu',   players:2},
+    {id:'2v2', label:'2 vs 2',          sub:'Duel Tim Merah vs Biru', players:4},
+    {id:'ffa', label:'4 Player FFA',    sub:'Semua Lawan Semua',      players:4},
   ],
   canvas: {width: W, height: H},
 
@@ -111,9 +119,18 @@ export default {
       alive: true,
       invuln: 0,                      // sisa waktu invulnerable (dtk)
       shootCd: 0,                     // sisa cooldown tembak (dtk)
-      color: PCOLORS[i],
+      color: mode.id === '2v2' ? (i < 2 ? TEAM_COLORS[0] : TEAM_COLORS[1]) : PCOLORS[i],
       label: `P${i+1}`,
     }));
+
+    // --- Sistem tim & skor ---
+    // 2v2 = 2 tim (Merah: P1+P2, Biru: P3+P4); 1v1/FFA = tiap pemain timnya sendiri.
+    const TEAMS   = mode.id === '2v2' ? [[0, 1], [2, 3]] : tanks.map((_, i) => [i]);
+    const teamOf  = ti => TEAMS.findIndex(team => team.includes(ti));
+    const TEAM_LABELS = mode.id === '2v2'
+      ? ['Tim Merah', 'Tim Biru']
+      : tanks.map((_, i) => `P${i + 1}`);
+    const scores  = TEAMS.map(() => 0);
 
     // =====================================================
     // Helper: AABB collision (apakah dua kotak bertumpuk?)
@@ -189,7 +206,15 @@ export default {
     // =====================================================
     // Kena tembak: kurangi nyawa, invulnerable, respawn
     // =====================================================
-    function hitTank(t) {
+    // Poin untuk tim penembak (1 poin per tank lawan yang dihancurkan)
+    function addScore(ti) {
+      const team = teamOf(ti);
+      if (team < 0) return;
+      scores[team]++;
+      audio?.play('score');
+    }
+
+    function hitTank(t, killer) {
       if (t.invuln > 0 || !t.alive) return;
       t.lives--;
       spawnExplosion(t.x + TS/2, t.y + TS/2, t.color, false);
@@ -200,6 +225,8 @@ export default {
         t.alive = false;
         spawnExplosion(t.x + TS/2, t.y + TS/2, t.color, true);
         audio?.play('lose');
+        // Poin untuk tim penembak (pastikan bukan kawan setim)
+        if (killer != null && teamOf(killer) !== teamOf(t.i)) addScore(killer);
         // Delay untuk periksa menang
         setTimeout(() => {
           if (!st.over) checkWin();
@@ -226,13 +253,22 @@ export default {
     // Periksa kondisi menang
     // =====================================================
     function checkWin() {
-      const living = tanks.filter(t => t.lives > 0);
-      if (living.length <= 1) {
+      if (st.over) return;
+      // 1) Pemenang skor: sisi pertama mencapai target poin
+      const byScore = scores.findIndex(s => s >= SCORE_TARGET);
+      // 2) Eliminasi: sisi yang masih punya tank hidup
+      const aliveIdx = TEAMS
+        .map((team, idx) => team.some(i => tanks[i].lives > 0) ? idx : -1)
+        .filter(i => i >= 0);
+
+      const winner = byScore >= 0 ? byScore : (aliveIdx.length === 1 ? aliveIdx[0] : -1);
+
+      if (winner >= 0 || aliveIdx.length === 0) {
         st.over = true;
-        const winner = living[0];
-        setTimeout(() => {
-          finish(winner ? `${winner.label} Menang! 🏆` : 'Seri! Semua habis.');
-        }, 600);
+        const txt = winner >= 0
+          ? `${TEAM_LABELS[winner]} Menang! 🏆 (${scores[winner]} poin)`
+          : 'Seri! Semua habis.';
+        setTimeout(() => finish(txt), 600);
       }
     }
 
@@ -296,7 +332,7 @@ export default {
         // Tabrak tank
         let hitTankObj = null;
         for (const t of tanks) {
-          if (b.owner === t.i) continue; // tidak bisa kena sendiri
+          if (teamOf(b.owner) === teamOf(t.i)) continue; // jangan kena kawan setim
           if (!t.alive || t.invuln > 0) continue;
           if (b.x > t.x && b.x < t.x+TS && b.y > t.y && b.y < t.y+TS) {
             hitTankObj = t;
@@ -304,7 +340,7 @@ export default {
           }
         }
         if (hitTankObj) {
-          hitTank(hitTankObj);
+          hitTank(hitTankObj, b.owner);
           spawnExplosion(b.x, b.y, b.color, false);
           continue; // hapus peluru
         }
@@ -384,24 +420,48 @@ export default {
     // =====================================================
     function drawHUD() {
       const colW = W / 2;
-      const rows = numPlayers <= 2 ? 1 : 2;
 
+      // --- Papan skor (atas) ---
+      ctx.save();
+      ctx.textAlign = 'center';
+      if (mode.id === '2v2') {
+        ctx.font = 'bold 24px Fredoka, sans-serif';
+        ctx.fillStyle = TEAM_COLORS[0]; ctx.fillText(`🔴 ${scores[0]}`, W/2 - 66, 38);
+        ctx.fillStyle = '#fff';          ctx.fillText(':', W/2, 36);
+        ctx.fillStyle = TEAM_COLORS[1]; ctx.fillText(`${scores[1]} 🔵`, W/2 + 66, 38);
+        ctx.font = 'bold 11px Fredoka, sans-serif';
+        ctx.fillStyle = '#9aa0b3';       ctx.fillText('SKOR TIM', W/2, 58);
+      } else {
+        const xs = mode.id === 'ffa' ? [20, 155, 300, 450] : [40, W - 40];
+        ctx.font = 'bold 18px Fredoka, sans-serif';
+        tanks.forEach((t, i) => {
+          ctx.fillStyle = t.color;
+          ctx.fillText(`${TEAM_LABELS[i]} ${scores[i]}`, xs[i % xs.length], 38);
+        });
+        ctx.font = 'bold 11px Fredoka, sans-serif';
+        ctx.fillStyle = '#9aa0b3';
+        ctx.fillText('POIN', W/2, 58);
+      }
+      ctx.restore();
+
+      // --- Nyawa tiap tank (hearts, bawah) ---
       tanks.forEach((t, i) => {
         const col = i % 2;
         const row = Math.floor(i / 2);
-        const hy  = H - 30 + row * 18;
-        const hx  = col === 0 ? 8 : colW;
+        const hy  = H - 46 + row * 28;
+        const hx  = col === 0 ? 14 : colW + 14;
 
         ctx.save();
-        ctx.font = 'bold 11px sans-serif';
+        ctx.font = 'bold 15px Fredoka, sans-serif';
         ctx.fillStyle = t.color;
         ctx.textAlign = 'left';
 
         let hearts = '';
-        for (let j = 0; j < LIVES; j++) {
-          hearts += j < t.lives ? '♥' : '♡';
-        }
-        ctx.fillText(`${t.label}: ${hearts}`, hx, hy);
+        for (let j = 0; j < LIVES; j++) hearts += j < t.lives ? '♥' : '♡';
+
+        ctx.fillText(`${t.label} `, hx, hy);
+        ctx.fillStyle = t.lives > 0 ? t.color : '#556';
+        ctx.fillText(hearts, hx + 36, hy);
         ctx.restore();
       });
     }
@@ -487,7 +547,7 @@ export default {
         ctx.font = 'bold 28px sans-serif';
         ctx.fillStyle = '#fff';
         ctx.textAlign = 'center';
-        ctx.fillText('⚔️ Tank Battle', W/2, H/2 - 36);
+        ctx.fillText('⚔️ Tank Battle — ' + mode.label, W/2, H/2 - 36);
         ctx.font = '17px sans-serif';
         ctx.fillStyle = '#aaa';
         ctx.fillText('Kirim  99#  dari micro:bit Player 1', W/2, H/2);

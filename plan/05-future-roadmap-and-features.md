@@ -18,7 +18,7 @@ Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapa
 
 *Game Tank Battle aktif bernama `tankbattle` — lihat `06-games-catalog.md`.*
 
-- **Konsep**: Tank bertarung dalam arena labirin top-down. Tersedia mode **1v1** (2 pemain) dan **4P FFA** (semua lawan semua).
+- **Konsep**: Tank bertarung dalam arena labirin top-down. Tersedia mode **1v1** (duel), **2v2** (Tim Merah vs Tim Biru), dan **4P FFA** (semua lawan semua).
 - **Kebutuhan Slot**: 4 Pemain (`players: 4`).
 - **Skema Kontrol (implementasi aktual, konsisten dengan mapping keyboard kernel)**:
   - `1#`: Maju (atas)
@@ -27,8 +27,8 @@ Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapa
   - `4#`: Belok kanan
   - `5#` / `6#`: Tembak peluru
   - `99#`: Mulai dari Player 1
-- **Mekanik**: 3 nyawa per tank, invulnerability 2.2 dtk setelah respawn (1 dtk), kolisi sliding dengan dinding/tank lain, peluru ditahan oleh dinding arena.
-- **Poin & Durasi**: Tank dengan nyawa tersisa terakhir menang (seri jika semua habis).
+- **Mekanik**: 3 nyawa per tank, invulnerability 2.2 dtk setelah respawn (1 dtk), kolisi sliding dengan dinding/tank lain, peluru ditahan oleh dinding arena, dan peluru tidak kena kawan setim (2v2).
+- **Poin & Durasi**: Setiap tank lawan yang hancur memberi 1 poin ke tim penembak. Sisi dengan skor mencapai target (5) atau yang mengeliminasi semua lawan menang (seri jika semua habis).
 
 ---
 
