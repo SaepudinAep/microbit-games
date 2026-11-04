@@ -20,13 +20,14 @@ Platform ini menerapkan filosofi **"Satu Kernel, Banyak Game"** (*Single Kernel,
 
 ```
 microbit-games/
-├── index.html              # Entry point HTML & container navigasi layar
+├── index.html              # Entry point HTML, navigasi layar, tombol fullscreen & audio
 ├── styles/
 │   └── app.css             # Desain UI tema terang/gelap, layout lobi, kanvas & monitor
 ├── core/
-│   └── kernel.js           # BLE Web Bluetooth, parser UART, event bus, manajemen slot
+│   ├── kernel.js           # BLE Web Bluetooth, parser UART, event bus, manajemen slot
+│   └── audio.js            # Layanan efek suara Web Audio API (disintesis, pan, envelope)
 ├── shell/
-│   ├── app.js              # State machine layar, rendering slot, inisialisasi game
+│   ├── app.js              # State machine layar, rendering slot, fullscreen, audio toggle
 │   └── monitor.js          # Terminal log real-time (RX, TX, Command, Error)
 ├── games/
 │   ├── index.js            # Registry daftar game yang aktif
@@ -36,7 +37,7 @@ microbit-games/
 │   ├── 01-core-kernel.md   # Spesifikasi Core Kernel & Lapisan BLE
 │   ├── 02-shell-and-ui.md  # Spesifikasi Shell UI, UX, & Terminal Monitor
 │   ├── 03-game-system.md   # Spesifikasi Kontrak Game, Loop, & Katalog Game
-│   ├── 04-firmware-microbit.md # Spesifikasi Firmware MakeCode & Komunikasi Dua Arah
+│   ├── 04-firmware-microbit.md # Spesifikasi Firmware MakeCode & Komunikasi UART
 │   └── 05-future-roadmap-and-features.md # Roadmap Fitur Masa Depan & Game Baru
 └── README.md               # Panduan cepat menjalankan proyek
 ```
@@ -67,12 +68,13 @@ flowchart TD
         KB["Keyboard (WASD / Panah)"]
     end
 
-    subgraph CoreLayer["Core Kernel (core/kernel.js)"]
-        BLE["Web Bluetooth NUS"]
+    subgraph CoreLayer["Core Layer"]
+        BLE["Web Bluetooth NUS (kernel.js)"]
         Parser["Buffer Stream Parser (#, \n)"]
         SlotMgr["Slot Manager (Max 4 Slots)"]
         KBMgr["Keyboard Mapper & Multiplexer"]
         EventBus["Event Emitter ('input', 'players', 'tx', 'raw')"]
+        Audio["Web Audio Service (audio.js)"]
         
         BLE --> Parser
         Parser --> SlotMgr
@@ -84,19 +86,20 @@ flowchart TD
     subgraph ShellLayer["Shell (shell/app.js & monitor.js)"]
         UI["Screen Router (Home, Connect, Pick, Game)"]
         Mon["Input Monitor Log Panel"]
+        FSAudio["Controls: Fullscreen & Mute Toggle"]
         
         EventBus -.->|"event: players"| UI
         EventBus -.->|"event: raw, tx, warn, input"| Mon
+        FSAudio --> Audio
     end
 
     subgraph GameLayer["Games (games/pingpong.js, dst)"]
         ActiveGame["Instance Game Aktif"]
-        Canvas["HTML5 Canvas 2D"]
-        Feedback["TX Feedback (mis. '!' suara pukulan)"]
+        Canvas["HTML5 Canvas 2D (.stage)"]
         
         EventBus -->|"event: input {player, cmd}"| ActiveGame
         ActiveGame --> Canvas
-        ActiveGame -->|"Kernel.send(player, '!')"| BLE
+        ActiveGame -->|"audio.play('hit', 'bounce', 'score', ...)"| Audio
     end
 ```
 

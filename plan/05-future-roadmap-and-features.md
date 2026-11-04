@@ -48,18 +48,20 @@ Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapa
 ```mermaid
 timeline
     title Peta Jalan Pengembangan Platform (Milestones)
-    Fase 1 : Stabilisasi Buffer BLE : Pengujian Multi-device 4 micro:bit : Perapian Monitor Log
-    Fase 2 : Audio Engine Web Browser (SFX) : Countdown Overlay 3-2-1 : Skala Layar Penuh (Fullscreen)
-    Fase 3 : Pembuatan Game Tank 2v2 : Mekanisme Auto-Reconnect GATT : Penyimpanan Skor Lokal (Leaderboard)
-    Fase 4 : Game Tug of War : Panduan Modul Ajar Terintegrasi : Deployment Statis HTTPS (GitHub Pages)
+    Fase 1 (Selesai) : Arsitektur Single Kernel : Stabilisasi Buffer BLE : Pengujian Multi-device : Perapian Monitor Log
+    Fase 2 (Selesai) : Audio Engine Web Audio API (audio.js) : Kontrol Mute dan Persistensi : Layar Penuh Fullscreen API (.stage)
+    Fase 3 (Aktif) : Countdown Overlay 3-2-1 : Game Tank Battle 2v2 : Mekanisme Auto-Reconnect GATT
+    Fase 4 (Mendatang) : Game Tug of War : Penyimpanan Skor Lokal (Leaderboard) : Deployment Statis HTTPS (GitHub Pages)
 ```
 
-### 2.1 Web Audio FX di Tingkat Browser
-Saat ini efek audio hanya bergantung pada buzzer micro:bit (yang volumenya terbatas di ruang kelas ramai).
-- **Rencana**: Mengintegrasikan sintesis suara berbasis `Web Audio API` (bebas aset file eksternal) langsung di dalam browser:
-  - Suara *bip* pemantulan bola dengan frekuensi dinamis.
-  - Efek suara menang/kalah.
-  - Suara klik navigasi UI.
+### 2.1 Web Audio FX di Tingkat Browser (Telah Terimplementasi)
+Efek audio telah diintegrasikan sepenuhnya menggunakan sintesis `Web Audio API` melalui modul `core/audio.js` (bebas aset file eksternal) dengan kontrol volume/mute `#snd` dan persistensi `localStorage`:
+- [x] Suara *bip* pantulan dinding (`bounce`) dan pukulan paddle (`hit`) dengan panning spasial stereo.
+- [x] Efek suara skor bertambah (`score`) serta kemenangan/kekalahan (`win` / `lose`).
+- [x] Resep efek deklaratif untuk game masa depan (`shoot`, `explode`, `hurt`, `powerup`, `start`, `click`).
+
+### 2.2 Mode Layar Penuh / Fullscreen API (Telah Terimplementasi)
+- [x] Tombol `#fs` pada panggung `.stage` yang mempertahankan aspek rasio $3:4$ dengan `object-fit: contain` dan menyertakan overlay pemenang `#result`.
 
 ### 2.2 Mekanisme Auto-Reconnect GATT yang Cerdas
 - Mengimplementasikan pendengar event `gattserverdisconnected`.

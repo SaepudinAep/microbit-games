@@ -34,6 +34,7 @@ interface GameContext {
   players: number[];              // Array nomor slot pemain yang bermain, urut (contoh: [1, 2])
   mode: GameMode;                 // Mode aktif yang dipilih pengguna
   finish: (winnerText: string) => void; // Callback yang dipanggil saat game berakhir
+  audio?: SoundObject;            // Layanan suara Web Audio API (singleton Sound)
 }
 
 interface GameInstance {
@@ -69,11 +70,16 @@ function loop(t) {
 ```
 - `Math.min(0.05, ...)` berfungsi sebagai penjaga (*delta clamping*) untuk menghindari glitch tabrakan ketika tab browser diminimalkan atau mengalami lonjakan frame (*lag spike*).
 
-### 2.3 Logika Pantulan & Feedback Suara Haptic
+### 2.3 Logika Pantulan & Integrasi Efek Suara (Web Audio)
 Ketika bola mengenai paddle:
 - Kecepatan vertikal (`vy`) dibalik dan dipercepat $6\%$ (`* 1.06`) hingga batas maksimal $760\text{ px/detik}$.
 - Kecepatan horizontal (`vx`) dibelokkan sesuai jarak benturan dari titik tengah paddle, memberikan pemain kontrol taktis atas arah bola.
-- **Koneksi Balik (TX)**: Memanggil `kernel.send(players[i], '!')`. Micro:bit milik pemain yang memukul bola akan menerima kode `!#` untuk mengaktifkan bunyi 'beep' pada buzzer onboard micro:bit.
+- **Efek Suara Sintesis Browser**:
+  - `hit`: Memanggil `audio?.play('hit', { pan })` dengan nilai pan dinamis $-1$ (kiri) hingga $+1$ (kanan) mengikuti posisi $X$ bola.
+  - `bounce`: Memanggil `audio?.play('bounce', { pan })` saat bola memantul dari dinding samping.
+  - `score`: Memanggil `audio?.play('score')` saat bola melewati batas atas/bawah arena.
+  - `win` / `lose`: Memanggil suara kemenangan atau kekalahan saat pertandingan berakhir.
+  - *Catatan*: Efek suara tidak lagi dikirim via BLE UART `kernel.send('!')`, sehingga latensi suara instan $0\text{ ms}$ dan tidak membebani baterai/speaker micro:bit.
 
 ### 2.4 Logika AI Komputer (Mode 1 Player)
 Pada mode 1 pemain, paddle atas dikendalikan secara otomatis:
@@ -115,12 +121,15 @@ Untuk menambahkan game baru (misalnya game bernama **"dodge"**):
        { id: '2p', label: '2 Player', sub: 'Bertahan Bersama', players: 2 }
      ],
      canvas: { width: 600, height: 800 },
-     create({ canvas, kernel, players, mode, finish }) {
+     create({ canvas, kernel, players, mode, finish, audio }) {
        // Setup state game & canvas context
        let running = true;
        let rafId = 0;
 
-       // 1. Langganan input kernel
+       // 1. Putar suara mulai permainan (opsional)
+       audio?.play('start');
+
+       // 2. Langganan input kernel
        const unsubscribe = kernel.on('input', ({ player, cmd }) => {
          // Proses perintah: 1/3 = kiri, 2/4 = kanan, 0 = berhenti
        });

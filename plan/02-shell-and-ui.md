@@ -47,9 +47,13 @@ stateDiagram-v2
    - Setiap game menampilkan kartu dengan tombol mode (mis. "1 Player - Lawan komputer", "2 Player - Dua pemain berhadapan").
    - **Logika Validasi**: Tombol mode otomatis *disabled* jika jumlah pemain terhubung kurang dari `mode.players`.
 4. **`game` (#game)**:
-   - Arena permainan yang menampung elemen `<canvas id="cv">`.
-   - Lapisan overlay hasil akhir (`#result`) untuk menampilkan pemenang dan tombol "Kembali ke lobi".
-   - Tombol darurat "Keluar ke lobi" sewaktu-waktu.
+   - Arena permainan yang menampung elemen wrapper `.stage`.
+   - Di dalam `.stage`:
+     - `<canvas id="cv">`: Kanvas rendering 2D permainan.
+     - `<button class="snd" id="snd">`: Tombol kontrol suara (🔊 / 🔇) terintegrasi dengan `core/audio.js` dan sinkron ke `localStorage`.
+     - `<button class="fs" id="fs">`: Tombol toggle layar penuh (⛶ / ✕) menggunakan Fullscreen API pada `.stage`.
+     - Overlay hasil akhir (`#result`): Menampilkan pemenang dan tombol "Kembali ke lobi" (tetap terlihat di dalam mode fullscreen).
+   - Tombol darurat "Keluar ke lobi" sewaktu-waktu di luar panggung arena.
 
 ---
 
@@ -98,14 +102,17 @@ Panel monitor terletak di bagian bawah layar (tampil pada layar `connect`, `pick
 
 ---
 
-## 6. Rencana Peningkatan Sektor Shell & UI
+## 6. Status & Rencana Peningkatan Sektor Shell & UI
 
+### 6.1 Fitur yang Telah Terimplementasi
+- [x] **Mode Fullscreen (Layar Penuh)**: Menargetkan elemen `.stage` sehingga kanvas dengan `object-fit: contain` dan overlay pemenang `#result` tetap utuh pada layar lebar/proyektor. Ikon berganti otomatis (`⛶` / `✕`) saat status fullscreen berubah.
+- [x] **Audio Web Sound Effects (SFX) & Toggle Suara**: Tombol `#snd` terhubung ke singleton `Sound` di `core/audio.js`. Mengontrol mute/unmute dengan persistensi status di `localStorage`.
+
+### 6.2 Rencana Peningkatan Selanjutnya
 1. **Layar Hitung Mundur (Countdown 3-2-1)**:
-   - Menambahkan overlay hitung mundur sebelum game dimulai untuk memberi waktu pemain bersiap memegang micro:bit.
-2. **Audio Web Sound Effects (SFX)**:
-   - Menambahkan efek suara di level browser menggunakan Web Audio API (suara tombol klik, hitung mundur, peluit kemenangan, dan peringatan putus koneksi).
-3. **Mode Fullscreen (Layar Penuh)**:
-   - Tombol toggle Fullscreen API di sudut kanan atas untuk pengalaman bermain arcade di layar proyektor atau TV kelas.
-4. **Indikator Kualitas Sinyal & Baterai**:
-   - Ikon sinyal Bluetooth dan ikon baterai pada masing-masing kartu slot pemain.
+   - Menambahkan overlay visual dan suara `start` sebelum game dimulai untuk memberi jeda persiapan pemain.
+2. **Indikator Kualitas Sinyal & Baterai**:
+   - Ikon sinyal Bluetooth dan persentase baterai pada masing-masing kartu slot pemain di lobi.
+3. **Modal Konfirmasi Keluar**:
+   - Dialog konfirmasi singkat saat menekan tombol "Keluar ke lobi" di tengah pertandingan yang sedang berlangsung.
 

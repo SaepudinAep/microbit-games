@@ -82,7 +82,7 @@ Kernel mendukung komunikasi 2 arah melalui metode `send(playerNumber, text)`:
 - Menambahkan karakter `#` di akhir pesan secara otomatis.
 - Mengantrekan paket pengiriman via `Promise chaining` (`link.q`) agar paket tidak bertabrakan pada lapisan GATT.
 - Memotong payload menjadi blok maksimal 20 byte sesuai batas MTU BLE.
-- Digunakan oleh game untuk memberikan umpan balik (misalnya getaran haptic atau nada buzzer piezo saat bola dipukul).
+- *Catatan Arsitektur*: Efek audio game telah dialihkan sepenuhnya ke modul `core/audio.js` (Web Audio API di browser), sehingga transmisi kode suara `!#` tidak lagi dikirimkan ke micro:bit. Jalur `Kernel.send()` dipertahankan murni untuk kendali perangkat fisik di masa depan (misal: getaran motor/haptic feedback atau display LED matriks).
 
 ---
 

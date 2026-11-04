@@ -33,9 +33,10 @@ Format standar: `<ANGKA>#` (atau baris diakhiri baris baru, mis. `Mbit:<ANGKA>\n
 
 ### 2.2 Arah Penerimaan: Web Browser $\rightarrow$ micro:bit (RX micro:bit / TX Web)
 Format standar: `<KODE>#`
-- Dikirim oleh web browser saat terjadi event tertentu.
-- Pada game Ping Pong, browser mengirim kode `!#` saat pemain berhasil memukul bola.
-- Micro:bit membaca data hingga delimiter `#`, kemudian memainkan nada suara singkat pada buzzer.
+- Dikirim oleh web browser saat terjadi event khusus pada perangkat.
+- **Pembaruan Efek Suara**: Seluruh efek suara (pukulan, pantulan dinding, gol, kemenangan) kini disintesis langsung di dalam browser menggunakan **Web Audio API** (`core/audio.js`).
+- Oleh karena itu, micro:bit **tidak perlu lagi menerima atau memainkan kode audio** `!#`, sehingga kode MakeCode menjadi jauh lebih ringkas, polling input lebih lancar, dan baterai micro:bit lebih hemat.
+- Saluran penerimaan RX micro:bit tetap dapat dipakai untuk keperluan kendali fisik lainnya di masa depan (misal: menampilkan angka skor di matriks LED 5x5 atau getaran motor haptic).
 
 ---
 
@@ -74,14 +75,8 @@ basic.forever(function () {
     basic.pause(40) // Interval polling ~25Hz
 })
 
-// Menerima data feedback dari Browser (mis. efek suara pukulan)
-bluetooth.onUartDataReceived(serial.delimiters(Delimiters.Hash), function () {
-    let data = bluetooth.uartReadUntil(serial.delimiters(Delimiters.Hash)).trim()
-    if (data == "!") {
-        // Nada singkat 523Hz (C5) selama 60ms
-        music.playTone(523, music.beat(BeatFraction.Sixteenth))
-    }
-})
+// Catatan: Efek suara ditangani otomatis oleh browser via Web Audio API,
+// sehingga blok onUartDataReceived tidak lagi diperlukan untuk audio.
 ```
 
 ---
