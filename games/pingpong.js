@@ -16,6 +16,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export default {
   id: 'pingpong',
   name: 'Ping Pong',
+  icon: '🏓',
   description: 'Pantulkan bola dan cetak poin. Pemain bawah melawan pemain atas. Yang pertama mencapai 5 poin menang.',
   modes: [
     {id: '1p', label: '1 Player', sub: 'Lawan komputer', players: 1},

@@ -52,7 +52,22 @@ function renderPick(){
   const n = Kernel.filled().length;
   games.forEach(g => {
     const c = el('div', 'gcard');
-    c.append(el('h3', null, g.name), el('p', null, g.description));
+
+    // Ikon game (opsional; game bisa definisikan g.icon)
+    const icon = el('div', 'gcard-icon', g.icon || '🎮');
+    c.append(icon);
+    c.append(el('h3', null, g.name));
+
+    // Badge jumlah pemain yang didukung
+    const badge = el('div', 'pbadge');
+    const maxP = Math.max(...g.modes.map(m => m.players));
+    badge.append('👥 ');
+    const sp = el('span', null, maxP === 1 ? '1 Pemain' : `1 – ${maxP} Pemain`);
+    badge.append(sp);
+    c.append(badge);
+
+    c.append(el('p', null, g.description));
+
     const row = el('div', 'row');
     g.modes.forEach(m => {
       const b = el('button', 'btn big');
@@ -61,7 +76,8 @@ function renderPick(){
       b.onclick = () => startGame(g, m);
       row.append(b);
     });
-    c.append(row); box.append(c);
+    c.append(row);
+    box.append(c);
   });
   const most = Math.max(...games.flatMap(g => g.modes.map(m => m.players)));
   $('#pickHint').textContent = n < 1 ? 'Belum ada pemain. Kembali dan hubungkan micro:bit atau pilih keyboard.'

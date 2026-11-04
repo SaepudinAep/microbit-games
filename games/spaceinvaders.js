@@ -13,6 +13,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export default {
   id: 'spaceinvaders',
   name: 'Space Invaders',
+  icon: '👾',
   description: 'Pertahankan bumi dari invasi alien luar angkasa! Bergerak ke kiri-kanan dan tembak jatuh semua alien.',
   modes: [
     {id: '1p', label: '1 Player', sub: 'Misi Tempur Solo', players: 1},
