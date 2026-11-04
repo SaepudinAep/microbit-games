@@ -102,14 +102,16 @@ Pada mode 1 pemain, paddle atas dikendalikan secara otomatis:
 Pendaftaran game ke dalam platform dilakukan melalui satu titik entri:
 ```javascript
 import pingpong from './pingpong.js';
-// import tankbattle from './tankbattle.js';
+import spaceinvaders from './spaceinvaders.js';
+import tankbattle from './tankbattle.js';
+import endlessracer from './endlessracer.js';
 
-export const games = [
-  pingpong,
-  // tankbattle
-];
+export const games = [pingpong, spaceinvaders, tankbattle, endlessracer];
 ```
 Shell membaca array `games` ini secara otomatis untuk mengalkulasi slot dan menampilkan kartu pemilihan game.
+
+> Dokumentasi teknis **individual** untuk setiap game tersedia di `plan/games/` (pingpong, spaceinvaders,
+> tankbattle, endlessracer); daftar & ringkasannya ada di [06-games-catalog.md](06-games-catalog.md).
 
 ---
 

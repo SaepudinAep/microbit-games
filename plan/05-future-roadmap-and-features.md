@@ -6,22 +6,29 @@ Dokumen ini memetakan visi evolusi platform game micro:bit, mencakup perancangan
 
 ## 1. Rencana Game Baru
 
-Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapat dilakukan tanpa mengubah kode inti Bluetooth. Berikut adalah rencana judul game yang akan ditambahkan ke dalam katalog `games/`:
+Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapat dilakukan tanpa mengubah kode inti Bluetooth. Berikut adalah garis besar judul game beserta status implementasinya:
 
-### 1.1 Game: Tank Battle 2 vs 2 (atau 4-Player FFA)
-*Telah disebutkan dalam batas pengembangan README awal.*
+> **Status terkini (per dokumen `06-games-catalog.md`):** Game **Space Invaders**, **Tank Battle**, dan
+> **Endless Racer** telah terdaftar aktif di `games/index.js`. Fokus rencana baru berpindah ke game
+> yang belum ada (Tug of War, Space Dodge/Meteor Survival, dst).
 
-- **Konsep**: Dua tim (P1+P2 vs P3+P4) atau 4 pemain bertarung dalam arena labirin 2D berpandangan atas (*top-down*).
+---
+
+### 1.1 Game: Tank Battle 2 vs 2 (atau 4-Player FFA) — ✅ Terimplementasi
+
+*Game Tank Battle aktif bernama `tankbattle` — lihat `06-games-catalog.md`.*
+
+- **Konsep**: Tank bertarung dalam arena labirin top-down. Tersedia mode **1v1** (2 pemain) dan **4P FFA** (semua lawan semua).
 - **Kebutuhan Slot**: 4 Pemain (`players: 4`).
-- **Skema Kontrol micro:bit**:
-  - `1#`: Belok Kiri
-  - `2#`: Belok Kanan
-  - `3#`: Maju
-  - `5#`: Tembak Peluru
-- **Feedback Haptic/Audio (TX)**:
-  - Kirim `*#` saat peluru ditembakkan.
-  - Kirim `X#` ke micro:bit pemain yang terkena ledakan/hancur.
-- **Poin & Durasi**: Tim dengan jumlah tank tersisa atau poin kehancuran terbanyak dalam 2 menit menang.
+- **Skema Kontrol (implementasi aktual, konsisten dengan mapping keyboard kernel)**:
+  - `1#`: Maju (atas)
+  - `2#`: Mundur (bawah)
+  - `3#`: Belok kiri
+  - `4#`: Belok kanan
+  - `5#` / `6#`: Tembak peluru
+  - `99#`: Mulai dari Player 1
+- **Mekanik**: 3 nyawa per tank, invulnerability 2.2 dtk setelah respawn (1 dtk), kolisi sliding dengan dinding/tank lain, peluru ditahan oleh dinding arena.
+- **Poin & Durasi**: Tank dengan nyawa tersisa terakhir menang (seri jika semua habis).
 
 ---
 
@@ -50,9 +57,12 @@ timeline
     title Peta Jalan Pengembangan Platform (Milestones)
     Fase 1 (Selesai) : Arsitektur Single Kernel : Stabilisasi Buffer BLE : Pengujian Multi-device : Perapian Monitor Log
     Fase 2 (Selesai) : Audio Engine Web Audio API (audio.js) : Kontrol Mute dan Persistensi : Layar Penuh Fullscreen API (.stage)
-    Fase 3 (Aktif) : Countdown Overlay 3-2-1 : Game Tank Battle 2v2 : Mekanisme Auto-Reconnect GATT
+    Fase 3 (Hampir Aktif) : Katalog Game Diperluas (Space Invaders, Tank Battle, Endless Racer ✅) : Countdown Overlay 3-2-1 : Mekanisme Auto-Reconnect GATT
     Fase 4 (Mendatang) : Game Tug of War : Penyimpanan Skor Lokal (Leaderboard) : Deployment Statis HTTPS (GitHub Pages)
 ```
+> **Catatan Fase 3**: Game **Space Invaders**, **Tank Battle**, dan **Endless Racer** telah terdaftar di
+> `games/index.js` dan didokumentasikan di `06-games-catalog.md`. Yang masih berjalan dari fase ini:
+> **Countdown Overlay 3-2-1** dan **Auto-Reconnect GATT**.
 
 ### 2.1 Web Audio FX di Tingkat Browser (Telah Terimplementasi)
 Efek audio telah diintegrasikan sepenuhnya menggunakan sintesis `Web Audio API` melalui modul `core/audio.js` (bebas aset file eksternal) dengan kontrol volume/mute `#snd` dan persistensi `localStorage`:

@@ -192,19 +192,14 @@ export default {
 
       setTimeout(() => {
         if (solo) {
-          finish({
-            msg: `Bertahan ${best.survived.toFixed(1)} detik! 🏁`,
-          });
+          finish(`Bertahan ${best.survived.toFixed(1)} detik! 🏁`);
         } else {
           // Siapa bertahan lebih lama?
           const winner = cars.reduce((a, b) => a.survived >= b.survived ? a : b);
           const tied = cars.every(c => Math.abs(c.survived - winner.survived) < 0.05);
-          finish({
-            winner: tied ? null : winner.label,
-            msg: tied
-              ? `Seri! Semua bertahan ${winner.survived.toFixed(1)} dtk`
-              : `${winner.label} Bertahan Paling Lama! (${winner.survived.toFixed(1)} dtk)`,
-          });
+          finish(tied
+            ? `Seri! Semua bertahan ${winner.survived.toFixed(1)} dtk`
+            : `${winner.label} Bertahan Paling Lama! (${winner.survived.toFixed(1)} dtk)`);
         }
       }, 500);
     }

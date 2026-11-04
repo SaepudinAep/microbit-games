@@ -231,12 +231,7 @@ export default {
         st.over = true;
         const winner = living[0];
         setTimeout(() => {
-          finish({
-            winner: winner ? winner.label : null,
-            msg: winner
-              ? `${winner.label} Menang! 🏆`
-              : 'Seri! Semua habis.',
-          });
+          finish(winner ? `${winner.label} Menang! 🏆` : 'Seri! Semua habis.');
         }, 600);
       }
     }

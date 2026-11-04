@@ -38,7 +38,13 @@ microbit-games/
 │   ├── 02-shell-and-ui.md  # Spesifikasi Shell UI, UX, & Terminal Monitor
 │   ├── 03-game-system.md   # Spesifikasi Kontrak Game, Loop, & Katalog Game
 │   ├── 04-firmware-microbit.md # Spesifikasi Firmware MakeCode & Komunikasi UART
-│   └── 05-future-roadmap-and-features.md # Roadmap Fitur Masa Depan & Game Baru
+│   ├── 05-future-roadmap-and-features.md # Roadmap Fitur Masa Depan & Game Baru
+│   ├── 06-games-catalog.md # Indeks & Ringkasan Katalog Game
+│   └── games/              # Dokumentasi individual per game
+│       ├── pingpong.md     # Ping Pong
+│       ├── spaceinvaders.md# Space Invaders
+│       ├── tankbattle.md   # Tank Battle
+│       └── endlessracer.md # Endless Racer
 └── README.md               # Panduan cepat menjalankan proyek
 ```
 
@@ -55,6 +61,8 @@ Setiap sektor didokumentasikan secara mandiri dan mendalam di dalam folder ini:
 | [03-game-system.md](03-game-system.md) | Standar *Game Contract API* (`create`, `stop`, `finish`), lifecycle render loop canvas 2D, integrasi input event, sistem fisika pingpong saat ini, dan standarisasi pembuatan game berikutnya. |
 | [04-firmware-microbit.md](04-firmware-microbit.md) | Konfigurasi MakeCode micro:bit v1/v2, mapping tombol & akselerometer (gesture tilt) ke perintah `0#`-`9#`, penanganan feedback haptic/audio RX (`!#`), dan panduan troubleshooting flashing. |
 | [05-future-roadmap-and-features.md](05-future-roadmap-and-features.md) | Rencana pengembangan game baru (Tank Battle 2v2, Tug of War, Maze Runner), Web Audio FX di browser, fitur auto-reconnect BLE, export/save telemetry log, dan persiapan untuk deployment kelas. |
+| [06-games-catalog.md](06-games-catalog.md) | Indeks & ringkasan katalog game aktif; menautkan ke dokumentasi individual tiap game di `plan/games/`. |
+| [games/](games/) | Dokumentasi **individual** per game: `pingpong.md`, `spaceinvaders.md`, `tankbattle.md`, `endlessracer.md` (mode, kontrol, mekanik, fisika, audio). |
 
 ---
 

@@ -3,6 +3,8 @@
 Web app untuk bermain game di browser dengan micro:bit sebagai controller (Web Bluetooth, Nordic UART).
 Arsitekturnya **satu kernel, banyak game**: micro:bit disambung sekali di lobi, lalu pemain berpindah game tanpa menyambung ulang.
 
+> Dokumentasi arsitektur & rencana pengembangan lengkap ada di folder `plan/` (ikhtisar: `plan/README.md`; indeks game: `plan/06-games-catalog.md`; dokumentasi **individual per game**: `plan/games/`).
+
 ## Struktur
 
 ```
@@ -14,6 +16,8 @@ shell/monitor.js      monitor masukan (RX, TX, perintah, peringatan)
 games/index.js        daftar game
 games/pingpong.js     game Ping Pong (1P & 2P)
 games/spaceinvaders.js game Space Invaders (1P Solo & 2P Co-op)
+games/tankbattle.js   game Tank Battle (1v1 & 4P FFA)
+games/endlessracer.js game Endless Racer (1P & 2P)
 styles/app.css        gaya bersama
 ```
 
@@ -35,14 +39,16 @@ Safari dan iPhone tidak mendukung Web Bluetooth (keyboard tetap bisa dipakai).
 Format: angka lalu `#` (mis. `3#`). Tombol atau gerakan micro:bit yang mengirim tiap angka diatur di MakeCode.
 Daftar angkanya milik kernel (`0#` sampai `9#`), tetapi **artinya milik tiap game**.
 
-| Perintah | Arti di Ping Pong | Arti di Space Invaders |
-|---|---|---|
-| `99#` | mulai permainan dari Player 1 | mulai permainan dari Player 1 |
-| `0#` | berhenti | berhenti |
-| `1#` atau `3#` | paddle ke kiri | pesawat ke kiri |
-| `2#` atau `4#` | paddle ke kanan | pesawat ke kanan |
-| `5#` | alternatif mulai | tembak laser (juga bisa alternatif mulai) |
-| lainnya | diabaikan | diabaikan |
+| Perintah | Arti di Ping Pong | Arti di Space Invaders | Arti di Tank Battle | Arti di Endless Racer |
+|---|---|---|---|---|
+| `99#` | mulai permainan dari Player 1 | mulai permainan dari Player 1 | mulai permainan dari Player 1 | mulai permainan dari Player 1 |
+| `0#` | berhenti | berhenti | berhenti | berhenti |
+| `1#` | paddle ke kiri | pesawat ke kiri | tank maju (atas) | geser ke kiri |
+| `2#` | paddle ke kanan | pesawat ke kanan | tank mundur (bawah) | geser ke kanan |
+| `3#` | paddle ke kiri | pesawat ke kiri | tank belok kiri | geser ke kiri |
+| `4#` | paddle ke kanan | pesawat ke kanan | tank belok kanan | geser ke kanan |
+| `5#` | alternatif mulai | tembak laser (juga alternatif mulai) | tembak peluru | alternatif mulai |
+| lainnya | diabaikan | diabaikan | diabaikan | diabaikan |
 
 Kernel juga membaca baris berakhir newline, mis. `Mbit:3`, sebagai perintah `3`.
 
@@ -135,4 +141,4 @@ Aturan: antarmuka kernel ke game dijaga stabil; fitur baru ditambahkan tanpa men
 
 - Batas pemain 4 per permainan (`MAX_PLAYERS`); stabilitas 3 sampai 4 micro:bit sekaligus perlu diuji di perangkat kelas.
 - Tidak ada sambung ulang otomatis; slot yang terputus dihubungkan lagi di lobi.
-- Game tank (2 lawan 2) belum dibuat.
+- Game aktual saat ini: Ping Pong, Space Invaders, Tank Battle, dan Endless Racer — skema kontrol tiap game bisa berbeda, lihat `plan/06-games-catalog.md`.
