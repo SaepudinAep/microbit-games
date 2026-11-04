@@ -29,9 +29,16 @@ export default {
     const solo = mode.players === 1;
     const slotToPaddle = {};
     players.forEach((n, i) => { slotToPaddle[n] = i; });
-    const st = {over: false, wait: 1, ball: null,
+    const st = {over: false, ready: false, wait: 1, ball: {x: W / 2, y: H / 2, vx: 0, vy: 0},
       p: [{x: W / 2 - PW / 2, dir: 0, s: 0}, {x: W / 2 - PW / 2, dir: 0, s: 0}]};   // 0 = bawah, 1 = atas
     let raf = 0, t0 = 0;
+
+    function beginGame(){
+      if (st.ready || st.over) return;
+      st.ready = true;
+      audio?.play('start');
+      serve(Math.random() < .5 ? -1 : 1);
+    }
 
     function serve(dir){                         // dir: +1 ke bawah, -1 ke atas
       const a = (Math.random() - .5) * .8;
@@ -64,11 +71,13 @@ export default {
       const b = st.ball;
       st.p.forEach((p, i) => {
         if (i === 1 && solo) {                             // paddle komputer
+          if (!st.ready) return;
           const c = p.x + PW / 2;
           const d = (b.vy < 0 && Math.abs(b.x - c) > 12) ? (b.x > c ? 1 : -1) : 0;
           p.x = clamp(p.x + d * 250 * dt, 0, W - PW);
         } else p.x = clamp(p.x + p.dir * 420 * dt, 0, W - PW);
       });
+      if (!st.ready) return;                               // bola menunggu aba-aba mulai dari Player 1
       if (st.wait > 0) { st.wait -= dt; return; }
       b.x += b.vx * dt; b.y += b.vy * dt;
       if (b.x < R) { b.x = R; b.vx = Math.abs(b.vx); audio?.play('bounce', {pan: -1}); }
@@ -93,6 +102,31 @@ export default {
       x.fillStyle = 'rgba(255,255,255,.7)';
       x.fillText(solo ? 'Kamu' : 'Player 1', W / 2, H - 14);
       x.fillText(solo ? 'Komputer' : 'Player 2', W / 2, 30);
+
+      // Tampilan overlay menunggu aba-aba Player 1 (terbaca jelas dan tidak tertutup tombol)
+      if (!st.ready) {
+        const bx = 40, by = H / 2 - 95, bw = W - 80, bh = 190;
+        x.save();
+        x.fillStyle = 'rgba(16, 24, 38, 0.94)';
+        x.fillRect(bx, by, bw, bh);
+        x.strokeStyle = '#4b83ff';
+        x.lineWidth = 3;
+        x.strokeRect(bx, by, bw, bh);
+
+        x.textAlign = 'center';
+        x.fillStyle = '#fff';
+        x.font = '700 28px Fredoka, system-ui, sans-serif';
+        x.fillText('SIAP BERMAIN?', W / 2, H / 2 - 42);
+
+        x.fillStyle = '#ff9a2e';
+        x.font = '600 20px Fredoka, system-ui, sans-serif';
+        x.fillText('Kirim perintah 99# dari Player 1', W / 2, H / 2 + 2);
+
+        x.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        x.font = '500 16px Fredoka, system-ui, sans-serif';
+        x.fillText('(atau tekan Enter / Spasi / Klik layar)', W / 2, H / 2 + 45);
+        x.restore();
+      }
     }
     function loop(t){
       const dt = Math.min(.05, (t - t0) / 1000); t0 = t;
@@ -100,8 +134,12 @@ export default {
       raf = requestAnimationFrame(loop);
     }
 
-    // Masukan: 1 atau 3 = kiri, 2 atau 4 = kanan, 0 = berhenti. Perintah lain diabaikan.
+    // Masukan: 99 = mulai dari Player 1, 1 atau 3 = kiri, 2 atau 4 = kanan, 0 = berhenti.
     const off = kernel.on('input', ({player, cmd}) => {
+      if (!st.ready && player === players[0] && (cmd === '99' || cmd === '5')) {
+        beginGame();
+        return;
+      }
       const i = slotToPaddle[player];
       if (i === undefined) return;
       if (cmd === '1' || cmd === '3') st.p[i].dir = -1;
@@ -109,10 +147,18 @@ export default {
       else if (cmd === '0') st.p[i].dir = 0;
     });
 
-    serve(Math.random() < .5 ? -1 : 1);
+    const onCanvasClick = () => { if (!st.ready) beginGame(); };
+    canvas.addEventListener('click', onCanvasClick);
+
     t0 = performance.now();
     raf = requestAnimationFrame(loop);
 
-    return {stop(){ cancelAnimationFrame(raf); off(); }};
+    return {
+      stop(){
+        cancelAnimationFrame(raf);
+        off();
+        canvas.removeEventListener('click', onCanvasClick);
+      }
+    };
   }
 };

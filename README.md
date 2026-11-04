@@ -12,7 +12,8 @@ core/audio.js         layanan efek suara bersama berbasis Web Audio API (disinte
 shell/app.js          layar: Home, lobi koneksi, pilih game, game; hasil dan tombol ke lobi
 shell/monitor.js      monitor masukan (RX, TX, perintah, peringatan)
 games/index.js        daftar game
-games/pingpong.js     game pertama
+games/pingpong.js     game Ping Pong (1P & 2P)
+games/spaceinvaders.js game Space Invaders (1P Solo & 2P Co-op)
 styles/app.css        gaya bersama
 ```
 
@@ -34,12 +35,14 @@ Safari dan iPhone tidak mendukung Web Bluetooth (keyboard tetap bisa dipakai).
 Format: angka lalu `#` (mis. `3#`). Tombol atau gerakan micro:bit yang mengirim tiap angka diatur di MakeCode.
 Daftar angkanya milik kernel (`0#` sampai `9#`), tetapi **artinya milik tiap game**.
 
-| Perintah | Arti di ping pong |
-|---|---|
-| `0#` | berhenti |
-| `1#` atau `3#` | paddle ke kiri |
-| `2#` atau `4#` | paddle ke kanan |
-| lainnya | diabaikan |
+| Perintah | Arti di Ping Pong | Arti di Space Invaders |
+|---|---|---|
+| `99#` | mulai permainan dari Player 1 | mulai permainan dari Player 1 |
+| `0#` | berhenti | berhenti |
+| `1#` atau `3#` | paddle ke kiri | pesawat ke kiri |
+| `2#` atau `4#` | paddle ke kanan | pesawat ke kanan |
+| `5#` | alternatif mulai | tembak laser (juga bisa alternatif mulai) |
+| lainnya | diabaikan | diabaikan |
 
 Kernel juga membaca baris berakhir newline, mis. `Mbit:3`, sebagai perintah `3`.
 
@@ -76,7 +79,11 @@ Daftar nama efek suara yang tersedia:
 
 - Satu slot keyboard: panah **atau** WASD.
 - Dua slot keyboard: Player 1 panah, Player 2 WASD.
-- Atas atau W = `1`, bawah atau S = `2`, kiri atau A = `3`, kanan atau D = `4`, dilepas = `0`.
+- Pemetaan tombol:
+  - Tombol dilepas = `0` (netral/berhenti).
+  - Arah: Atas atau W = `1`, bawah atau S = `2`, kiri atau A = `3`, kanan atau D = `4`.
+  - Aksi Player 1 (Panah): `Enter` atau `L` = `5`, `/` atau `K` = `6`, `.` atau `J` = `7`, `,` = `8`, `M` = `9`.
+  - Aksi Player 2 (WASD): `Spasi` atau `C` = `5`, `E` atau `V` = `6`, `Q` = `7`, `F` = `8`, `R` = `9`.
 
 ## API kernel
 

@@ -71,6 +71,21 @@ Ketika pemain menggunakan keyboard untuk testing/cadangan:
 - **Jika 2 slot keyboard aktif**:
   - Slot keyboard pertama otomatis diatur ke Panah (`scheme = 'arrows'`).
   - Slot keyboard kedua otomatis diatur ke WASD (`scheme = 'wasd'`).
+- **Tabel Pemetaan Perintah (0 s.d. 9)**:
+
+| Perintah | Fungsi Umum | Skema Panah (Player 1) | Skema WASD (Player 2) |
+|:---:|---|:---:|:---:|
+| `0` | Berhenti / Netral | Tombol dilepas | Tombol dilepas |
+| `1` | Atas / Aksi 1 | `ArrowUp` | `W` |
+| `2` | Bawah / Aksi 2 | `ArrowDown` | `S` |
+| `3` | Kiri / Aksi 3 | `ArrowLeft` | `A` |
+| `4` | Kanan / Aksi 4 | `ArrowRight` | `D` |
+| `5` | Aksi Utama (Tembak / Pukul / Lompat) | `Enter` atau `L` | `Spasi` atau `C` |
+| `6` | Aksi Sekunder (Turbo / Menunduk) | `/` (Slash) atau `K` | `E` atau `V` |
+| `7` | Aksi Khusus 1 | `.` (Period) atau `J` | `Q` |
+| `8` | Aksi Khusus 2 | `,` (Comma) | `F` |
+| `9` | Aksi Khusus 3 | `M` | `R` |
+
 - **Penanganan Input Simultan & Blur**:
   Kernel melacak antrean tombol yang sedang ditekan (`held map`). Jika tombol dilepas, perintah kembali ke status tombol sebelumnya atau netral `0`. Jika jendela browser kehilangan fokus (`blur`), semua status tombol di-reset otomatis ke `0` untuk mencegah karakter "tersangkut" (*ghost input*).
 

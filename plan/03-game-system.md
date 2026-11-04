@@ -87,6 +87,14 @@ Pada mode 1 pemain, paddle atas dikendalikan secara otomatis:
 - Memiliki *deadzone* $12\text{ px}$ agar gerakan paddle tidak bergetar (*jittering*).
 - Kecepatan komputer dibatasi pada $250\text{ px/detik}$ (lebih lambat dari kecepatan pemain manusia $420\text{ px/detik}$) untuk memastikan permainan berimbang dan dapat dimenangkan.
 
+### 2.5 Mekanisme Menunggu Mulai (Ready State & Aba-aba 99#)
+- **Masalah User Experience**: Ketika layar permainan terbuka, pemain sering kali belum siap atau ingin menyalakan mode fullscreen terlebih dahulu. Jika bola langsung meluncur, pemain kebobolan sebelum siap.
+- **Solusi State `ready: false`**:
+  - Bola diam di titik tengah arena $(W/2, H/2)$ dan gameplay dibekukan.
+  - Paddle tetap dapat digerakkan ke kiri/kanan sebagai sarana pemanasan (*controller check*).
+  - Ditampilkan kartu instruksi kontras tinggi di tengah lapangan: *"SIAP BERMAIN? Kirim perintah 99# dari Player 1 (atau tekan Enter / Spasi / Klik layar)"*.
+  - Ketika micro:bit Player 1 mengirim perintah `99#` (atau tombol aksi `5#` / `Enter` / klik layar), permainan memutar audio `start`, kartu instruksi ditutup, dan bola baru diluncurkan (*serve*).
+
 ---
 
 ## 3. Registrasi Game (`games/index.js`)

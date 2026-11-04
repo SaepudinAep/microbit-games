@@ -24,12 +24,13 @@ Format standar: `<ANGKA>#` (atau baris diakhiri baris baru, mis. `Mbit:<ANGKA>\n
 
 | Kode Perintah | Fungsi Umum | Arti di Game Ping Pong |
 |---|---|---|
+| `99#` | Aba-aba Mulai / Start | Mulai permainan (hanya dipicu oleh Player 1) |
 | `0#` | Netral / Berhenti | Paddle diam di tempat |
 | `1#` | Aksi 1 / Kiri | Paddle bergerak ke kiri |
 | `2#` | Aksi 2 / Kanan | Paddle bergerak ke kanan |
 | `3#` | Aksi 3 / Kiri (Tilt) | Paddle bergerak ke kiri |
 | `4#` | Aksi 4 / Kanan (Tilt) | Paddle bergerak ke kanan |
-| `5#` s.d. `9#` | Aksi Khusus / Tambahan | Dicadangkan untuk game masa depan (Tembak, Lompat, Turbo) |
+| `5#` s.d. `9#` | Aksi Khusus / Tambahan (`5#` juga bisa memulai) | Aksi game masa depan (Tembak, Lompat, Turbo) |
 
 ### 2.2 Arah Penerimaan: Web Browser $\rightarrow$ micro:bit (RX micro:bit / TX Web)
 Format standar: `<KODE>#`

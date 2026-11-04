@@ -109,10 +109,18 @@ function send(n, text){
   return link.q;
 }
 
-/* ---- Keyboard: panah dan/atau WASD -> perintah 1..4, dilepas -> 0 ---- */
+/* ---- Keyboard: panah dan/atau WASD -> perintah 1..9, dilepas -> 0 ---- */
 const SETS = {
-  arrows: {ArrowUp: '1', ArrowDown: '2', ArrowLeft: '3', ArrowRight: '4'},
-  wasd:   {w: '1', s: '2', a: '3', d: '4'}
+  arrows: {
+    ArrowUp: '1', ArrowDown: '2', ArrowLeft: '3', ArrowRight: '4',
+    Enter: '5', '/': '6', '.': '7', ',': '8', m: '9',
+    l: '5', k: '6', j: '7'
+  },
+  wasd: {
+    w: '1', s: '2', a: '3', d: '4',
+    ' ': '5', e: '6', q: '7', f: '8', r: '9',
+    c: '5', v: '6'
+  }
 };
 const held = new Map();
 function keyCmd(s, key){
