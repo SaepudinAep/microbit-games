@@ -172,6 +172,14 @@ Permainan arkade terbang bersama (*multiplayer shared arena*). Seluruh burung pe
 
 ---
 
+
+
+---
+
+## 7. Maze Race (games/maze.js)
+
+Permainan adu cepat eksplorasi labirin multi-pemain (1–4 pemain) dengan labirin simetris 4-kuadran (*4-Way Quadrant Symmetry*) dan sistem 3 babak bertingkat (*Best of 3 Rounds*). Jarak langkah, jumlah belokan, dan rintangan dari setiap sudut menuju portal pusat dijamin 100% adil dan setara. Rincian: [plan/games/maze.md](games/maze.md).
+
 ## Panduan Menjaga Dokumentasi
 
 - Setiap kali game baru ditambahkan ke `games/index.js`, tambahkan barisnya di **tabel daftar game**
