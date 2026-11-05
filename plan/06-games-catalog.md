@@ -1,4 +1,4 @@
-# Sektor 06: Indeks Katalog Game
+﻿# Sektor 06: Indeks Katalog Game
 
 Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/index.js`). Setiap game memiliki
 **dokumentasi individual** di `plan/games/` (lihat kolom "Dokumentasi"). Semua game memenuhi *Game Contract*
@@ -17,7 +17,7 @@ Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/i
 
 > **Konvensi umum** (lihat `01-core-kernel.md`): kernel meneruskan angka standar `0#`–`9#` + `99#` berlabel pemain;
 > **arti angka bersifat milik tiap game** (*deterministic commands*). Semua game memakai ready-state: permainan
-> dimulai saat Player 1 mengirim `99#` (atau `5#`), tombol Enter/Spasi, atau klik kanvas.
+> dimulai saat Player 1 mengirim `99#` (atau `5#`), tombol Enter/Spasi, atau klik kanvas. Dino Jump memakai alur siap per-pemain tanpa `99#`.
 
 > **Ringkasan gabungan** tiap game dijelaskan lebih lanjut pada bagian di bawah ini sebagai referensi cepat;
 > sumber utama & terperinci ada di masing-masing file `plan/games/*.md`.
@@ -157,7 +157,7 @@ Balap *endless scroller* *top-down*: pemain menyusuri jalan 4 jalur dan menghind
 
 ## 5. Dino Jump (`games/dinorush.js`)
 
-Endless *runner* mirip dino saat kehilangan koneksi. **Tiap pemain punya lintasan sendiri** (1–4, tersusun dari atas ke bawah) sehingga posisi teratur; skor = jarak tempuh; menabrak rintangan = mati; pemenang = jarak terjauh (bertahan paling lama). Hanya ada satu aksi: **lompat** (tombol apa pun). Rincian: [plan/games/dinorush.md](games/dinorush.md).
+Endless *runner* mirip dino saat kehilangan koneksi. **Tiap pemain punya lintasan sendiri** (1-4, tersusun dari atas ke bawah); skor = jarak tempuh (meter); nyawa 1 atau 3 (opsi `lives`); pemenang = jarak terjauh, seri bila selisih < 5 m. Satu aksi: **lompat** (tombol apa pun selain `0`). Alur mulai: tiap pemain tekan tombol, semua siap, hitung mundur 3-2-1, mulai (tanpa `99#`). Rincian: [plan/games/dinorush.md](games/dinorush.md).
 
 ---
 
