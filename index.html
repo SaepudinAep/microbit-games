@@ -9,6 +9,11 @@
 <link rel="stylesheet" href="styles/app.css">
 </head>
 <body>
+
+<div id="portraitWarning" role="alert" aria-live="polite">
+  <span>🔄</span> Putar perangkat ke mode landscape untuk tampilan terbaik
+</div>
+
 <main>
 
 <section class="screen on" id="home">
@@ -37,12 +42,18 @@
 
 <section class="screen" id="game">
   <div class="stage">
-    <canvas id="cv" width="600" height="800"></canvas>
-    <button class="snd" id="snd" aria-label="Suara">🔊</button>
-    <button class="fs" id="fs" aria-label="Layar penuh">⛶</button>
-    <div id="result"><h2 id="resText"></h2><button class="btn big" id="toLobby">Kembali ke lobi</button></div>
+    <canvas id="cv" width="1280" height="720"></canvas>
+    <button class="stage-btn" id="quit" aria-label="Keluar ke lobi" title="Keluar ke lobi">✕</button>
+    <div class="stage-controls">
+      <button class="stage-btn" id="mon" aria-label="Monitor masukan" title="Monitor masukan">📡</button>
+      <button class="stage-btn" id="snd" aria-label="Suara" title="Suara">🔊</button>
+      <button class="stage-btn" id="fs" aria-label="Layar penuh" title="Layar penuh">⛶</button>
+    </div>
+    <div id="result">
+      <h2 id="resText"></h2>
+      <button class="btn big" id="toLobby">Kembali ke lobi</button>
+    </div>
   </div>
-  <div class="row center"><button class="btn alt" id="quit">Keluar ke lobi</button></div>
 </section>
 
 <section id="monitor" aria-label="Monitor masukan">
@@ -51,6 +62,7 @@
     <div class="row" style="margin:0">
       <button class="btn alt mini" id="logPause">Jeda</button>
       <button class="btn alt mini" id="logClear">Bersihkan</button>
+      <button class="btn alt mini" id="monClose" style="display:none;" aria-label="Tutup monitor">✕</button>
     </div>
   </header>
   <div id="log" aria-live="off"></div>

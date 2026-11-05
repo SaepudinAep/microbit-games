@@ -1,6 +1,6 @@
 # Sektor 03: Game System & Standarisasi Game
 
-Dokumen ini mendefinisikan spesifikasi kontrak game (*Game Contract API*), arsitektur implementasi game yang ada saat ini (`games/pingpong.js`), dan panduan terstandarisasi untuk membuat modul game baru.
+Dokumen ini mendefinisikan spesifikasi kontrak game (*Game Contract API*), arsitektur implementasi game, dan panduan terstandarisasi untuk membuat modul game baru.
 
 ---
 
@@ -10,22 +10,24 @@ Setiap game dalam platform ini diperlakukan sebagai modul independen dengan form
 
 ```typescript
 interface GameModule {
-  id: string;                     // Identifier unik tanpa spasi (mis: 'pingpong')
-  name: string;                   // Nama display game (mis: 'Ping Pong')
+  id: string;                     // Identifier unik tanpa spasi (mis: 'dinorush')
+  name: string;                   // Nama display game (mis: 'Dino Jump')
+  icon?: string;                  // Emoji atau ikon display (mis: '🦖')
   description: string;            // Ringkasan panduan cara bermain
   modes: GameMode[];              // Daftar mode permainan yang didukung
   canvas: {
-    width: number;                // Resolusi internal kanvas (lebar)
-    height: number;               // Resolusi internal kanvas (tinggi)
+    width: number;                // Resolusi internal kanvas (STANDAR PLATFORM: 1280)
+    height: number;               // Resolusi internal kanvas (STANDAR PLATFORM: 720)
   };
   create(context: GameContext): GameInstance;
 }
 
 interface GameMode {
-  id: string;                     // ID mode (mis: '1p', '2p', '2v2')
+  id: string;                     // ID mode (mis: '1p', '2p', '4p')
   label: string;                  // Label tombol (mis: '1 Player')
   sub: string;                    // Deskripsi singkat di bawah label tombol
-  players: number;                // Jumlah minimum pemain yang disyaratkan
+  players: number;                // Jumlah pemain yang disyaratkan
+  options?: Record<string, any>;  // Opsi default game (nyawa, aturan selesai)
 }
 
 interface GameContext {
@@ -35,129 +37,89 @@ interface GameContext {
   mode: GameMode;                 // Mode aktif yang dipilih pengguna
   finish: (winnerText: string) => void; // Callback yang dipanggil saat game berakhir
   audio?: SoundObject;            // Layanan suara Web Audio API (singleton Sound)
+  options?: Record<string, any>;  // Opsi konfigurasi dari shell/pengguna
 }
 
 interface GameInstance {
-  stop: () => void;               // Fungsi wajib untuk membersihkan requestAnimationFrame & event listener
+  stop: () => void;               // Fungsi wajib untuk membersihkan requestAnimationFrame, timers, & event listener
 }
 ```
 
 ---
 
-## 2. Bedah Teknis Game Eksisting: Ping Pong (`games/pingpong.js`)
+## 2. Aturan Standar Desain Game (Landscape-First)
 
-Game Ping Pong mengimplementasikan permainan tenis meja klasik berorientasi vertikal (aspek rasio 3:4, resolusi $600 \times 800$ piksel).
+Untuk menjamin kenyamanan maksimal saat dimainkan di **Panel Interaktif Digital (PID) sekolah**, laptop, dan tablet:
 
-### 2.1 Komponen & Parameter Fisika
-- **Arena**: Lebar $W = 600$, Tinggi $H = 800$.
-- **Paddle**: Panjang $110\text{ px}$, Tebal $16\text{ px}$, Kecepatan gerak $420\text{ px/detik}$.
-- **Bola**: Radius $9\text{ px}$, Kecepatan awal $380\text{ px/detik}$.
-- **Poin Kemenangan**: $5$ poin (`WIN = 5`).
-- **Target Posisi**:
-  - Player 1 (Bawah): Y konstan di $H - \text{EDGE} - \text{PH}$.
-  - Player 2 / Komputer (Atas): Y konstan di $\text{EDGE}$.
-
-### 2.2 Dynamic Delta Time Game Loop
-Animasi menggunakan `requestAnimationFrame` dengan penghitungan waktu delta (`dt`):
-```javascript
-function loop(t) {
-  const dt = Math.min(0.05, (t - t0) / 1000);
-  t0 = t;
-  step(dt);
-  draw();
-  raf = requestAnimationFrame(loop);
-}
-```
-- `Math.min(0.05, ...)` berfungsi sebagai penjaga (*delta clamping*) untuk menghindari glitch tabrakan ketika tab browser diminimalkan atau mengalami lonjakan frame (*lag spike*).
-
-### 2.3 Logika Pantulan & Integrasi Efek Suara (Web Audio)
-Ketika bola mengenai paddle:
-- Kecepatan vertikal (`vy`) dibalik dan dipercepat $6\%$ (`* 1.06`) hingga batas maksimal $760\text{ px/detik}$.
-- Kecepatan horizontal (`vx`) dibelokkan sesuai jarak benturan dari titik tengah paddle, memberikan pemain kontrol taktis atas arah bola.
-- **Efek Suara Sintesis Browser**:
-  - `hit`: Memanggil `audio?.play('hit', { pan })` dengan nilai pan dinamis $-1$ (kiri) hingga $+1$ (kanan) mengikuti posisi $X$ bola.
-  - `bounce`: Memanggil `audio?.play('bounce', { pan })` saat bola memantul dari dinding samping.
-  - `score`: Memanggil `audio?.play('score')` saat bola melewati batas atas/bawah arena.
-  - `win` / `lose`: Memanggil suara kemenangan atau kekalahan saat pertandingan berakhir.
-  - *Catatan*: Efek suara tidak lagi dikirim via BLE UART `kernel.send('!')`, sehingga latensi suara instan $0\text{ ms}$ dan tidak membebani baterai/speaker micro:bit.
-
-### 2.4 Logika AI Komputer (Mode 1 Player)
-Pada mode 1 pemain, paddle atas dikendalikan secara otomatis:
-- Hanya bergerak jika bola sedang meluncur ke arahnya (`vy < 0`).
-- Memiliki *deadzone* $12\text{ px}$ agar gerakan paddle tidak bergetar (*jittering*).
-- Kecepatan komputer dibatasi pada $250\text{ px/detik}$ (lebih lambat dari kecepatan pemain manusia $420\text{ px/detik}$) untuk memastikan permainan berimbang dan dapat dimenangkan.
-
-### 2.5 Mekanisme Menunggu Mulai (Ready State & Aba-aba 99#)
-- **Masalah User Experience**: Ketika layar permainan terbuka, pemain sering kali belum siap atau ingin menyalakan mode fullscreen terlebih dahulu. Jika bola langsung meluncur, pemain kebobolan sebelum siap.
-- **Solusi State `ready: false`**:
-  - Bola diam di titik tengah arena $(W/2, H/2)$ dan gameplay dibekukan.
-  - Paddle tetap dapat digerakkan ke kiri/kanan sebagai sarana pemanasan (*controller check*).
-  - Ditampilkan kartu instruksi kontras tinggi di tengah lapangan: *"SIAP BERMAIN? Kirim perintah 99# dari Player 1 (atau tekan Enter / Spasi / Klik layar)"*.
-  - Ketika micro:bit Player 1 mengirim perintah `99#` (atau klik layar untuk keyboard), permainan memutar audio `start`, kartu instruksi ditutup, dan bola baru diluncurkan (*serve*).
+1. **Resolusi Kanvas Standar**:
+   - `canvas: { width: 1280, height: 720 }` (Aspect ratio 16:9).
+   - Game lama dengan resolusi berbeda (mis. 600×800) tetap didukung penuh oleh shell dengan tampilan *letterbox* dan pencatatan `console.warn` informatif satu kali.
+2. **Prinsip Landscape-First**:
+   - Alur pergerakan dan tata letak arena dirancang melebar horizontal.
+   - Untuk game multi-lintasan (seperti Dino Jump), lintasan disusun memanjang dari kiri ke kanan.
+3. **HUD di Dalam Kanvas & Area Aman (Safe Zone)**:
+   - Seluruh teks status, skor, nyawa, dan label pemain digambar langsung di dalam kanvas oleh game.
+   - **Batas Aman 40 px**: Jangan menempatkan teks atau indikator vital tepat di tepi atas dan pojok kanvas (khususnya pojok kiri atas dan kanan atas) agar tidak tertutupi oleh tombol kontrol overlay platform (`#quit`, `#mon`, `#snd`, `#fs`).
+4. **Mandatory Start Protocol**:
+   - Permainan dimulai saat menerima perintah `99#` dari micro:bit pemain mana pun ATAU saat layar/kanvas diklik.
 
 ---
 
-## 3. Registrasi Game (`games/index.js`)
+## 3. Bedah Teknis Game Eksisting
 
-Pendaftaran game ke dalam platform dilakukan melalui satu titik entri:
-```javascript
-import pingpong from './pingpong.js';
-import spaceinvaders from './spaceinvaders.js';
-import tankbattle from './tankbattle.js';
-import endlessracer from './endlessracer.js';
+### 3.1 Dino Jump (`games/dinorush.js` - Standar Landscape 16:9)
+- Dimensi kanvas: $1280 \times 720\text{ px}$.
+- Multi-lintasan (1–4 pemain) membentang horizontal penuh.
+- Reaksi visual leluasa (~1.140 px dari spawn ke dino).
 
-export const games = [pingpong, spaceinvaders, tankbattle, endlessracer];
-```
-Shell membaca array `games` ini secara otomatis untuk mengalkulasi slot dan menampilkan kartu pemilihan game.
-
-> Dokumentasi teknis **individual** untuk setiap game tersedia di `plan/games/` (pingpong, spaceinvaders,
-> tankbattle, endlessracer); daftar & ringkasannya ada di [06-games-catalog.md](06-games-catalog.md).
+### 3.2 Game Klasik Ported (Ping Pong, Space Invaders, Tank Battle, Endless Racer)
+- Berjalan pada resolusi $600 \times 800\text{ px}$.
+- Shell secara otomatis merender kanvas di tengah panggung hitam (`object-fit: contain`) tanpa distorsi rasio, memastikan kompatibilitas mundur 100%.
 
 ---
 
 ## 4. Panduan Terstandarisasi Membuat Game Baru
 
-Untuk menambahkan game baru (misalnya game bernama **"dodge"**):
+Untuk menambahkan game baru (misalnya game bernama **"cyberdash"**):
 
-1. **Buat file modul**: `games/dodge.js`.
-2. **Definisikan metadata dan mode**:
+1. **Buat file modul**: `games/cyberdash.js`.
+2. **Definisikan metadata standar 1280×720**:
    ```javascript
    export default {
-     id: 'dodge',
-     name: 'Dodge Asteroid',
-     description: 'Hindari rintangan yang berjatuhan selama mungkin!',
+     id: 'cyberdash',
+     name: 'Cyber Dash',
+     icon: '⚡',
+     description: 'Lari cepat melintasi rintangan di arena lebar!',
      modes: [
        { id: '1p', label: '1 Player', sub: 'Tantangan Solo', players: 1 },
-       { id: '2p', label: '2 Player', sub: 'Bertahan Bersama', players: 2 }
+       { id: '2p', label: '2 Player', sub: 'Balap Berdua', players: 2 }
      ],
-     canvas: { width: 600, height: 800 },
+     canvas: { width: 1280, height: 720 }, // Standar 16:9
      create({ canvas, kernel, players, mode, finish, audio }) {
-       // Setup state game & canvas context
+       canvas.width = 1280;
+       canvas.height = 720;
+       const ctx = canvas.getContext('2d');
        let running = true;
        let rafId = 0;
 
-       // 1. Putar suara mulai permainan (opsional)
        audio?.play('start');
 
-       // 2. Langganan input kernel
        const unsubscribe = kernel.on('input', ({ player, cmd }) => {
-         // Proses perintah: 1/3 = kiri, 2/4 = kanan, 0 = berhenti
+         // Proses perintah game
        });
 
-       // 2. Loop game
        function loop() {
          if (!running) return;
-         // Update & render
+         // Update & render dengan safe zone 40px
          rafId = requestAnimationFrame(loop);
        }
        rafId = requestAnimationFrame(loop);
 
-       // 3. Wajib: kembalikan objek pembersihan (cleanup)
        return {
          stop() {
            running = false;
            cancelAnimationFrame(rafId);
-           unsubscribe(); // Lepas listener agar tidak terjadi memory leak
+           unsubscribe();
          }
        };
      }
@@ -165,20 +127,6 @@ Untuk menambahkan game baru (misalnya game bernama **"dodge"**):
    ```
 3. **Daftarkan di `games/index.js`**:
    ```javascript
-   import pingpong from './pingpong.js';
-   import dodge from './dodge.js';
-
-   export const games = [pingpong, dodge];
+   import cyberdash from './cyberdash.js';
+   export const games = [..., cyberdash];
    ```
-
----
-
-## 5. Rencana Peningkatan Sektor Game System
-
-1. **Sistem Skala Kanvas Adaptif (High-DPI / Retina Screen)**:
-   - Menyesuaikan resolusi kanvas dengan `window.devicePixelRatio` agar rendering teks dan grafis terlihat tajam di layar resolusi tinggi.
-2. **Menu Jeda Game (Pause Overlay)**:
-   - Menyediakan fungsi pause saat tombol darurat atau salah satu koneksi controller mengalami degradasi sinyal.
-3. **Modul Particle & Visual Effects**:
-   - Pustaka partikel mini untuk efek ledakan, percikan bola, dan bintang kemenangan tanpa dependensi eksternal.
-

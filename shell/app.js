@@ -12,10 +12,23 @@ const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls)
 Kernel.limit = Math.min(MAX_PLAYERS, Math.max(...games.flatMap(g => g.modes.map(m => m.players))));
 
 const screens = {home: $('#home'), connect: $('#connect'), pick: $('#pick'), game: $('#game')};
+const warnedGames = new Set();
+const stage = $('.stage');
+const monBtn = $('#mon');
+const monCloseBtn = $('#monClose');
+
 function show(name){
   for (const k in screens) screens[k].classList.toggle('on', k === name);
-  $('#monitor').classList.toggle('on', name !== 'home');
+  document.body.classList.toggle('in-game', name === 'game');
+
+  const mon = $('#monitor');
+  if (name === 'game') {
+    mon.classList.remove('on'); // saat di game, monitor hanya muncul sebagai drawer
+  } else {
+    mon.classList.toggle('on', name !== 'home');
+  }
 }
+
 const msg = t => { $('#msg').textContent = t || ''; };
 let busy = 0, current = null;
 
@@ -95,9 +108,31 @@ async function connectMB(n){
 }
 
 function startGame(game, mode){
+  // Validasi standar resolusi 1280x720: catat console.warn sekali jika non-standar
+  const gw = game.canvas?.width || 1280;
+  const gh = game.canvas?.height || 720;
+  if (gw !== 1280 || gh !== 720) {
+    if (!warnedGames.has(game.id)) {
+      console.warn(`[Shell] Game '${game.id}' menggunakan resolusi canvas non-standar (${gw}x${gh}). Standar platform adalah 1280x720.`);
+      warnedGames.add(game.id);
+    }
+  }
+
+  // Pindahkan monitor ke dalam .stage sebagai laci drawer
+  const mon = $('#monitor');
+  if (mon && stage) {
+    mon.classList.add('drawer');
+    mon.classList.remove('open', 'on');
+    stage.appendChild(mon);
+  }
+  if (monBtn) monBtn.classList.remove('active');
+  if (monCloseBtn) monCloseBtn.style.display = '';
+
   const players = Kernel.filled().slice(0, mode.players).map(s => s.n);
   show('game');
   $('#result').classList.remove('on');
+
+  // Backing store canvas dikonfigurasi oleh game melalui game.create()
   const inst = game.create({
     canvas: $('#cv'), kernel: Kernel, players, mode, audio: Sound,
     finish: text => { $('#resText').textContent = text; $('#result').classList.add('on'); }
@@ -107,8 +142,48 @@ function startGame(game, mode){
 
 function toLobby(){
   if (current) { current.stop(); current = null; }
+
+  // Kembalikan monitor ke dalam container <main>
+  const mon = $('#monitor');
+  if (mon) {
+    mon.classList.remove('drawer', 'open');
+    const mainEl = $('main');
+    if (mainEl) mainEl.appendChild(mon);
+  }
+  if (monBtn) monBtn.classList.remove('active');
+  if (monCloseBtn) monCloseBtn.style.display = 'none';
+
   show('connect'); renderSlots();
 }
+
+// Toggle laci drawer monitor di dalam stage game
+function toggleMonitorDrawer(){
+  const mon = $('#monitor');
+  if (!mon || !mon.classList.contains('drawer')) return;
+  const isOpen = mon.classList.toggle('open');
+  if (monBtn) monBtn.classList.toggle('active', isOpen);
+}
+
+if (monBtn) monBtn.onclick = toggleMonitorDrawer;
+if (monCloseBtn) monCloseBtn.onclick = toggleMonitorDrawer;
+
+// Tutup laci monitor dengan tombol Esc
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const mon = $('#monitor');
+    if (mon && mon.classList.contains('open')) {
+      mon.classList.remove('open');
+      if (monBtn) monBtn.classList.remove('active');
+    }
+  }
+});
+
+// Cegah menu konteks (long-press) pada tombol, kanvas, dan kontrol
+document.addEventListener('contextmenu', e => {
+  if (e.target.closest('button, canvas, .stage, .btn')) {
+    e.preventDefault();
+  }
+});
 
 Kernel.on('players', () => {
   renderSlots(); renderPick();
@@ -129,7 +204,6 @@ $('#backConnect').onclick = () => show('connect');
 $('#toLobby').onclick = toLobby;
 $('#quit').onclick = toLobby;
 
-const stage = $('.stage');
 const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
 async function toggleFullscreen(){
   try {
