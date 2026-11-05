@@ -115,11 +115,16 @@
 
 <!-- LAYAR 3: PILIH GAME -->
 <section class="screen" id="pick">
-  <h2>Pilih game</h2>
-  <p>Pilih game favoritmu dan tentukan jumlah pemain untuk langsung bermain bersama!</p>
+  <div class="pick-top-bar">
+    <div>
+      <h2>Pilih game</h2>
+      <p class="pick-lead">Pilih game favoritmu dan sentuh jumlah pemain untuk langsung mulai!</p>
+    </div>
+    <div id="pickPlayersBadge" class="players-status-badge"></div>
+  </div>
   <div id="games"></div>
   <p id="pickHint"></p>
-  <div class="row"><button class="btn alt" id="backConnect">Kembali ke Pemain</button></div>
+  <div class="row"><button class="btn alt" id="backConnect">← Kembali ke Pemain</button></div>
 </section>
 
 <!-- LAYAR 4: ARENA GAMEPLAY (STAGE OVERLAY FULLSCREEN) -->

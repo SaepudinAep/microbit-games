@@ -1,4 +1,4 @@
-﻿# Sektor 05: Roadmap Fitur & Rencana Pengembangan Masa Depan
+# Sektor 05: Roadmap Fitur & Rencana Pengembangan Masa Depan
 
 Dokumen ini memetakan visi evolusi platform game micro:bit, mencakup perancangan game baru (termasuk game Tank 2v2), peningkatan kapabilitas platform, serta strategi penerapan di ruang kelas.
 
@@ -27,10 +27,18 @@ Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapa
 
 ---
 
-### 1.2 Game: Maze (Labirin Petualangan) — ⏳ Rencana Berikutnya (Belum Dirancang)
-- **Konsep**: Permainan eksplorasi labirin multi-pemain. Pemain memandu karakter mencari jalan keluar atau mengumpulkan kunci sebelum waktu habis.
-- **Kebutuhan Slot**: 1 sampai 4 Pemain.
-- **Status**: Belum dirancang (akan dikembangkan pada iterasi selanjutnya).
+### 1.2 Game: Maze Race (Labirin Petualangan) — 📝 Spesifikasi Selesai (Siap Diimplementasi)
+
+*Dokumentasi spesifikasi lengkap: lihat [plan/games/maze.md](games/maze.md).*
+
+- **Konsep**: Permainan adu cepat eksplorasi labirin multi-pemain (1–4 pemain) dalam satu layar bersama.
+- **Fitur Unggulan**:
+  - **Labirin Simetris 4-Kuadran (*4-Way Quadrant Symmetry*)**: Menjamin *100% Fair Play* di mana jarak langkah, jumlah belokan, sebaran kristal, dan rintangan dari setiap sudut pemain menuju pusat labirin identik dan setara.
+  - **Sistem 3 Babak Bertingkat (*Best of 3 Rounds*)**: Ronde 1 (Easy), Ronde 2 (Medium), dan Ronde 3 (Final Hard) dengan akumulasi poin.
+  - **Elemen Interaktif**: Kristal energi (+50 pts, speed boost), laser kejut (stun 1 detik), dan Portal Inti di pusat labirin.
+- **Kebutuhan Slot**: 1 sampai 4 Pemain (`players: 1..4`).
+- **Skema Kontrol**: Standar sinyal 4-arah (`1#` Atas, `2#` Bawah, `3#` Kiri, `4#` Kanan, `0#` Berhenti, `99#` Mulai).
+- **Status**: Spesifikasi desain tuntas disetujui, siap diimplementasikan di `games/maze.js`.
 
 ---
 

@@ -83,25 +83,50 @@ function renderSlots(){
 function renderPick(){
   const box = $('#games'); box.innerHTML = '';
   const n = Kernel.filled().length;
+
+  // Tampilkan ringkasan status pemain yang sedang terhubung
+  const badgeBox = $('#pickPlayersBadge');
+  if (badgeBox) {
+    badgeBox.innerHTML = '';
+    const filled = Kernel.filled();
+    if (filled.length === 0) {
+      badgeBox.innerHTML = '<span class="status-empty">⚠️ Belum ada pemain terhubung</span>';
+    } else {
+      const lbl = el('span', 'status-lbl', `${filled.length} Pemain Siap:`);
+      badgeBox.append(lbl);
+      const pills = el('div', 'pills-row');
+      filled.forEach(s => {
+        const pill = el('span', 'player-pill', `P${s.n}`);
+        pill.style.setProperty('--pill-c', `var(--p${s.n})`);
+        pills.append(pill);
+      });
+      badgeBox.append(pills);
+    }
+  }
+
   games.forEach(g => {
     const c = el('div', 'gcard');
 
-    // Ikon game (opsional; game bisa definisikan g.icon)
-    const icon = el('div', 'gcard-icon', g.icon || '🎮');
-    c.append(icon);
-    c.append(el('h3', null, g.name));
+    // Header kartu: Ikon terbingkai rapi di kiri, Judul & Badge Pemain di kanan
+    const header = el('div', 'gcard-header');
+    const iconWrap = el('div', 'gcard-icon-wrap');
+    iconWrap.append(el('span', 'gcard-icon', g.icon || '🎮'));
+    header.append(iconWrap);
 
-    // Badge jumlah pemain yang didukung
-    const badge = el('div', 'pbadge');
+    const titleBox = el('div', 'gcard-title-box');
+    titleBox.append(el('h3', 'gcard-title', g.name));
+
     const maxP = Math.max(...g.modes.map(m => m.players));
-    badge.append('👥 ');
-    const sp = el('span', null, maxP === 1 ? '1 Pemain' : `1 – ${maxP} Pemain`);
-    badge.append(sp);
-    c.append(badge);
+    const minP = Math.min(...g.modes.map(m => m.players));
+    const pLabel = minP === maxP ? `${maxP}P` : `${minP}–${maxP}P`;
+    titleBox.append(el('span', 'pbadge', `👥 ${pLabel}`));
+    header.append(titleBox);
+    c.append(header);
 
-    c.append(el('p', null, g.description));
+    // Deskripsi game (tinggi konsisten agar semua kartu sejajar)
+    c.append(el('p', 'gcard-desc', g.description));
 
-    // Baris opsi game (jika ada)
+    // Baris opsi game jika didefinisikan (tetap didukung jika suatu saat ada)
     if (g.options) {
       const curOpts = getGameOptions(g);
       const optBox = el('div', 'gcard-options');
@@ -129,20 +154,33 @@ function renderPick(){
       c.append(optBox);
     }
 
-    const row = el('div', 'row');
+    // Bagian pemilihan jumlah pemain: ringkas dan jelas (1P, 2P, 3P, 4P)
+    const modeSec = el('div', 'gcard-modes');
+    modeSec.append(el('span', 'mode-legend', 'PILIH JUMLAH PEMAIN'));
+
+    const modeRow = el('div', 'mode-buttons');
     g.modes.forEach(m => {
-      const b = el('button', 'btn big');
+      const shortLabel = `${m.players}P`;
+      const b = el('button', 'mode-btn', shortLabel);
       b.disabled = n < m.players;
-      b.append(m.label, el('small', null, m.sub));
+      b.title = n < m.players
+        ? `Butuh ${m.players} pemain terhubung (saat ini ${n})`
+        : `Mulai ${g.name} - ${shortLabel} (${m.sub || m.label})`;
       b.onclick = () => startGame(g, m);
-      row.append(b);
+      modeRow.append(b);
     });
-    c.append(row);
+    modeSec.append(modeRow);
+    c.append(modeSec);
+
     box.append(c);
   });
+
   const most = Math.max(...games.flatMap(g => g.modes.map(m => m.players)));
-  $('#pickHint').textContent = n < 1 ? 'Belum ada pemain. Kembali dan hubungkan micro:bit atau pilih keyboard.'
-    : n < most ? 'Mode dengan lebih banyak pemain aktif setelah pemain terhubung. Kembali untuk menambah pemain.' : '';
+  $('#pickHint').textContent = n < 1
+    ? '⚠️ Belum ada pemain terhubung. Kembali ke layar sebelumnya untuk menghubungkan micro:bit atau aktifkan keyboard.'
+    : n < most
+    ? `💡 ${n} pemain aktif. Tombol mode pemain yang lebih tinggi akan aktif otomatis saat pemain terhubung.`
+    : '';
 }
 
 async function connectMB(n){

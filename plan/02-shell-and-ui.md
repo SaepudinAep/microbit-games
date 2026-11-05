@@ -64,8 +64,10 @@ stateDiagram-v2
    - Lobi koneksi pemain. Merender 4 slot pemain secara mendatar dalam 1 baris (layar lebar) atau 2 baris (layar < 900 px).
    - Seluruh konten dirancang muat dalam satu layar tanpa scroll window di 1366×768 dan 1024×768.
 3. **`pick` (#pick)**:
-   - Grid kartu game responsif (2–3 kolom di layar lebar).
-   - Tombol mode dan opsi berukuran besar dan mudah ditekan.
+   - Header dilengkapi badge status pemain yang sedang terhubung (`#pickPlayersBadge`) dengan pill warna pemain aktif.
+   - Grid kartu game proporsional (3 kolom pada layar lebar/PID, 2 kolom pada tablet, 1 kolom pada ponsel).
+   - Kartu game dirancang dengan header horizontal (ikon terbingkai rapi di samping judul dan badge pemain) serta deskripsi dengan tinggi seragam (`min-height`) agar seluruh kartu sejajar dan seimbang.
+   - Tombol pemilihan mode pemain dibuat ringkas dan bersih (**1P**, **2P**, **3P**, **4P**) dengan target sentuh minimal 52 px, kontras tinggi, dan status *disabled* bergaya garis putus-putus transparan bila jumlah pemain belum mencukupi.
 4. **`game` (#game)**:
    - Memenuhi seluruh viewport (`100vw × 100dvh`) tanpa margin, tanpa padding, dan `overflow: hidden` pada `body`.
    - Mengeliminasi scroll horizontal maupun vertikal.
