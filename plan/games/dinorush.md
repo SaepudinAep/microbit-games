@@ -8,9 +8,8 @@
 | **File** | `games/dinorush.js` |
 | **Dokumen induk** | [06-games-catalog.md](../06-games-catalog.md) |
 
-Endless *runner* menyerupai dino saat kehilangan koneksi (Google Dino). Tiap pemain
-berada di **lintasan sendiri** yang tersusun dari atas ke bawah, sehingga hingga
-**4 pemain** bisa bermain bersamaan tanpa saling bertabrakan.
+Endless *runner* menyerupai game dino legendaris dengan orientasi **Landscape 16:9 (1280 × 720 px)**.
+Dioptimalkan secara khusus untuk **Panel Interaktif Digital (PID) sekolah / Smart Board**, **laptop**, dan **tablet**. Tiap pemain berada di **lintasan horizontalnya sendiri** yang tersusun dari atas ke bawah, sehingga hingga **4 pemain** dapat bertanding berdampingan secara lapang tanpa saling bertubrukan.
 
 ---
 
@@ -25,23 +24,23 @@ berada di **lintasan sendiri** yang tersusun dari atas ke bawah, sehingga hingga
 
 ---
 
-## Spesifikasi Teknis
+## Spesifikasi Teknis (Rasio Horizontal 16:9)
 
-| Aspek | Nilai |
-|---|---|
-| **Canvas** | 600 × 800 px |
-| **Lintasan (2–4P)** | Tinggi `LH = 800 / jumlah pemain`, tersusun atas ke bawah |
-| **Lintasan (1P)** | Tinggi `SOLO_LH = 300 px` di tengah vertikal (Y atas = 250 px) |
-| **Skala fisika** | `s = Math.min(1, LH / 260)` — ukuran dino, kaktus, GRAV, JUMP_V dikali `s` |
-| **Dino** | `44 × 50 px` pada `s = 1`; posisi X tetap di `96` |
-| **Hitbox** | 85 % dari ukuran sprite |
-| **Gravitasi** | `GRAV = 1500 × s` px/dtk² |
-| **Lompat** | `JUMP_V = -620 × s` px/dtk |
-| **Kecepatan** | Mulai `220 px/dtk`, akselerasi `9 px/dtk` per detik, maks `640 px/dtk` |
-| **Satuan jarak** | `METER = 60 px` (konstanta bernama) |
-| **Rintangan** | Kaktus tunggal & ganda; urutan dari RNG ber-seed — **sama untuk semua lintasan** |
-| **Gap minimum** | `kecepatan_saat_ini × 1.2 dtk` (selalu bisa dilewati) |
-| **Warna** | P1 `#4b83ff`, P2 `#ff9a2e`, P3 `#3ccf8e`, P4 `#b98cff` (berdasarkan **nomor slot**, bukan indeks) |
+| Aspek | Nilai | Keterangan |
+|---|---|---|
+| **Canvas** | **1280 × 720 px (16:9)** | Standar layar lebar HD, native fit di Fullscreen PID/Laptop tanpa bilah hitam samping |
+| **Lintasan (2–4P)** | Tinggi `LH = 720 / jumlah pemain` | 2P: 360 px, 3P: 240 px, 4P: 180 px |
+| **Lintasan (1P)** | Tinggi `SOLO_LH = 280 px` | Di tengah vertikal (`Y = 220 px`) |
+| **Skala Fisika** | `s = Math.min(1, LH / 240)` | Ukuran dino, kaktus, gravitasi, & jump velocity diskalakan otomatis |
+| **Dino** | `46 × 52 px` pada `s = 1` | Posisi X tetap di `140 px` (jarak pandang reaksi ~1140 px) |
+| **Hitbox** | 85 % dari ukuran gambar | Memberikan toleransi tabrakan yang adil |
+| **Gravitasi** | `GRAV = 1550 × s` px/dtk² | Puncak lompatan selalu terjaga di dalam batas atas lintasan |
+| **Lompat** | `JUMP_V = -640 × s` px/dtk | Respon lompat tajam & terukur |
+| **Kecepatan** | Mulai `240 px/dtk`, akselerasi `10 px/dtk²`, maks `680 px/dtk` | Bertambah seiring durasi bertahan |
+| **Satuan Jarak** | `METER = 70 px` | Konstanta bernama untuk konversi skor |
+| **Rintangan** | Kaktus tunggal & ganda ber-seed RNG | Identik di semua lintasan |
+| **Gap Minimum** | `kecepatan × 1.25 dtk` | Menjamin rintangan selalu mungkin dilewati secara teoritis |
+| **Warna Slot** | P1 `#4b83ff`, P2 `#ff9a2e`, P3 `#3ccf8e`, P4 `#b98cff` | Mengikuti nomor slot fisik controller |
 
 ---
 
@@ -49,29 +48,25 @@ berada di **lintasan sendiri** yang tersusun dari atas ke bawah, sehingga hingga
 
 | Perintah | Aksi |
 |---|---|
-| `99#` (dari pemain mana pun) | Mulai permainan (hitung mundur 3-2-1) |
-| Klik layar | Mulai permainan (setara `99#`) |
+| `99#` (dari micro:bit pemain mana pun) | Mulai permainan (memicu hitung mundur 3-2-1) |
+| Klik layar | Mulai permainan (setara dengan `99#`) |
 | Perintah apa pun **selain `0`** (saat bermain) | Lompat |
-| `0#` | Netral — tidak ada aksi |
-
-> **Catatan keyboard:** Tombol yang dipetakan ke perintah `1`–`9` (misalnya ArrowUp atau W) berfungsi sebagai lompat saat bermain. Tombol apapun yang menghasilkan `99` tidak dipetakan dari keyboard secara default — gunakan klik layar atau micro:bit untuk memulai.
+| `0#` | Netral / dilepas (tidak ada aksi) |
 
 ### Mekanisme Lompat Lanjut
 
 | Fitur | Nilai | Keterangan |
 |---|---|---|
-| **Jump buffer** | 100 ms | Lompat yang ditekan sesaat *sebelum* mendarat tetap dieksekusi |
-| **Coyote time** | 80 ms | Masih bisa lompat sesaat *setelah* jatuh dari tepi |
+| **Jump buffer** | 100 ms | Input lompat yang ditekan sesaat sebelum mendarat akan langsung dieksekusi saat menyentuh tanah |
+| **Coyote time** | 80 ms | Pemain masih dapat melompat sesaat setelah mulai jatuh |
 
 ---
 
 ## Alur Memulai Permainan
 
-1. **Fase `waiting`** — layar menampilkan panel instruksi dengan teks: *"Kirim 99# dari micro:bit mana pun atau klik layar"*.
-2. **`99#` dari pemain mana pun** ATAU **klik layar** → game masuk fase **hitung mundur** `3 → 2 → 1` (1 detik/angka; audio `click` tiap angka).
-3. Setelah `1`, fase berubah ke **`playing`** dan audio `start` diputar.
-
-> **Standar platform:** Semua game di platform ini dimulai dengan `99#` atau klik layar — konsisten di seluruh game.
+1. **Fase `waiting`**: Menampilkan dialog instruksi pembuka *"Kirim 99# dari micro:bit pemain mana pun atau klik layar untuk memulai"*.
+2. **`99#` atau Klik Layar**: Memulai fase hitung mundur **3 → 2 → 1** (1 detik/angka, audio `click` tiap angka).
+3. **Mulai Lari (`playing`)**: Audio `start` berbunyi, rintangan mulai meluncur dari kanan layar.
 
 ---
 
@@ -79,92 +74,13 @@ berada di **lintasan sendiri** yang tersusun dari atas ke bawah, sehingga hingga
 
 | `options` key | Nilai valid | Default | Keterangan |
 |---|---|---|---|
-| `lives` | `1` atau `3` | `3` | Jumlah nyawa tiap pemain |
-| `end` | `'all'` atau `'last'` | `'all'` | Kapan permainan berakhir |
-
-### `options.lives`
-
-- **`3`** — Menabrak rintangan mengurangi nyawa; dino kebal **1,5 dtk** (berkedip); rintangan yang ditabrak dihapus; audio `hurt`. Mati saat nyawa = 0.
-- **`1`** — Satu tabrakan langsung mati; audio `lose`.
-
-### `options.end`
-
-| Mode | Perilaku |
-|---|---|
-| `'all'` | Permainan berakhir saat **semua** lintasan mati. Pemain yang masih hidup terus berlari dan menambah jarak. |
-| `'last'` | Permainan berakhir saat **tersisa 1** lintasan hidup. |
-| *(solo)* | Selalu berakhir saat satu-satunya lintasan mati, tidak peduli nilai `end`. |
+| `lives` | `1` atau `3` | `3` | Jumlah nyawa pemain (3 nyawa: kebal 1.5s berkedip & rintangan dihapus; 1 nyawa: eliminasi instan) |
+| `end` | `'all'` atau `'last'` | `'all'` | `'all'` = tanding sampai semua gugur; `'last'` = selesai saat sisa 1 pemain bertahan |
 
 ---
 
-## Aturan & Skor
+## Format Hasil Akhir (`finish`)
 
-- **Skor** = jarak tempuh (`dist`, meter), dihitung dari `distPx / 60`.
-- Pemenang = pemain dengan **jarak terpanjang** saat game berakhir.
-- **Seri** bila selisih jarak pertama dan kedua **< 5 meter**.
-
-### Teks Finish
-
-| Kondisi | Contoh teks `finish()` |
-|---|---|
-| Solo | `"Bertahan 340.5 meter! 🦖"` |
-| Menang jelas | `"P2 menang! P2 512.0 m, P1 340.5 m, P3 210.0 m"` |
-| Seri | `"Seri! Jarak sama-sama 340 m — P1 340.1 m, P2 340.4 m"` |
-
----
-
-## HUD (per lintasan)
-
-- **Label pemain** (`P1`, `P2`, dst.) — warna mengikuti slot.
-- **Jarak** dalam meter (`x.x m`) — kiri atas lintasan.
-- **Nyawa** sebagai simbol `♥` / `♡` — kanan atas lintasan.
-- Lintasan mati: overlay gelap + teks `Pn 💀 — x.x m`.
-
----
-
-## Suara
-
-| Event | Audio key | Keterangan |
-|---|---|---|
-| Hitung mundur | `click` | Tiap langkah 3-2-1 |
-| Mulai | `start` | Saat fase playing dimulai |
-| Lompat | `click` | Pan sesuai indeks lintasan (-1 … +1) |
-| Tabrakan (masih hidup) | `hurt` | Nyawa berkurang |
-| Mati (nyawa habis) | `lose` | Lintasan berhenti |
-| Game berakhir (solo) | `lose` | — |
-| Game berakhir (multi) | `win` | — |
-
-> Jika `audio` tidak tersedia, game tetap berjalan normal.
-
----
-
-## Urutan Rintangan Bersama
-
-Semua lintasan memakai **satu RNG ber-seed** (LCG sederhana, seed acak per sesi).
-Rintangan dibuat ke antrian bersama (`obsQueue`) dan didistribusikan ke semua lintasan
-yang masih hidup di koordinat Y masing-masing. Ini menjamin:
-
-- Urutan dan tipe rintangan **identik** di semua lintasan.
-- Gap minimum = `kecepatan_saat_itu × 1.2 dtk` → rintangan **selalu mungkin** dilompati.
-
----
-
-## Lifecycle
-
-```
-create({canvas, kernel, players, mode, finish, audio, options}) → {stop()}
-```
-
-- `stop()` membatalkan `requestAnimationFrame`, semua `setTimeout`, melepas listener kernel (`kernel.on`), dan listener klik canvas.
-- Tidak ada kebocoran jika game dimulai ulang berkali-kali dari lobi.
-
----
-
-## Registrasi
-
-Game sudah terdaftar di `games/index.js`:
-
-```js
-import dinorush from './dinorush.js';
-export const games = [..., dinorush];
-```
+- **Solo**: `"Bertahan 340.5 meter! 🦖"`
+- **Multiplayer (Menang)**: `"P2 menang! P2 512.0 m, P1 340.5 m, P3 210.0 m"`
+- **Multiplayer (Seri)**: `"Seri! Jarak sama-sama 340 m — P1 340.1 m, P2 340.4 m"` (bila selisih < 5 meter).

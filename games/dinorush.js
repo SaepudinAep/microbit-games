@@ -1,5 +1,7 @@
 // GAME: Dino Jump (dinorush)
-// Endless runner 1–4 pemain. Tiap pemain punya lintasan sendiri (atas→bawah).
+// Horizontal endless runner 1–4 pemain dengan orientasi Landscape 16:9 (1280x720).
+// Dioptimalkan untuk Laptop, Tablet, dan Layar PID (Panel Interaktif Digital) Sekolah.
+// Tiap pemain memiliki lintasan horizontal sejajar tersusun atas ke bawah.
 // Lompati kaktus, bertahan sejauh mungkin. Pemenang = jarak terjauh.
 //
 // Kontrak game:
@@ -17,35 +19,35 @@
 'use strict';
 
 // ═══════════════════════════════════════════════════════════════════
-//  KONSTANTA  (semua angka fisika, ukuran, kecepatan ada di sini)
+//  KONSTANTA (Dimensi Landscape 16:9 & Parameter Fisika)
 // ═══════════════════════════════════════════════════════════════════
 
-const W = 600;      // lebar canvas (px)
-const H = 800;      // tinggi canvas (px)
+const W = 1280;     // lebar canvas (px) - Standar HD 16:9 untuk PID/Laptop
+const H = 720;      // tinggi canvas (px)
 
-// ── Fisika (skala referensi: lintasan setinggi BASE_LH) ──────────
-const BASE_LH      = 260;   // px; referensi tinggi lintasan untuk s = 1
-const GRAV_BASE    = 1500;  // px/dtk²  pada s = 1
-const JUMP_V_BASE  = -620;  // px/dtk   pada s = 1 (negatif = ke atas)
+// ── Fisika (skala referensi: tinggi lintasan BASE_LH = 240 px) ───
+const BASE_LH      = 240;   // px; tinggi lintasan acuan untuk faktor skala s = 1
+const GRAV_BASE    = 1550;  // px/dtk² gravitasi pada s = 1
+const JUMP_V_BASE  = -640;  // px/dtk kecepatan lompat awal pada s = 1 (negatif = ke atas)
 
 // ── Dino ─────────────────────────────────────────────────────────
-const DINO_W_BASE  = 44;    // px lebar dino pada s = 1
-const DINO_H_BASE  = 50;    // px tinggi dino pada s = 1
-const DINO_X       = 96;    // px; posisi X dino (tetap)
+const DINO_W_BASE  = 46;    // px lebar dino pada s = 1
+const DINO_H_BASE  = 52;    // px tinggi dino pada s = 1
+const DINO_X       = 140;   // px; posisi X dino (memberikan reaction distance ~1140 px)
 const HITBOX_RATIO = 0.85;  // hitbox = 85 % dari ukuran gambar
 
 // ── Kecepatan lintasan ───────────────────────────────────────────
-const SPEED_INIT   = 220;   // px/dtk awal
-const SPEED_ACC    = 9;     // px/dtk tambahan per detik
-const SPEED_MAX    = 640;   // px/dtk maksimal
+const SPEED_INIT   = 240;   // px/dtk awal
+const SPEED_ACC    = 10;    // px/dtk peningkatan per detik
+const SPEED_MAX    = 680;   // px/dtk kecepatan maksimal
 
 // ── Rintangan ────────────────────────────────────────────────────
-const METER          = 60;  // 1 meter = 60 px
-const CACTUS_S_W     = 20;  // px lebar kaktus tunggal pada s = 1
-const CACTUS_S_H     = 40;  // px tinggi kaktus tunggal pada s = 1
-const CACTUS_D_W     = 40;  // px lebar kaktus ganda pada s = 1
-const CACTUS_D_H     = 36;  // px tinggi kaktus ganda pada s = 1
-const MIN_GAP_SEC    = 1.2; // detik minimum antar rintangan
+const METER          = 70;  // 1 meter = 70 px
+const CACTUS_S_W     = 24;  // px lebar kaktus tunggal pada s = 1
+const CACTUS_S_H     = 44;  // px tinggi kaktus tunggal pada s = 1
+const CACTUS_D_W     = 46;  // px lebar kaktus ganda pada s = 1
+const CACTUS_D_H     = 40;  // px tinggi kaktus ganda pada s = 1
+const MIN_GAP_SEC    = 1.25;// detik minimum antar rintangan (selalu bisa dilompati)
 
 // ── Jump-feel ────────────────────────────────────────────────────
 const JUMP_BUFFER_MS = 100; // ms: lompat yang ditekan sblm mendarat tetap jalan
@@ -59,15 +61,15 @@ const BLINK_HZ     = 8;     // frekuensi kedip saat kebal (kali/dtk)
 const COUNTDOWN_N  = 3;     // mulai dari 3 (3-2-1)
 const COUNTDOWN_DT = 1.0;   // detik per langkah
 
-// ── Geometri mode 1 pemain ───────────────────────────────────────
-const SOLO_LH      = 300;   // px; tinggi lintasan solo
-const SOLO_Y_TOP   = (H - SOLO_LH) / 2; // px; Y atas lintasan solo
+// ── Geometri mode 1 pemain (Solo) ─────────────────────────────────
+const SOLO_LH      = 280;   // px; tinggi lintasan solo
+const SOLO_Y_TOP   = (H - SOLO_LH) / 2; // px; posisi Y atas lintasan solo (tengah)
 
-// ── Warna slot (P1–P4, bukan indeks) ─────────────────────────────
+// ── Warna slot (P1–P4, berdasarkan nomor slot fisik) ─────────────
 const SLOT_COLORS = { 1: '#4b83ff', 2: '#ff9a2e', 3: '#3ccf8e', 4: '#b98cff' };
 
 // ═══════════════════════════════════════════════════════════════════
-//  SEEDER RNG  (LCG sederhana — urutan rintangan sama semua lintasan)
+//  SEEDER RNG (LCG sederhana — urutan rintangan sama di semua lintasan)
 // ═══════════════════════════════════════════════════════════════════
 
 function makeLCG(seed) {
@@ -86,7 +88,7 @@ export default {
   id:   'dinorush',
   name: 'Dino Jump',
   icon: '🦖',
-  description: 'Lompati kaktus sejauh mungkin! Tiap pemain di lintasan sendiri. ' +
+  description: 'Lompati kaktus sejauh mungkin di layar lebar! Tiap pemain di lintasan sendiri. ' +
     'Bertahan paling jauh = menang. Dukung 1–4 pemain.',
 
   modes: [
@@ -119,7 +121,7 @@ export default {
       return { laneY: idx * lh, lh };
     }
 
-    // s = faktor skala fisika; selalu ≤ 1 agar tidak keluar lintasan
+    // s = faktor skala fisika; selalu ≤ 1 agar puncak lompat muat di lintasan
     const scaleFor = lh => Math.min(1, lh / BASE_LH);
 
     // ── State fase permainan ──────────────────────────────────────
@@ -136,7 +138,7 @@ export default {
       const s   = scaleFor(lh);
       const dW  = DINO_W_BASE * s;
       const dH  = DINO_H_BASE * s;
-      const groundY = laneY + lh; // Y-koordinat tanah (eksklusif bawah)
+      const groundY = laneY + lh; // Y-koordinat tanah (bawah lintasan)
       return {
         slot,           // nomor slot P1–P4
         idx,            // urutan dalam array players
@@ -173,27 +175,25 @@ export default {
     // ── RNG bersama untuk rintangan ───────────────────────────────
     const rng = makeLCG(Math.floor(Math.random() * 0x100000000));
 
-    // Antrian rintangan: [{scrollAt, type}]
-    // scrollAt = nilai scrollPx saat rintangan harus muncul di kanan layar
+    // Antrian rintangan bersama: [{scrollAt, type}]
     const obsQueue  = [];
     let   scrollPx  = 0;        // px total yang sudah discroll
-    let   nextAt    = SPEED_INIT * 2.5; // rintangan pertama cukup jauh
+    let   nextAt    = SPEED_INIT * 2.8; // rintangan pertama muncul setelah jeda awal yang cukup
 
     function queueNext() {
-      // Minimum gap dihitung dari kecepatan saat ini
       const minGap = speed * MIN_GAP_SEC;
-      nextAt += minGap + rng() * minGap;
+      nextAt += minGap + rng() * minGap * 0.9;
       obsQueue.push({ scrollAt: nextAt, type: rng() < 0.5 ? 'single' : 'double' });
     }
 
     // Isi buffer awal
-    for (let i = 0; i < 10; i++) queueNext();
+    for (let i = 0; i < 12; i++) queueNext();
 
     // Terapkan antrian ke semua lintasan hidup
     function flushQueue() {
       while (obsQueue.length && obsQueue[0].scrollAt <= scrollPx) {
         const item = obsQueue.shift();
-        queueNext(); // tambah satu lagi
+        queueNext(); // pertahankan isi antrian
 
         for (const lane of lanes) {
           if (lane.dead) continue;
@@ -201,7 +201,7 @@ export default {
           const cW = item.type === 'double' ? CACTUS_D_W * s : CACTUS_S_W * s;
           const cH = item.type === 'double' ? CACTUS_D_H * s : CACTUS_S_H * s;
           lane.obstacles.push({
-            x:    W + 10,
+            x:    W + 15,
             y:    groundY - cH,
             w:    cW,
             h:    cH,
@@ -240,7 +240,6 @@ export default {
       if (END_MODE === 'all') {
         if (alive.length === 0) endGame();
       } else {
-        // 'last': selesai saat ≤ 1 lintasan hidup
         if (alive.length <= 1) endGame();
       }
     }
@@ -248,7 +247,6 @@ export default {
     function endGame() {
       if (phase === 'over') return;
       phase = 'over';
-      // Lintasan yang belum mati: catat jarak terakhir
       for (const lane of lanes) {
         if (!lane.dead) {
           lane.survivedDist = lane.dist;
@@ -279,7 +277,6 @@ export default {
     function tryJump(lane) {
       if (lane.dead) return;
       if (lane.onGround || lane.coyoteMs > 0) {
-        // Eksekusi lompat
         const pan = numP <= 1 ? 0 : (lane.idx / (numP - 1)) * 2 - 1;
         audio?.play('click', { pan });
         lane.velY      = JUMP_V_BASE * lane.s;
@@ -287,7 +284,6 @@ export default {
         lane.coyoteMs  = 0;
         lane.jumpBufMs = 0;
       } else {
-        // Simpan intent; eksekusi saat mendarat
         lane.jumpBufMs = JUMP_BUFFER_MS;
       }
     }
@@ -322,7 +318,6 @@ export default {
           lane.velY  = 0;
           if (!lane.onGround) {
             lane.onGround = true;
-            // Eksekusi jump buffer jika ada
             if (lane.jumpBufMs > 0) tryJump(lane);
           }
           lane.coyoteMs = COYOTE_MS;
@@ -353,7 +348,7 @@ export default {
 
         for (const obs of lane.obstacles) {
           obs.x -= dScroll;
-          if (obs.x + obs.w < 0) continue; // lewat layar, buang
+          if (obs.x + obs.w < 0) continue; // lewat layar, hapus
 
           // Deteksi tabrakan AABB
           const hit = lane.invulnTimer <= 0 &&
@@ -363,17 +358,15 @@ export default {
           if (hit) {
             lane.lives--;
             if (lane.lives <= 0) {
-              // Mati
               lane.dead         = true;
               lane.survivedDist = lane.dist;
               audio?.play('lose');
               killed = true;
-              break; // keluar loop rintangan
+              break;
             } else {
-              // Masih hidup: kebal, buang rintangan yang ditabrak
               lane.invulnTimer = INVULN_SEC;
               audio?.play('hurt');
-              continue; // tidak masuk nextObs → rintangan hilang
+              continue;
             }
           }
 
@@ -391,54 +384,54 @@ export default {
               lives, dead, dist, survivedDist, invulnTimer } = lane;
       const color = SLOT_COLORS[slot] || '#fff';
 
-      // Latar
-      ctx.fillStyle = '#1a2240';
+      // Latar lintasan
+      ctx.fillStyle = '#141d30';
       ctx.fillRect(0, laneY, W, lh);
 
-      // Langit gradient
+      // Langit gradient horizontal-friendly
       const skyH = lh * 0.55;
       const sky  = ctx.createLinearGradient(0, laneY, 0, laneY + skyH);
-      sky.addColorStop(0, '#0d1a30');
-      sky.addColorStop(1, '#1a2a1a');
+      sky.addColorStop(0, '#0a1222');
+      sky.addColorStop(1, '#141d30');
       ctx.fillStyle = sky;
       ctx.fillRect(0, laneY, W, skyH);
 
-      // Tanah (strip)
-      ctx.fillStyle = '#4a7a3a';
+      // Tanah strip
+      ctx.fillStyle = '#3f6b32';
       ctx.fillRect(0, groundY - 4 * s, W, 4 * s);
-      ctx.fillStyle = '#8b6914';
+      ctx.fillStyle = '#7a5a12';
       ctx.fillRect(0, groundY - 2 * s, W, 2 * s);
 
-      // Garis pemisah antar lintasan (kecuali lintasan paling atas)
+      // Garis pemisah antar lintasan
       if (lane.idx > 0) {
-        ctx.strokeStyle = `${color}55`;
-        ctx.lineWidth   = 1;
+        ctx.strokeStyle = `${color}44`;
+        ctx.lineWidth   = 2;
         ctx.beginPath();
         ctx.moveTo(0, laneY);
         ctx.lineTo(W, laneY);
         ctx.stroke();
       }
 
-      // HUD: label pemain
+      // HUD: Label Pemain, Jarak, & Nyawa (disusun horizontal rapi di atas lintasan)
       ctx.save();
-      const lblSize = Math.round(Math.max(10, 11 * s + 4));
-      ctx.font      = `bold ${lblSize + 2}px sans-serif`;
+      const fontSize = Math.round(Math.max(12, 14 * s + 3));
+      ctx.font      = `bold ${fontSize}px 'Fredoka', sans-serif`;
       ctx.fillStyle = color;
       ctx.textAlign = 'left';
-      ctx.fillText(`P${slot}`, 8, laneY + lblSize + 6);
+      ctx.fillText(`Player ${slot}`, 16, laneY + fontSize + 8);
 
-      // HUD: jarak
-      ctx.font      = `${lblSize}px sans-serif`;
-      ctx.fillStyle = '#ccc';
-      ctx.fillText(`${dist.toFixed(1)} m`, 8, laneY + lblSize * 2 + 8);
+      // Jarak di samping label pemain (mengoptimalkan ruang horizontal)
+      ctx.font      = `${fontSize}px 'Fredoka', sans-serif`;
+      ctx.fillStyle = '#d0d8ea';
+      ctx.fillText(`🚩 ${dist.toFixed(1)} m`, 130, laneY + fontSize + 8);
 
-      // HUD: nyawa (♥/♡)
-      ctx.font      = `${lblSize + 2}px sans-serif`;
+      // Nyawa (♥ / ♡) di kanan
+      ctx.font      = `${fontSize + 3}px 'Fredoka', sans-serif`;
       ctx.fillStyle = color;
       ctx.textAlign = 'right';
       let hearts = '';
-      for (let i = 0; i < MAX_LIVES; i++) hearts += (i < lives ? '♥' : '♡');
-      ctx.fillText(hearts, W - 8, laneY + lblSize + 6);
+      for (let i = 0; i < MAX_LIVES; i++) hearts += (i < lives ? '♥ ' : '♡ ');
+      ctx.fillText(hearts.trim(), W - 20, laneY + fontSize + 8);
       ctx.restore();
 
       // Rintangan
@@ -452,53 +445,53 @@ export default {
 
       // Overlay lintasan mati
       if (dead) {
-        ctx.fillStyle = 'rgba(0,0,0,0.52)';
+        ctx.fillStyle = 'rgba(10,14,24,0.6)';
         ctx.fillRect(0, laneY, W, lh);
         ctx.save();
-        const ofs = Math.round(Math.max(12, 14 * s + 4));
-        ctx.font      = `bold ${ofs}px sans-serif`;
+        const ofs = Math.round(Math.max(16, 18 * s + 4));
+        ctx.font      = `bold ${ofs}px 'Fredoka', sans-serif`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
-        ctx.fillText(`P${slot} 💀 — ${survivedDist.toFixed(1)} m`, W / 2, laneY + lh / 2);
+        ctx.fillText(`P${slot} Tereliminasi — ${survivedDist.toFixed(1)} m`, W / 2, laneY + lh / 2);
         ctx.restore();
       }
     }
 
-    // ── Render dino (sederhana, pixel-art style) ──────────────────
+    // ── Render dino ───────────────────────────────────────────────
     function drawDino(x, y, dW, dH, color) {
       ctx.save();
       ctx.fillStyle = color;
 
       // Badan
       ctx.beginPath();
-      ctx.roundRect(x, y + dH * 0.3, dW * 0.75, dH * 0.7, 3);
+      ctx.roundRect(x, y + dH * 0.3, dW * 0.75, dH * 0.7, 4);
       ctx.fill();
 
       // Kepala
       ctx.beginPath();
-      ctx.roundRect(x + dW * 0.28, y, dW * 0.72, dH * 0.48, 3);
+      ctx.roundRect(x + dW * 0.28, y, dW * 0.72, dH * 0.48, 4);
       ctx.fill();
 
       // Ekor
       ctx.beginPath();
       ctx.moveTo(x,            y + dH * 0.5);
-      ctx.lineTo(x - dW * 0.3, y + dH * 0.8);
-      ctx.lineTo(x,            y + dH * 0.8);
+      ctx.lineTo(x - dW * 0.32, y + dH * 0.82);
+      ctx.lineTo(x,            y + dH * 0.82);
       ctx.closePath();
       ctx.fill();
 
       // Mata putih
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(x + dW * 0.78, y + dH * 0.14, dW * 0.1, 0, Math.PI * 2);
+      ctx.arc(x + dW * 0.78, y + dH * 0.15, dW * 0.1, 0, Math.PI * 2);
       ctx.fill();
-      // Murid mata hitam
+      // Pupil hitam
       ctx.fillStyle = '#000';
       ctx.beginPath();
       ctx.arc(x + dW * 0.81, y + dH * 0.15, dW * 0.055, 0, Math.PI * 2);
       ctx.fill();
 
-      // Kaki (animasi berlari sederhana)
+      // Kaki berlari
       const t   = Date.now() * 0.012;
       const off = Math.sin(t) * dH * 0.09;
       ctx.fillStyle = color;
@@ -511,23 +504,18 @@ export default {
     // ── Render kaktus ─────────────────────────────────────────────
     function drawCactus(obs) {
       ctx.save();
-      ctx.fillStyle = '#2d7a3a';
+      ctx.fillStyle = '#2ea44f';
 
       if (obs.type === 'double') {
-        // Kiri lebih pendek, kanan lebih tinggi
-        const tw = obs.w * 0.3;
+        const tw = obs.w * 0.32;
         ctx.fillRect(obs.x,              obs.y + obs.h * 0.25, tw, obs.h * 0.75);
         ctx.fillRect(obs.x + obs.w * 0.6, obs.y,              tw, obs.h);
-        // Duri horizontal
         ctx.fillRect(obs.x,              obs.y + obs.h * 0.3, obs.w * 0.45, obs.h * 0.18);
         ctx.fillRect(obs.x + obs.w * 0.55, obs.y + obs.h * 0.2, obs.w * 0.45, obs.h * 0.18);
       } else {
-        // Batang tengah
         ctx.fillRect(obs.x + obs.w * 0.3, obs.y, obs.w * 0.4, obs.h);
-        // Lengan kiri
         ctx.fillRect(obs.x,               obs.y + obs.h * 0.3, obs.w * 0.45, obs.h * 0.18);
         ctx.fillRect(obs.x,               obs.y + obs.h * 0.12, obs.w * 0.18, obs.h * 0.3);
-        // Lengan kanan
         ctx.fillRect(obs.x + obs.w * 0.55, obs.y + obs.h * 0.4, obs.w * 0.45, obs.h * 0.18);
         ctx.fillRect(obs.x + obs.w * 0.82, obs.y + obs.h * 0.22, obs.w * 0.18, obs.h * 0.3);
       }
@@ -535,49 +523,55 @@ export default {
       ctx.restore();
     }
 
-    // ── Overlay: menunggu ─────────────────────────────────────────
+    // ── Overlay: Menunggu Mulai ────────────────────────────────────
     function drawWaiting() {
       ctx.save();
-      ctx.fillStyle = 'rgba(0,0,0,0.78)';
-      ctx.fillRect(0, H / 2 - 100, W, 200);
+      ctx.fillStyle = 'rgba(10,14,24,0.82)';
+      ctx.fillRect(W / 2 - 280, H / 2 - 110, 560, 220);
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(W / 2 - 280, H / 2 - 110, 560, 220);
 
-      ctx.font      = 'bold 32px sans-serif';
+      ctx.font      = "bold 38px 'Fredoka', sans-serif";
       ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
-      ctx.fillText('🦖 Dino Jump', W / 2, H / 2 - 55);
+      ctx.fillText('🦖 Dino Jump (Landscape 16:9)', W / 2, H / 2 - 50);
 
-      ctx.font      = '16px sans-serif';
-      ctx.fillStyle = '#aaa';
-      ctx.fillText('Kirim  99#  dari micro:bit mana pun', W / 2, H / 2 - 14);
-      ctx.fillText('atau klik layar untuk memulai', W / 2, H / 2 + 12);
+      ctx.font      = "18px 'Fredoka', sans-serif";
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText('Kirim 99# dari micro:bit pemain mana pun', W / 2, H / 2 - 6);
+      ctx.fillText('atau klik layar untuk memulai!', W / 2, H / 2 + 24);
 
-      ctx.font      = '12px sans-serif';
-      ctx.fillStyle = '#6af';
-      ctx.fillText('Saat bermain: tombol apa pun (selain 0) = Lompat', W / 2, H / 2 + 42);
+      ctx.font      = "14px 'Fredoka', sans-serif";
+      ctx.fillStyle = '#60a5fa';
+      ctx.fillText('🎮 Kontrol: Tombol selain 0 = Lompat', W / 2, H / 2 + 65);
       ctx.restore();
     }
 
-    // ── Overlay: hitung mundur ────────────────────────────────────
+    // ── Overlay: Hitung Mundur ────────────────────────────────────
     function drawCountdown() {
       ctx.save();
-      const r = 70;
-      ctx.fillStyle = 'rgba(0,0,0,0.65)';
+      const r = 85;
+      ctx.fillStyle = 'rgba(10,14,24,0.7)';
       ctx.beginPath();
       ctx.arc(W / 2, H / 2, r, 0, Math.PI * 2);
       ctx.fill();
+      ctx.strokeStyle = '#60a5fa';
+      ctx.lineWidth = 4;
+      ctx.stroke();
 
-      ctx.font         = 'bold 88px sans-serif';
+      ctx.font         = "bold 96px 'Fredoka', sans-serif";
       ctx.fillStyle    = '#fff';
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(String(cdCount), W / 2, H / 2);
+      ctx.fillText(String(cdCount), W / 2, H / 2 + 4);
       ctx.textBaseline = 'alphabetic';
       ctx.restore();
     }
 
-    // ── Render utama ──────────────────────────────────────────────
+    // ── Render Utama ──────────────────────────────────────────────
     function draw() {
-      ctx.fillStyle = '#0d1420';
+      ctx.fillStyle = '#0a0f1d';
       ctx.fillRect(0, 0, W, H);
 
       for (const lane of lanes) drawLane(lane);
@@ -586,7 +580,7 @@ export default {
       if (phase === 'countdown') drawCountdown();
     }
 
-    // ── Loop utama ────────────────────────────────────────────────
+    // ── Loop Utama ────────────────────────────────────────────────
     let lastTs = null;
 
     function loop(ts) {
@@ -594,7 +588,6 @@ export default {
       const dt = Math.min((ts - lastTs) / 1000, 0.05);
       lastTs = ts;
 
-      // Hitung mundur
       if (phase === 'countdown') {
         cdTimer -= dt;
         if (cdTimer <= 0) {
@@ -614,14 +607,13 @@ export default {
       frameId = requestAnimationFrame(loop);
     }
 
-    // ── Handler input ─────────────────────────────────────────────
+    // ── Handler Input ─────────────────────────────────────────────
     const slotToLane = {};
     for (const lane of lanes) slotToLane[lane.slot] = lane;
 
     function onInput({ player, cmd }) {
-      if (cmd === '0') return; // netral — tidak ada aksi
+      if (cmd === '0') return;
 
-      // Fase waiting: '99' dari pemain mana pun → mulai hitung mundur
       if (phase === 'waiting') {
         if (cmd === '99') startCountdown();
         return;
@@ -629,25 +621,21 @@ export default {
 
       if (phase === 'countdown' || phase === 'over') return;
 
-      // Fase 'playing': perintah apa pun selain '0' = lompat
       const lane = slotToLane[player];
       if (!lane || lane.dead) return;
       tryJump(lane);
     }
 
     function onCanvasClick() {
-      // Klik layar saat waiting → langsung mulai (setara '99')
       if (phase === 'waiting') startCountdown();
     }
 
-    // Pasang listener
     const offInput = kernel.on('input', onInput);
     canvas.addEventListener('click', onCanvasClick);
 
-    // Mulai render loop
     frameId = requestAnimationFrame(loop);
 
-    // ── stop() — cleanup total ────────────────────────────────────
+    // ── stop() — Cleanup total ────────────────────────────────────
     return {
       stop() {
         cancelAnimationFrame(frameId);

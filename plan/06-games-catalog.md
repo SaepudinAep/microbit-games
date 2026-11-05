@@ -157,7 +157,7 @@ Balap *endless scroller* *top-down*: pemain menyusuri jalan 4 jalur dan menghind
 
 ## 5. Dino Jump (`games/dinorush.js`)
 
-Endless *runner* mirip dino saat kehilangan koneksi. **Tiap pemain punya lintasan sendiri** (1-4, tersusun dari atas ke bawah); skor = jarak tempuh (meter); nyawa 1 atau 3 (opsi `lives`); pemenang = jarak terjauh, seri bila selisih < 5 m. Satu aksi: **lompat** (tombol apa pun selain `0`). Alur mulai: tiap pemain tekan tombol, semua siap, hitung mundur 3-2-1, mulai (tanpa `99#`). Rincian: [plan/games/dinorush.md](games/dinorush.md).
+Endless *runner* horizontal dalam orientasi **Landscape 16:9 (1280x720)**, dioptimalkan untuk layar PID sekolah, laptop, dan tablet. **Tiap pemain punya lintasan horizontal sendiri** (1-4, tersusun atas ke bawah); skor = jarak tempuh (meter); nyawa 1 atau 3 (opsi `lives`); pemenang = jarak terjauh, seri bila selisih < 5 m. Satu aksi: **lompat** (tombol apa pun selain `0`). Mulai wajib dengan `99#` atau klik layar. Rincian: [plan/games/dinorush.md](games/dinorush.md).
 
 ---
 
