@@ -8,7 +8,9 @@
 | **File** | `games/flappybird.js` |
 | **Dokumen induk** | [06-games-catalog.md](../06-games-catalog.md) |
 
-Permainan arkade terbang bersama (*multiplayer shared arena*). Semua burung pemain terbang di arena yang sama melewati rintangan celah pipa yang identik secara simultan tanpa saling bertabrakan. Pemain dengan skor tertinggi atau yang bertahan paling lama keluar sebagai pemenang.
+Permainan arkade terbang bersama (*multiplayer shared arena*). Semua burung pemain terbang di arena yang sama melewati rintangan celah pipa yang identik secara simultan tanpa saling bertabrakan. 
+
+Game ini mengusung desain **antarmuka bersih tanpa menu opsi**: peraturan paten **3 nyawa** dan permainan berlangsung penuh sampai **seluruh pemain gugur** (pemain yang bertahan paling lama terus bermain sendirian mengumpulkan skor maksimal).
 
 ---
 
@@ -23,29 +25,15 @@ Permainan arkade terbang bersama (*multiplayer shared arena*). Semua burung pema
 
 ---
 
-## Opsi Permainan (`options`)
-
-| Kunci | Label UI | Nilai Default | Pilihan Tersedia | Keterangan |
-|---|---|---|---|---|
-| `lives` | Nyawa | `3` | `1`, `3` | Jumlah nyawa per burung (1 nyawa = langsung mati; 3 nyawa = kebal 1.5 dtk di celah pipa berikutnya) |
-| `end` | Game selesai (2 pemain atau lebih) | `'all'` | `'all'`, `'last'` | `'all'` = tanding sampai semua gugur; `'last'` = selesai saat sisa 1 burung hidup |
-| `level` | Tingkat | `'mudah'` | `'mudah'`, `'sedang'`, `'sulit'` | Menentukan lebar celah dan kecepatan awal pipa |
-
-### Pengaruh Tingkat Kesulitan (`level`)
-
-| Tingkat | Lebar Celah Pipa (`gap`) | Kecepatan Awal (`speed`) |
-|---|---|---|
-| **Mudah** | `210 px` | `150 px/dtk` |
-| **Sedang** | `170 px` | `180 px/dtk` |
-| **Sulit** | `140 px` | `210 px/dtk` |
-
----
-
 ## Spesifikasi Teknis
 
 | Aspek | Nilai | Keterangan |
 |---|---|---|
-| **Canvas** | `800 × 600 px` | Rasio 4:3, tampil proporsional di panggung panggung dengan letterbox gelap |
+| **Canvas** | `800 × 600 px` | Rasio 4:3, tampil proporsional di panggung dengan letterbox gelap |
+| **Nyawa** | `3 Nyawa` | Tabrakan memberi kebal 1.5 detik di tengah celah pipa berikutnya |
+| **Aturan Selesai** | Sampai semua mati (`all`) | Pemain terakhir tetap bermain sendirian memaksimalkan skor |
+| **Celah Pipa** | `170 px` | Lebar celah nyaman dan adil untuk dinikmati bersama |
+| **Kecepatan Awal** | `180 px/dtk` | Kecepatan scroll bertambah bertahap `+4 px/dtk` per detik |
 | **Lantai & Langit** | Lantai di `y = 540`, langit di `y = 0` | Menyentuh lantai atau langit dihitung sebagai tabrakan |
 | **Ukuran Burung** | `34 × 26 px` | Digambar murni dengan bentuk canvas (badan elips, sayap, mata, paruh) |
 | **Hitbox Burung** | 85 % dari ukuran visual | Toleransi tabrakan untuk kompensasi latensi nirkabel BLE |
@@ -55,7 +43,6 @@ Permainan arkade terbang bersama (*multiplayer shared arena*). Semua burung pema
 | **Batas Jatuh** | `MAX_FALL = 700 px/dtk` | Kecepatan terminal vertikal maksimal |
 | **Anti-Spam Flap** | `80 ms` | Jeda minimum antar kepakan per burung untuk mencegah spam tombol |
 | **Pipa** | Lebar `70 px`, celah ber-seed RNG | Pipa sama persis untuk semua pemain |
-| **Akselerasi Pipa** | `+4 px/dtk` tiap detik | Maksimal kecepatan `320 px/dtk` |
 | **Jarak Antar Pipa** | `kecepatan × 1.6 detik` | Dihitung saat pipa dibuat, selalu memberi ruang manuver |
 | **Margin Celah** | Min `60 px` dari langit/lantai | Pergeseran vertikal maksimal antar celah berturut-turut `150 px` |
 | **Warna Pemain** | P1 `#4b83ff`, P2 `#ff9a2e`, P3 `#3ccf8e`, P4 `#b98cff` | Mengikuti **nomor slot fisik**, bukan urutan array |
@@ -94,7 +81,7 @@ Permainan arkade terbang bersama (*multiplayer shared arena*). Semua burung pema
 ## Aturan Nyawa, Skor, & Selesai
 
 - **Sistem Nyawa**:
-  - `lives = options.lives ?? 1`.
+  - `lives = 3`.
   - Saat menabrak pipa, lantai, atau langit-langit:
     - Nyawa berkurang 1.
     - Jika masih ada sisa nyawa: burung dipindahkan ke tengah celah pipa di depannya, kecepatan vertikal di-reset ke `0`, kebal selama `1.5 detik` (berkedip @ 8Hz dan menembus rintangan), serta memutar efek suara `hurt`.
@@ -105,8 +92,8 @@ Permainan arkade terbang bersama (*multiplayer shared arena*). Semua burung pema
   - Setiap skor baru memutar audio `score` (`volume: 0.4` dengan panning spasial).
 - **Aturan Berakhir**:
   - **Solo (1 Player)**: Berakhir saat burung mati.
-  - **Multiplayer - `'all'`**: Berakhir setelah seluruh burung mati. Burung yang masih hidup terus bermain sendirian mengumpulkan skor.
-  - **Multiplayer - `'last'`**: Berakhir seketika tersisa 1 burung yang masih hidup, dan burung tersebut dinyatakan menang.
+  - **Multiplayer**: Berakhir setelah seluruh burung mati. Burung yang masih hidup terus bermain sendirian mengumpulkan skor maksimal.
+  - **Pemenang**: Pemain dengan skor tertinggi. Bila skor sama, pemain dengan waktu bertahan lebih lama keluar sebagai pemenang (seri bila selisih waktu < 0.05 detik).
 
 ---
 
@@ -153,4 +140,3 @@ Fungsi `create()` mengembalikan objek `{ stop() }`:
 - Melepas listener kernel (`offInput()`).
 - Melepas listener klik kanvas (`removeEventListener`).
 - Penjaga `dt = Math.min((ts - lastTs) / 1000, 0.05)` mencegah lonjakan frame (*lag spike*).
-

@@ -1,4 +1,4 @@
-# Sektor 05: Roadmap Fitur & Rencana Pengembangan Masa Depan
+﻿# Sektor 05: Roadmap Fitur & Rencana Pengembangan Masa Depan
 
 Dokumen ini memetakan visi evolusi platform game micro:bit, mencakup perancangan game baru (termasuk game Tank 2v2), peningkatan kapabilitas platform, serta strategi penerapan di ruang kelas.
 
@@ -23,7 +23,7 @@ Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapa
 - **Skema Kontrol**:
   - `5#`, `3#`, atau `4#`: Flap / terbang (panah kiri/kanan atau A/D pada keyboard).
   - `99#`: Mulai (hanya dari pemain pertama `players[0]`, atau klik kanvas).
-- **Fitur Khusus**: Mendukung konfigurasi `options` (Nyawa 1 atau 3, Selesai 'all' atau 'last', Tingkat mudah/sedang/sulit) dengan penyimpanan lokal.
+- **Fitur Khusus**: Antarmuka bersih tanpa menu opsi; paten 3 nyawa dan berlangsung sampai semua pemain gugur agar siswa dapat menikmati permainan secara maksimal.
 
 ---
 

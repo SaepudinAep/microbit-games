@@ -6,7 +6,7 @@
 //
 // Kontrak game:
 //   id, name, icon, description, modes, canvas
-//   create({canvas, kernel, players, mode, finish, audio, options}) -> {stop()}
+//   create({canvas, kernel, players, mode, finish, audio}) -> {stop()}
 //
 // Kontrol:
 //   '99' (dari pemain mana pun) atau klik layar = mulai (hitung mundur 3-2-1)
@@ -92,24 +92,23 @@ export default {
     'Bertahan paling jauh = menang. Dukung 1–4 pemain.',
 
   modes: [
-    { id: '1p', label: '1 Player', sub: 'Bertahan Sendiri',       players: 1, options: { lives: 3, end: 'all' } },
-    { id: '2p', label: '2 Player', sub: 'Dua Lintasan Sejajar',   players: 2, options: { lives: 3, end: 'all' } },
-    { id: '3p', label: '3 Player', sub: 'Tiga Lintasan',          players: 3, options: { lives: 3, end: 'all' } },
-    { id: '4p', label: '4 Player', sub: 'Empat Lintasan',         players: 4, options: { lives: 3, end: 'all' } },
+    { id: '1p', label: '1 Player', sub: 'Bertahan Sendiri',       players: 1 },
+    { id: '2p', label: '2 Player', sub: 'Dua Lintasan Sejajar',   players: 2 },
+    { id: '3p', label: '3 Player', sub: 'Tiga Lintasan',          players: 3 },
+    { id: '4p', label: '4 Player', sub: 'Empat Lintasan',         players: 4 },
   ],
 
   canvas: { width: W, height: H },
 
   // ─────────────────────────────────────────────────────────────────
-  create({ canvas, kernel, players, mode, finish, audio, options }) {
+  create({ canvas, kernel, players, mode, finish, audio }) {
     canvas.width  = W;
     canvas.height = H;
     const ctx = canvas.getContext('2d');
 
-    // ── Opsi ──────────────────────────────────────────────────────
-    const opts      = Object.assign({ lives: 3, end: 'all' }, mode.options, options);
-    const MAX_LIVES = opts.lives === 1 ? 1 : 3;
-    const END_MODE  = opts.end === 'last' ? 'last' : 'all';
+    // ── Aturan Permainan Bersih: Nyawa 3 & Game sampai Semua Mati ──
+    const MAX_LIVES = 3;
+    const END_MODE  = 'all';
 
     const numP  = players.length;
     const solo  = numP === 1;

@@ -11,16 +11,18 @@
 Endless *runner* menyerupai game dino legendaris dengan orientasi **Landscape 16:9 (1280 × 720 px)**.
 Dioptimalkan secara khusus untuk **Panel Interaktif Digital (PID) sekolah / Smart Board**, **laptop**, dan **tablet**. Tiap pemain berada di **lintasan horizontalnya sendiri** yang tersusun dari atas ke bawah, sehingga hingga **4 pemain** dapat bertanding berdampingan secara lapang tanpa saling bertubrukan.
 
+Game ini mengusung desain **antarmuka bersih tanpa menu opsi**: peraturan paten **3 nyawa** dan permainan berlangsung penuh sampai **seluruh pemain gugur** (pemain yang bertahan terus berlari mengumpulkan jarak terjauh).
+
 ---
 
 ## Mode
 
-| `id` | Label | Sub | `players` | `options` default |
-|---|---|---|---|---|
-| `1p` | 1 Player | Bertahan Sendiri | 1 | `{ lives: 3, end: 'all' }` |
-| `2p` | 2 Player | Dua Lintasan Sejajar | 2 | `{ lives: 3, end: 'all' }` |
-| `3p` | 3 Player | Tiga Lintasan | 3 | `{ lives: 3, end: 'all' }` |
-| `4p` | 4 Player | Empat Lintasan | 4 | `{ lives: 3, end: 'all' }` |
+| `id` | Label | Sub | `players` |
+|---|---|---|---|
+| `1p` | 1 Player | Bertahan Sendiri | 1 |
+| `2p` | 2 Player | Dua Lintasan Sejajar | 2 |
+| `3p` | 3 Player | Tiga Lintasan | 3 |
+| `4p` | 4 Player | Empat Lintasan | 4 |
 
 ---
 
@@ -29,6 +31,8 @@ Dioptimalkan secara khusus untuk **Panel Interaktif Digital (PID) sekolah / Smar
 | Aspek | Nilai | Keterangan |
 |---|---|---|
 | **Canvas** | **1280 × 720 px (16:9)** | Standar layar lebar HD, native fit di Fullscreen PID/Laptop tanpa bilah hitam samping |
+| **Nyawa** | `3 Nyawa` | Tabrakan memberi kebal 1.5 detik (berkedip @ 8Hz) dan rintangan dihapus |
+| **Aturan Selesai** | Sampai semua mati (`all`) | Pemain yang tersisa terus berlari menambah jarak terjauh |
 | **Lintasan (2–4P)** | Tinggi `LH = 720 / jumlah pemain` | 2P: 360 px, 3P: 240 px, 4P: 180 px |
 | **Lintasan (1P)** | Tinggi `SOLO_LH = 280 px` | Di tengah vertikal (`Y = 220 px`) |
 | **Skala Fisika** | `s = Math.min(1, LH / 240)` | Ukuran dino, kaktus, gravitasi, & jump velocity diskalakan otomatis |
@@ -67,15 +71,6 @@ Dioptimalkan secara khusus untuk **Panel Interaktif Digital (PID) sekolah / Smar
 1. **Fase `waiting`**: Menampilkan dialog instruksi pembuka *"Kirim 99# dari micro:bit pemain mana pun atau klik layar untuk memulai"*.
 2. **`99#` atau Klik Layar**: Memulai fase hitung mundur **3 → 2 → 1** (1 detik/angka, audio `click` tiap angka).
 3. **Mulai Lari (`playing`)**: Audio `start` berbunyi, rintangan mulai meluncur dari kanan layar.
-
----
-
-## Options (Nyawa & Aturan Selesai)
-
-| `options` key | Nilai valid | Default | Keterangan |
-|---|---|---|---|
-| `lives` | `1` atau `3` | `3` | Jumlah nyawa pemain (3 nyawa: kebal 1.5s berkedip & rintangan dihapus; 1 nyawa: eliminasi instan) |
-| `end` | `'all'` atau `'last'` | `'all'` | `'all'` = tanding sampai semua gugur; `'last'` = selesai saat sisa 1 pemain bertahan |
 
 ---
 

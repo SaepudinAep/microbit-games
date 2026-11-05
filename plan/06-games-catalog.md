@@ -1,4 +1,4 @@
-# Sektor 06: Indeks Katalog Game
+﻿# Sektor 06: Indeks Katalog Game
 
 Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/index.js`). Setiap game memiliki
 **dokumentasi individual** di `plan/games/` (lihat kolom "Dokumentasi"). Semua game memenuhi *Game Contract*
@@ -158,7 +158,7 @@ Balap *endless scroller* *top-down*: pemain menyusuri jalan 4 jalur dan menghind
 
 ## 5. Dino Jump (`games/dinorush.js`)
 
-Endless *runner* horizontal dalam orientasi **Landscape 16:9 (1280x720)**, dioptimalkan untuk layar PID sekolah, laptop, dan tablet. **Tiap pemain punya lintasan horizontal sendiri** (1-4, tersusun atas ke bawah); skor = jarak tempuh (meter); nyawa 1 atau 3 (opsi `lives`); pemenang = jarak terjauh, seri bila selisih < 5 m. Satu aksi: **lompat** (tombol apa pun selain `0`). Mulai wajib dengan `99#` atau klik layar. Rincian: [plan/games/dinorush.md](games/dinorush.md).
+Endless *runner* horizontal dalam orientasi **Landscape 16:9 (1280x720)**, dioptimalkan untuk layar PID sekolah, laptop, dan tablet. **Tiap pemain punya lintasan horizontal sendiri** (1-4, tersusun atas ke bawah); skor = jarak tempuh (meter); aturan paten 3 nyawa, game sampai semua pemain gugur; pemenang = jarak terjauh, seri bila selisih < 5 m. Satu aksi: **lompat** (tombol apa pun selain `0`). Mulai wajib dengan `99#` atau klik layar. Rincian: [plan/games/dinorush.md](games/dinorush.md).
 
 ---
 
@@ -168,7 +168,7 @@ Endless *runner* horizontal dalam orientasi **Landscape 16:9 (1280x720)**, diopt
 
 ## 6. Flappy Bird (games/flappybird.js)
 
-Permainan arkade terbang bersama (*multiplayer shared arena*). Seluruh burung pemain terbang bersama di satu arena yang sama melewati celah pipa ber-seed RNG. Mendukung 1 hingga 4 pemain, konfigurasi opsi (Nyawa, Aturan selesai, Tingkat kesulitan), dan kepakan flap pada perintah `5#`, `3#`, atau `4#`. Rincian: [plan/games/flappybird.md](games/flappybird.md).
+Permainan arkade terbang bersama (*multiplayer shared arena*). Seluruh burung pemain terbang bersama di satu arena yang sama melewati celah pipa ber-seed RNG. Mendukung 1 hingga 4 pemain, aturan paten 3 nyawa, bermain penuh sampai semua gugur, serta kepakan flap pada perintah `5#`, `3#`, atau `4#`. Rincian: [plan/games/flappybird.md](games/flappybird.md).
 
 ---
 

@@ -1,6 +1,7 @@
-# Game micro:bit
+# Game micro:bit — ROBOPANDA Robotic
 
-Web app untuk bermain game di browser dengan micro:bit sebagai controller (Web Bluetooth, Nordic UART).
+Platform media pembelajaran koding dan robotika interaktif dari **ROBOPANDA Robotic**.
+Web app untuk bermain game di browser dengan micro:bit sebagai controller nirkabel (Web Bluetooth, Nordic UART).
 Arsitekturnya **satu kernel, banyak game**: micro:bit disambung sekali di lobi, lalu pemain berpindah game tanpa menyambung ulang.
 Dirancang khusus untuk **layar landscape**: Panel Interaktif Digital (PID) sekolah, laptop, dan tablet.
 

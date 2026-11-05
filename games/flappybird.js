@@ -3,8 +3,8 @@
 // Dukung 1 sampai 4 pemain, orientasi canvas 800x600.
 //
 // Kontrak game:
-//   id, name, icon, description, modes, canvas, options
-//   create({canvas, kernel, players, mode, finish, audio, options}) -> {stop()}
+//   id, name, icon, description, modes, canvas
+//   create({canvas, kernel, players, mode, finish, audio}) -> {stop()}
 //
 // Kontrol:
 //   '99' = mulai permainan (hanya dari players[0], atau klik canvas)
@@ -98,44 +98,15 @@ export default {
 
   canvas: { width: W, height: H },
 
-  options: {
-    lives: {
-      label: 'Nyawa',
-      default: 3,
-      choices: [
-        { value: 1, label: '1' },
-        { value: 3, label: '3' }
-      ]
-    },
-    end: {
-      label: 'Game selesai (2 pemain atau lebih)',
-      default: 'all',
-      choices: [
-        { value: 'all', label: 'Semua pemain mati' },
-        { value: 'last', label: 'Sisa satu pemain' }
-      ]
-    },
-    level: {
-      label: 'Tingkat',
-      default: 'mudah',
-      choices: [
-        { value: 'mudah', label: 'Mudah' },
-        { value: 'sedang', label: 'Sedang' },
-        { value: 'sulit', label: 'Sulit' }
-      ]
-    }
-  },
-
-  create({ canvas, kernel, players, mode, finish, audio, options }) {
+  create({ canvas, kernel, players, mode, finish, audio }) {
     canvas.width  = W;
     canvas.height = H;
     const ctx = canvas.getContext('2d');
 
-    // ── Ekstraksi & Fallback Opsi ──────────────────────────────────
-    const opts      = Object.assign({ lives: 1, end: 'all', level: 'mudah' }, options);
-    const MAX_LIVES = opts.lives === 3 ? 3 : 1;
-    const END_MODE  = opts.end === 'last' ? 'last' : 'all';
-    const LVL_CFG   = LEVELS[opts.level] || LEVELS.mudah;
+    // ── Peraturan Permainan Bersih (Nyawa 3 & Game sampai Semua Mati) ──
+    const MAX_LIVES = 3;
+    const END_MODE  = 'all'; // permainan berlangsung sampai semua burung gugur
+    const LVL_CFG   = LEVELS.sedang; // celah seimbang & nyaman untuk dinikmati bersama
 
     const numP = players.length;
     const solo = numP === 1;
