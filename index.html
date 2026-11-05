@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Game micro:bit</title>
+<meta name="description" content="Platform game arkade multi-pemain edukasi berbasis BBC micro:bit via Web Bluetooth untuk laptop, tablet, dan layar sentuh interaktif (PID) kelas.">
+<title>Game micro:bit — Platform Arkade Edukasi Kelas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles/app.css">
@@ -16,30 +17,107 @@
 
 <main>
 
+<!-- LAYAR 1: HOME (SHOWCASE & TITLE SCREEN) -->
 <section class="screen on" id="home">
-  <div class="hero">
-    <span class="ball"></span>
+  <div class="home-hero">
+    <div class="home-badge">🕹️ Platform Arkade Edukasi micro:bit</div>
     <h1>Game micro:bit</h1>
-    <p>Hubungkan micro:bit, lalu pilih game dan jumlah pemain.</p>
-    <div class="row center"><button class="btn big" id="start">Mulai</button></div>
+    <p class="home-lead">
+      Ubah BBC micro:bit fisik menjadi gamepad nirkabel Bluetooth! Mainkan 6 game arkade seru bersama 1 hingga 4 pemain langsung di layar kelas atau laptop tanpa instalasi aplikasi.
+    </p>
+
+    <div class="row center home-cta">
+      <button class="btn big cta-btn" id="start">
+        <span>▶ Mulai Bermain</span>
+        <small>Hubungkan micro:bit atau uji dengan keyboard</small>
+      </button>
+    </div>
+
+    <!-- Showcase Katalog 6 Game -->
+    <div class="home-showcase">
+      <div class="showcase-title">PILIHAN GAME TERSEDIA</div>
+      <div class="showcase-grid">
+        <div class="showcase-card">
+          <span class="sc-icon">🏓</span>
+          <span class="sc-name">Ping Pong</span>
+          <span class="sc-desc">1P vs AI & 2P Duel</span>
+        </div>
+        <div class="showcase-card">
+          <span class="sc-icon">👾</span>
+          <span class="sc-name">Space Invaders</span>
+          <span class="sc-desc">1P & 2P Co-op Alien</span>
+        </div>
+        <div class="showcase-card">
+          <span class="sc-icon">🪖</span>
+          <span class="sc-name">Tank Battle</span>
+          <span class="sc-desc">1v1, 2v2 Tim & 4P FFA</span>
+        </div>
+        <div class="showcase-card">
+          <span class="sc-icon">🚗</span>
+          <span class="sc-name">Endless Racer</span>
+          <span class="sc-desc">Kebut Jalanan 1P & 2P</span>
+        </div>
+        <div class="showcase-card">
+          <span class="sc-icon">🦖</span>
+          <span class="sc-name">Dino Jump</span>
+          <span class="sc-desc">1–4P 16:9 Landscape</span>
+        </div>
+        <div class="showcase-card">
+          <span class="sc-icon">🐦</span>
+          <span class="sc-name">Flappy Bird</span>
+          <span class="sc-desc">1–4P Arena Bersama</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pilar Keunggulan Fitur -->
+    <div class="home-features">
+      <div class="feat-item">
+        <span class="feat-icon">👥</span>
+        <div class="feat-text">
+          <strong>1 – 4 Pemain</strong>
+          <small>Multipemain lokal interaktif dalam satu layar bersama</small>
+        </div>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon">📶</span>
+        <div class="feat-text">
+          <strong>Web Bluetooth Cepat</strong>
+          <small>Langsung terhubung via browser tanpa kabel data</small>
+        </div>
+      </div>
+      <div class="feat-item">
+        <span class="feat-icon">⌨️</span>
+        <div class="feat-text">
+          <strong>Dukungan Keyboard</strong>
+          <small>Dapat diuji kapan saja dengan Panah & WASD</small>
+        </div>
+      </div>
+    </div>
+
+    <p class="home-note">💡 Gunakan Google Chrome atau Microsoft Edge di PC/Laptop/PID untuk mengaktifkan koneksi Bluetooth.</p>
   </div>
 </section>
 
+<!-- LAYAR 2: KONEKSI PEMAIN -->
 <section class="screen" id="connect">
   <h2>Hubungkan pemain</h2>
-  <p>Hubungkan micro:bit, atau pilih keyboard untuk testing. Keyboard: satu pemain bebas memakai panah atau WASD; dua pemain, Player 1 memakai panah dan Player 2 memakai WASD.</p>
+  <p>Sambungkan micro:bit via Bluetooth atau pilih keyboard untuk pengujian. Keyboard: 1 pemain bebas memakai Panah/WASD; 2 pemain: Player 1 (Panah) dan Player 2 (WASD).</p>
   <div class="slots" id="slots"></div>
   <p id="msg" role="status"></p>
-  <div class="row"><button class="btn alt" id="toHome">Kembali</button><button class="btn" id="toPick">Lanjut</button></div>
+  <div class="row"><button class="btn alt" id="toHome">Kembali</button><button class="btn" id="toPick">Lanjut ke Pilih Game</button></div>
 </section>
 
+<!-- LAYAR 3: PILIH GAME & OPSI -->
 <section class="screen" id="pick">
   <h2>Pilih game</h2>
+  <p>Pilih game favorit, atur opsi pertandingan (nyawa, aturan selesai, tingkat), lalu tentukan jumlah pemain.</p>
   <div id="games"></div>
   <p id="pickHint"></p>
-  <div class="row"><button class="btn alt" id="backConnect">Kembali</button></div>
+  <div class="row"><button class="btn alt" id="backConnect">Kembali ke Pemain</button></div>
 </section>
 
+<!-- LAYAR 4: ARENA GAMEPLAY (STAGE OVERLAY FULLSCREEN) -->
 <section class="screen" id="game">
   <div class="stage">
     <canvas id="cv" width="1280" height="720"></canvas>
@@ -56,6 +134,7 @@
   </div>
 </section>
 
+<!-- MONITOR MASUKAN DIAGNOSTIK (Bawah Layar / Laci Drawer) -->
 <section id="monitor" aria-label="Monitor masukan">
   <header>
     <h3>Monitor masukan</h3>
