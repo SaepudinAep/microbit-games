@@ -1,4 +1,4 @@
-﻿# Sektor 06: Indeks Katalog Game
+# Sektor 06: Indeks Katalog Game
 
 Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/index.js`). Setiap game memiliki
 **dokumentasi individual** di `plan/games/` (lihat kolom "Dokumentasi"). Semua game memenuhi *Game Contract*
@@ -14,6 +14,7 @@ Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/i
 | 3 | `tankbattle` | Tank Battle | 🪖 | 1v1, 2v2, 4P FFA | `games/tankbattle.js` | [plan/games/tankbattle.md](games/tankbattle.md) |
 | 4 | `endlessracer` | Endless Racer | 🚗 | 1P, 2P | `games/endlessracer.js` | [plan/games/endlessracer.md](games/endlessracer.md) |
 | 5 | `dinorush` | Dino Jump | 🦖 | 1P – 4P | `games/dinorush.js` | [plan/games/dinorush.md](games/dinorush.md) |
+| 6 | `flappybird` | Flappy Bird | 🐦 | 1P – 4P | `games/flappybird.js` | [plan/games/flappybird.md](games/flappybird.md) |
 
 > **Konvensi umum** (lihat `01-core-kernel.md`): kernel meneruskan angka standar `0#`–`9#` + `99#` berlabel pemain;
 > **arti angka bersifat milik tiap game** (*deterministic commands*). Semua game memakai ready-state: permainan
@@ -158,6 +159,16 @@ Balap *endless scroller* *top-down*: pemain menyusuri jalan 4 jalur dan menghind
 ## 5. Dino Jump (`games/dinorush.js`)
 
 Endless *runner* horizontal dalam orientasi **Landscape 16:9 (1280x720)**, dioptimalkan untuk layar PID sekolah, laptop, dan tablet. **Tiap pemain punya lintasan horizontal sendiri** (1-4, tersusun atas ke bawah); skor = jarak tempuh (meter); nyawa 1 atau 3 (opsi `lives`); pemenang = jarak terjauh, seri bila selisih < 5 m. Satu aksi: **lompat** (tombol apa pun selain `0`). Mulai wajib dengan `99#` atau klik layar. Rincian: [plan/games/dinorush.md](games/dinorush.md).
+
+---
+
+
+
+---
+
+## 6. Flappy Bird (games/flappybird.js)
+
+Permainan arkade terbang bersama (*multiplayer shared arena*). Seluruh burung pemain terbang bersama di satu arena yang sama melewati celah pipa ber-seed RNG. Mendukung 1 hingga 4 pemain, konfigurasi opsi (Nyawa, Aturan selesai, Tingkat kesulitan), dan kepakan flap pada perintah `5#`, `3#`, atau `4#`. Rincian: [plan/games/flappybird.md](games/flappybird.md).
 
 ---
 

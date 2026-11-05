@@ -4,5 +4,6 @@ import spaceinvaders from './spaceinvaders.js';
 import tankbattle from './tankbattle.js';
 import endlessracer from './endlessracer.js';
 import dinorush from './dinorush.js';
+import flappybird from './flappybird.js';
 
-export const games = [pingpong, spaceinvaders, tankbattle, endlessracer, dinorush];
+export const games = [pingpong, spaceinvaders, tankbattle, endlessracer, dinorush, flappybird];

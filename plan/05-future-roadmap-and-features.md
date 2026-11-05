@@ -8,31 +8,33 @@ Dokumen ini memetakan visi evolusi platform game micro:bit, mencakup perancangan
 
 Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapat dilakukan tanpa mengubah kode inti Bluetooth. Berikut adalah garis besar judul game beserta status implementasinya:
 
-> **Status terkini (per dokumen `06-games-catalog.md`):** Game **Space Invaders**, **Tank Battle**, dan
-> **Endless Racer** telah terdaftar aktif di `games/index.js`. Fokus rencana baru berpindah ke game
-> yang belum ada (Tug of War, Space Dodge/Meteor Survival, dst).
+> **Status terkini (per dokumen `06-games-catalog.md`):** Game **Space Invaders**, **Tank Battle**,
+> **Endless Racer**, **Dino Jump**, dan **Flappy Bird** telah terdaftar aktif di `games/index.js`.
+> Fokus rencana baru berpindah ke game yang belum ada (Maze, Tug of War, Space Dodge/Meteor Survival, dst).
 
 ---
 
-### 1.1 Game: Tank Battle 2 vs 2 (atau 4-Player FFA) — ✅ Terimplementasi
+### 1.1 Game: Flappy Bird (Multiplayer Shared Arena) — ✅ Terimplementasi
 
-*Game Tank Battle aktif bernama `tankbattle` — lihat `06-games-catalog.md`.*
+*Game Flappy Bird aktif bernama `flappybird` — lihat `plan/games/flappybird.md`.*
 
-- **Konsep**: Tank bertarung dalam arena labirin top-down. Tersedia mode **1v1** (duel), **2v2** (Tim Merah vs Tim Biru), dan **4P FFA** (semua lawan semua).
-- **Kebutuhan Slot**: 4 Pemain (`players: 4`).
-- **Skema Kontrol (implementasi aktual, konsisten dengan mapping keyboard kernel)**:
-  - `1#`: Maju (atas)
-  - `2#`: Mundur (bawah)
-  - `3#`: Belok kiri
-  - `4#`: Belok kanan
-  - `5#` / `6#`: Tembak peluru
-  - `99#`: Mulai dari Player 1
-- **Mekanik**: 3 nyawa per tank, invulnerability 2.2 dtk setelah respawn (1 dtk), kolisi sliding dengan dinding/tank lain, peluru ditahan oleh dinding arena, dan peluru tidak kena kawan setim (2v2).
-- **Poin & Durasi**: Setiap tank lawan yang hancur memberi 1 poin ke tim penembak. Sisi dengan skor mencapai target (5) atau yang mengeliminasi semua lawan menang (seri jika semua habis).
+- **Konsep**: Semua burung terbang bersama di satu arena melewati celah pipa ber-seed RNG.
+- **Kebutuhan Slot**: 1 sampai 4 Pemain (`players: 1..4`).
+- **Skema Kontrol**:
+  - `5#`, `3#`, atau `4#`: Flap / terbang (panah kiri/kanan atau A/D pada keyboard).
+  - `99#`: Mulai (hanya dari pemain pertama `players[0]`, atau klik kanvas).
+- **Fitur Khusus**: Mendukung konfigurasi `options` (Nyawa 1 atau 3, Selesai 'all' atau 'last', Tingkat mudah/sedang/sulit) dengan penyimpanan lokal.
 
 ---
 
-### 1.2 Game: Tug of War (Tarik Tambang - Shake Battle)
+### 1.2 Game: Maze (Labirin Petualangan) — ⏳ Rencana Berikutnya (Belum Dirancang)
+- **Konsep**: Permainan eksplorasi labirin multi-pemain. Pemain memandu karakter mencari jalan keluar atau mengumpulkan kunci sebelum waktu habis.
+- **Kebutuhan Slot**: 1 sampai 4 Pemain.
+- **Status**: Belum dirancang (akan dikembangkan pada iterasi selanjutnya).
+
+---
+
+### 1.3 Game: Tug of War (Tarik Tambang - Shake Battle)
 - **Konsep**: Permainan pesta berenergi tinggi. Pemain mengocok/menggoyang micro:bit secepat mungkin untuk menarik tambang ke sisi timnya.
 - **Kebutuhan Slot**: 2 hingga 4 Pemain.
 - **Skema Kontrol micro:bit**:

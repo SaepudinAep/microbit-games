@@ -34,6 +34,26 @@ let busy = 0, current = null;
 
 const schemeText = s => s.scheme === 'both' ? 'panah atau WASD' : s.scheme === 'arrows' ? 'tombol panah' : 'tombol WASD';
 
+// ── Pengelolaan Opsi Konfigurasi Game (localStorage & fallback) ────
+function getGameOptions(game){
+  if (!game.options) return {};
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('opt_' + game.id) || '{}'); } catch(_){}
+  const res = {};
+  for (const k in game.options){
+    const optDef = game.options[k];
+    res[k] = saved[k] !== undefined ? saved[k] : optDef.default;
+  }
+  return res;
+}
+
+function setGameOption(gameId, key, val){
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('opt_' + gameId) || '{}'); } catch(_){}
+  saved[key] = val;
+  try { localStorage.setItem('opt_' + gameId, JSON.stringify(saved)); } catch(_){}
+}
+
 function renderSlots(){
   const box = $('#slots'); box.innerHTML = '';
   Kernel.visible().forEach(s => {
@@ -80,6 +100,34 @@ function renderPick(){
     c.append(badge);
 
     c.append(el('p', null, g.description));
+
+    // Baris opsi game (jika ada)
+    if (g.options) {
+      const curOpts = getGameOptions(g);
+      const optBox = el('div', 'gcard-options');
+      for (const key in g.options) {
+        const optDef = g.options[key];
+        const row = el('div', 'opt-row');
+        row.append(el('span', 'opt-label', optDef.label));
+
+        const group = el('div', 'opt-group');
+        const choices = optDef.choices || [];
+        choices.forEach(ch => {
+          const val = typeof ch === 'object' && ch !== null ? ch.value : ch;
+          const lbl = typeof ch === 'object' && ch !== null ? ch.label : String(ch);
+          const btn = el('button', 'opt-btn' + (curOpts[key] === val ? ' active' : ''), lbl);
+          btn.onclick = () => {
+            setGameOption(g.id, key, val);
+            group.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+          };
+          group.append(btn);
+        });
+        row.append(group);
+        optBox.append(row);
+      }
+      c.append(optBox);
+    }
 
     const row = el('div', 'row');
     g.modes.forEach(m => {
@@ -132,9 +180,12 @@ function startGame(game, mode){
   show('game');
   $('#result').classList.remove('on');
 
+  // Ambil opsi yang tersimpan untuk game ini
+  const options = getGameOptions(game);
+
   // Backing store canvas dikonfigurasi oleh game melalui game.create()
   const inst = game.create({
-    canvas: $('#cv'), kernel: Kernel, players, mode, audio: Sound,
+    canvas: $('#cv'), kernel: Kernel, players, mode, audio: Sound, options,
     finish: text => { $('#resText').textContent = text; $('#result').classList.add('on'); }
   });
   current = {players, stop: inst.stop};

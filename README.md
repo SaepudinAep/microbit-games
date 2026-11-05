@@ -20,6 +20,7 @@ games/spaceinvaders.js game Space Invaders (1P Solo & 2P Co-op)
 games/tankbattle.js   game Tank Battle (1v1, 2v2 & 4P FFA)
 games/endlessracer.js game Endless Racer (1P & 2P)
 games/dinorush.js     game Dino Jump (1P – 4P, landscape 16:9)
+games/flappybird.js   game Flappy Bird (1P – 4P, arena bersama, options)
 styles/app.css        gaya antarmuka, tata letak layar lebar, dan kontrol sentuh
 ```
 
@@ -51,16 +52,16 @@ Safari dan iPhone tidak mendukung Web Bluetooth (keyboard tetap bisa dipakai).
 Format: angka lalu `#` (mis. `3#`). Tombol atau gerakan micro:bit yang mengirim tiap angka diatur di MakeCode.
 Daftar angkanya milik kernel (`0#` sampai `9#`), tetapi **artinya milik tiap game**.
 
-| Perintah | Arti di Ping Pong | Arti di Space Invaders | Arti di Tank Battle | Arti di Endless Racer | Arti di Dino Jump |
-|---|---|---|---|---|---|
-| `99#` | mulai permainan | mulai permainan | mulai permainan | mulai permainan | mulai permainan |
-| `0#` | berhenti | berhenti | berhenti | berhenti | netral / tidak ada aksi |
-| `1#` | paddle ke kiri | pesawat ke kiri | tank maju (atas) | geser ke kiri | lompat |
-| `2#` | paddle ke kanan | pesawat ke kanan | tank mundur (bawah) | geser ke kanan | lompat |
-| `3#` | paddle ke kiri | pesawat ke kiri | tank belok kiri | geser ke kiri | lompat |
-| `4#` | paddle ke kanan | pesawat ke kanan | tank belok kanan | geser ke kanan | lompat |
-| `5#` | diabaikan | menembak laser | tembak peluru | diabaikan | lompat |
-| lainnya | diabaikan | diabaikan | diabaikan | diabaikan | lompat |
+| Perintah | Arti di Ping Pong | Arti di Space Invaders | Arti di Tank Battle | Arti di Endless Racer | Arti di Dino Jump | Arti di Flappy Bird |
+|---|---|---|---|---|---|---|
+| `99#` | mulai permainan | mulai permainan | mulai permainan | mulai permainan | mulai permainan | mulai permainan (Player 1) |
+| `0#` | berhenti | berhenti | berhenti | berhenti | netral / tidak ada aksi | diabaikan |
+| `1#` | paddle ke kiri | pesawat ke kiri | tank maju (atas) | geser ke kiri | lompat | diabaikan |
+| `2#` | paddle ke kanan | pesawat ke kanan | tank mundur (bawah) | geser ke kanan | lompat | diabaikan |
+| `3#` | paddle ke kiri | pesawat ke kiri | tank belok kiri | geser ke kiri | lompat | terbang (flap) |
+| `4#` | paddle ke kanan | pesawat ke kanan | tank belok kanan | geser ke kanan | lompat | terbang (flap) |
+| `5#` | diabaikan | menembak laser | tembak peluru | diabaikan | lompat | terbang (flap) |
+| lainnya | diabaikan | diabaikan | diabaikan | diabaikan | lompat | diabaikan |
 
 Klik layar kanvas juga berfungsi untuk memulai permainan di semua game.
 
