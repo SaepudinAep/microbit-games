@@ -83,14 +83,15 @@ Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapa
 
 ---
 
-### 1.6 Game: Hill Climbing (Balap Bukit micro:bit) — *Game Berikutnya*
-- **Konsep**: Permainan balap bukit fisika 2D di medan bergelombang. Pemain mengontrol gas, rem, dan keseimbangan tilt kendaraan agar tidak terbalik saat mendaki dan melompati bukit.
-- **Kebutuhan Slot**: 1 hingga 4 Pemain (balap adu jarak/waktu).
+### 1.6 Game: Hill Climbing (Balap Bukit micro:bit)
+- **Konsep**: Permainan balap daki bukit fisika 2D sepanjang 500 meter di kontur bukit bergelombang. Pemain mengontrol gas dan rem, menghemat bensin dengan memanfaatkan turunan lereng untuk sampai di garis finis.
+- **Kebutuhan Slot**: 1P, 2P, dan 4P (split viewport adaptif).
 - **Skema Kontrol micro:bit**:
-  - `1#` / `2#`: Gas / Rem (Akselerasi & Mundur).
-  - `3#` / `4#`: Condong ke belakang / depan (Pitch Tilt).
+  - `1#` / `4#` / `5#`: Gas (akselerasi).
+  - `2#` / `3#`: Rem / Mundur.
+  - `0#`: Lepas (netral/meluncur).
   - `99#`: Mulai permainan (P1).
-- **Status**: ⏳ Masuk antrean pengembangan berikutnya.
+- **Status**: ✅ Selesai diimplementasikan di `games/hillclimb.js`.
 
 ---
 

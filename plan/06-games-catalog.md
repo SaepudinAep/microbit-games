@@ -19,6 +19,7 @@ Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/i
 | 8 | `catchstar` | Tangkap Bintang | ⭐ | 1P, 2P, 4P | `games/catchstar.js` | [plan/games/catchstar.md](games/catchstar.md) |
 | 9 | `sumoarena` | Sumo Arena | 🥋 | 2P, 4P | `games/sumoarena.js` | [plan/games/sumoarena.md](games/sumoarena.md) |
 | 10 | `tugofwar` | Tarik Tambang | 🪢 | 2P, 4P | `games/tugofwar.js` | [plan/games/tugofwar.md](games/tugofwar.md) |
+| 11 | `hillclimb` | Hill Climbing | ⛰️ | 1P, 2P, 4P | `games/hillclimb.js` | [plan/games/hillclimb.md](games/hillclimb.md) |
 
 > **Konvensi umum** (lihat `01-core-kernel.md`): kernel meneruskan angka standar `0#`–`9#` + `99#` berlabel pemain;
 > **arti angka bersifat milik tiap game** (*deterministic commands*). Semua game memakai ready-state: permainan
@@ -205,6 +206,12 @@ Permainan aksi adu dorong multi-pemain (2 atau 4 pemain) di atas panggung bundar
 ## 10. Tarik Tambang (games/tugofwar.js)
 
 Permainan pesta adu kekuatan dan koordinasi multi-pemain (2 atau 4 pemain) menarik tali tambang horizontal. Menghadirkan format turnamen Best of 3 Ronde, bonus kekompakan 1.5× saat rekan setim menarik bersamaan (200 ms), penentuan sudden death bila seri saat batas waktu 45 detik habis, serta visual bilah ketegangan di bawah layar. Rincian: [plan/games/tugofwar.md](games/tugofwar.md).
+
+---
+
+## 11. Hill Climbing (games/hillclimb.js)
+
+Permainan balapan daki bukit fisika 2D multi-pemain (1, 2, atau 4 pemain) sepanjang 500 meter di kontur lereng bergelombang. Menampilkan tata letak split viewport adaptif (1P solo, 2P atas-bawah, 4P grid 2x2), bilah progres balapan bersama di atas layar, mekanika manajemen bensin & momentum turunan, serta kemiringan lereng maksimal 25 derajat. Rincian: [plan/games/hillclimb.md](games/hillclimb.md).
 
 ## Panduan Menjaga Dokumentasi
 
