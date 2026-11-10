@@ -32,7 +32,7 @@ Tenis meja klasik berorientasi vertikal (aspek 3:4, 600×800). Player 1 di bawah
 | **Mode** | `1p` = *Lawan komputer* (players 1); `2p` = *Dua pemain berhadapan* (players 2) |
 | **Canva** | 600 × 800 |
 | **Paddle** | Panjang 110 px, tebal 16 px, kecepatan gerak 420 px/dtk |
-| **Bola** | Radius 9 px, kecepatan awal 380 px/dtk |
+| **Bola** | Radius 9 px, kecepatan awal 280 / 380 / 480 px/dtk (opsi: Lambat, Normal, Cepat) |
 | **Poin kemenangan** | `WIN = 5` |
 | **Posisi** | P1 (bawah): `y = H - EDGE - PH`; P2/AI (atas): `y = EDGE` |
 
@@ -179,6 +179,14 @@ Permainan arkade terbang bersama (*multiplayer shared arena*). Seluruh burung pe
 ## 7. Maze Race (games/maze.js)
 
 Permainan adu cepat eksplorasi labirin multi-pemain (1–4 pemain) dengan labirin simetris 4-kuadran (*4-Way Quadrant Symmetry*) dan sistem 3 babak bertingkat (*Best of 3 Rounds*). Jarak langkah, jumlah belokan, dan rintangan dari setiap sudut menuju portal pusat dijamin 100% adil dan setara. Rincian: [plan/games/maze.md](games/maze.md).
+
+
+
+---
+
+## 8. Tangkap Bintang (games/catchstar.js)
+
+Permainan aksi reaksi menangkap bintang jatuh multi-pemain (1, 2, atau 4 pemain) di kanvas 1280x720. Berjalan otomatis melewati 3 level bertingkat (*Hujan Bintang*, *Hujan Deras*, dan *Badai Bintang*) dengan bintang emas berpoin tinggi dan bintang bergoyang. Rincian: [plan/games/catchstar.md](games/catchstar.md).
 
 ## Panduan Menjaga Dokumentasi
 

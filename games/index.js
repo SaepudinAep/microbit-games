@@ -6,5 +6,6 @@ import endlessracer from './endlessracer.js';
 import dinorush from './dinorush.js';
 import flappybird from './flappybird.js';
 import maze from './maze.js';
+import catchstar from './catchstar.js';
 
-export const games = [pingpong, spaceinvaders, tankbattle, endlessracer, dinorush, flappybird, maze];
+export const games = [pingpong, spaceinvaders, tankbattle, endlessracer, dinorush, flappybird, maze, catchstar];

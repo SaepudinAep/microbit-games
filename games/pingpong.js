@@ -13,6 +13,13 @@ const PW = 110, PH = 16;         // panjang dan tebal paddle
 const EDGE = 44, R = 9, WIN = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
+// Preset kecepatan bola
+const SPEED_PRESETS = {
+  slow:   { base: 280, maxVy: 560, maxVx: 400, ai: 185 },
+  normal: { base: 380, maxVy: 760, maxVx: 520, ai: 250 },
+  fast:   { base: 480, maxVy: 960, maxVx: 640, ai: 320 }
+};
+
 export default {
   id: 'pingpong',
   name: 'Ping Pong',
@@ -22,12 +29,29 @@ export default {
     {id: '1p', label: '1 Player', sub: 'Lawan komputer', players: 1},
     {id: '2p', label: '2 Player', sub: 'Dua pemain berhadapan', players: 2}
   ],
+  options: {
+    speed: {
+      label: 'Kecepatan Bola',
+      default: 'normal',
+      choices: [
+        {value: 'slow', label: 'Lambat'},
+        {value: 'normal', label: 'Normal'},
+        {value: 'fast', label: 'Cepat'}
+      ]
+    }
+  },
   canvas: {width: W, height: H},
 
-  create({canvas, kernel, players, mode, finish, audio}){
+  create({canvas, kernel, players, mode, finish, audio, options}){
     canvas.width = W; canvas.height = H;
     const x = canvas.getContext('2d');
     const solo = mode.players === 1;
+    const spd = SPEED_PRESETS[options?.speed] || SPEED_PRESETS.normal;
+    const baseSpeed = spd.base;
+    const maxVy = spd.maxVy;
+    const maxVx = spd.maxVx;
+    const aiSpeed = spd.ai;
+
     const slotToPaddle = {};
     players.forEach((n, i) => { slotToPaddle[n] = i; });
     const st = {over: false, ready: false, wait: 1, ball: {x: W / 2, y: H / 2, vx: 0, vy: 0},
@@ -43,12 +67,18 @@ export default {
 
     function serve(dir){                         // dir: +1 ke bawah, -1 ke atas
       const a = (Math.random() - .5) * .8;
-      st.ball = {x: W / 2, y: H / 2, vx: 380 * Math.sin(a), vy: dir * 380};
+      st.ball = {x: W / 2, y: H / 2, vx: baseSpeed * Math.sin(a), vy: dir * baseSpeed};
       st.wait = 1;
+
+      // Semua paddle wajib kembali ke posisi tengah setelah skor dicetak
+      st.p[0].x = W / 2 - PW / 2;
+      st.p[0].dir = 0;
+      st.p[1].x = W / 2 - PW / 2;
+      st.p[1].dir = 0;
     }
     function hit(b, p, i){
-      b.vy = clamp(-b.vy * 1.06, -760, 760);
-      b.vx = clamp(b.vx + ((b.x - (p.x + PW / 2)) / (PW / 2)) * 220, -520, 520);
+      b.vy = clamp(-b.vy * 1.06, -maxVy, maxVy);
+      b.vx = clamp(b.vx + ((b.x - (p.x + PW / 2)) / (PW / 2)) * 220, -maxVx, maxVx);
       audio?.play('hit', {pan: clamp((b.x - W / 2) / (W / 2), -1, 1)});
     }
     function point(i){
@@ -64,7 +94,7 @@ export default {
         }
       } else {
         audio?.play('score');
-        serve(i === 0 ? -1 : 1);                      // bola menuju pemain yang kebobolan
+        serve(i === 0 ? -1 : 1);                      // bola menuju pemain yang kebobolan & paddle kembali ke tengah
       }
     }
     function step(dt){
@@ -75,7 +105,7 @@ export default {
           if (!st.ready) return;
           const c = p.x + PW / 2;
           const d = (b.vy < 0 && Math.abs(b.x - c) > 12) ? (b.x > c ? 1 : -1) : 0;
-          p.x = clamp(p.x + d * 250 * dt, 0, W - PW);
+          p.x = clamp(p.x + d * aiSpeed * dt, 0, W - PW);
         } else p.x = clamp(p.x + p.dir * 420 * dt, 0, W - PW);
       });
       if (!st.ready) return;                               // bola menunggu aba-aba mulai dari Player 1

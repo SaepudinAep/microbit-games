@@ -27,7 +27,7 @@ Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapa
 
 ---
 
-### 1.2 Game: Maze Race (Labirin Petualangan) — 📝 Spesifikasi Selesai (Siap Diimplementasi)
+### 1.2 Game: Maze Race (Labirin Petualangan) — ✅ Terimplementasi
 
 *Dokumentasi spesifikasi lengkap: lihat [plan/games/maze.md](games/maze.md).*
 
@@ -38,11 +38,26 @@ Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapa
   - **Elemen Interaktif**: Kristal energi (+50 pts, speed boost), laser kejut (stun 1 detik), dan Portal Inti di pusat labirin.
 - **Kebutuhan Slot**: 1 sampai 4 Pemain (`players: 1..4`).
 - **Skema Kontrol**: Standar sinyal 4-arah (`1#` Atas, `2#` Bawah, `3#` Kiri, `4#` Kanan, `0#` Berhenti, `99#` Mulai).
-- **Status**: Spesifikasi desain tuntas disetujui, siap diimplementasikan di `games/maze.js`.
+- **Status**: ✅ Selesai diimplementasikan di `games/maze.js`.
 
 ---
 
-### 1.3 Game: Tug of War (Tarik Tambang - Shake Battle)
+### 1.3 Game: Tangkap Bintang (Catch Star) — ✅ Terimplementasi
+
+*Dokumentasi spesifikasi lengkap: lihat [plan/games/catchstar.md](games/catchstar.md).*
+
+- **Konsep**: Permainan aksi reaksi menangkap bintang jatuh multi-pemain (1, 2, atau 4 pemain) di kanvas 1280x720.
+- **Fitur Unggulan**:
+  - **3 Level Bertingkat Otomatis**: Level 1 Hujan Bintang (150 px/dtk), Level 2 Hujan Deras (230 px/dtk, bintang emas 12%), Level 3 Badai Bintang (330 px/dtk, bintang emas 20% & bergoyang sinus).
+  - **Sistem Keranjang & Shuffle Bag**: Keranjang trapesium berwarna slot dengan toleransi tangkap nirkabel dan sebaran 12 kolom acak merata.
+  - **Penilaian & Hasil**: Mode 1P Solo (peringkat bintang ★★★), Mode 2P/4P multiplayer (skor tertinggi atau seri).
+- **Kebutuhan Slot**: 1, 2, atau 4 Pemain (`modes: 1p, 2p, 4p`).
+- **Skema Kontrol**: `1#` atau `3#` Kiri, `2#` atau `4#` Kanan, `0#` Berhenti, `99#` Mulai (P1).
+- **Status**: ✅ Selesai diimplementasikan di `games/catchstar.js`.
+
+---
+
+### 1.4 Game: Tug of War (Tarik Tambang - Shake Battle)
 - **Konsep**: Permainan pesta berenergi tinggi. Pemain mengocok/menggoyang micro:bit secepat mungkin untuk menarik tambang ke sisi timnya.
 - **Kebutuhan Slot**: 2 hingga 4 Pemain.
 - **Skema Kontrol micro:bit**:
