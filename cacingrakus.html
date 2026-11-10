@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Cacing Rakus - Multiplayer Snake</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #020617;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    #game-container {
+      position: relative;
+      width: 1280px;
+      height: 720px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #334155;
+    }
+    canvas {
+      display: block;
+      width: 1280px;
+      height: 720px;
+      background: #0f172a;
+    }
+    .controls-hint {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+<div id="game-container">
+  <canvas id="gameCanvas" width="1280" height="720"></canvas>
+</div>
+
+<div class="controls-hint">
+  <strong>P1:</strong> W/A/S/D | <strong>P2:</strong> Panah Keyboard | <strong>Mulai:</strong> Klik Layar atau Spasi
+</div>
+
+<script type="module">
+import cacingrakus from './games/cacingrakus.js';
+
+const canvas = document.getElementById('gameCanvas');
+const dummyKernel = {
+  on: (evt, cb) => {
+    // Return dummy unsubscription
+    return () => {};
+  }
+};
+
+let gameInstance = null;
+
+function start(modeId = '2p') {
+  if (gameInstance) gameInstance.stop();
+
+  const players = modeId === '1p' ? [1] : modeId === '2p' ? [1, 2] : [1, 2, 3, 4];
+  const mode = cacingrakus.modes.find(m => m.id === modeId) || cacingrakus.modes[1];
+
+  gameInstance = cacingrakus.create({
+    canvas,
+    kernel: dummyKernel,
+    players,
+    mode,
+    finish: (msg) => {
+      console.log('Game Selesai:', msg);
+      setTimeout(() => start(modeId), 2500);
+    },
+    audio: {
+      play: (name) => {
+        // Audio synthesis fallback
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          gain.gain.value = 0.1;
+          osc.frequency.value = name === 'hit' ? 140 : name === 'score' ? 660 : 440;
+          osc.start();
+          osc.stop(ctx.currentTime + 0.1);
+        } catch (_) {}
+      }
+    }
+  });
+}
+
+// Mulai otomatis mode 2P
+start('2p');
+</script>
+
+</body>
+</html>
+
