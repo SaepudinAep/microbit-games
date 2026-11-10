@@ -19,12 +19,13 @@ games/index.js        daftar katalog game
 games/pingpong.js     game Ping Pong (1P & 2P)
 games/spaceinvaders.js game Space Invaders (1P Solo & 2P Co-op)
 games/tankbattle.js   game Tank Battle (1v1, 2v2 & 4P FFA)
-games/endlessracer.js game Endless Racer (1P & 2P)
+games/endlessracer.js game Endless Racer (1P – 4P)
 games/dinorush.js     game Dino Jump (1P – 4P, landscape 16:9)
 games/flappybird.js   game Flappy Bird (1P – 4P, arena bersama)
 games/maze.js         game Maze Race (1P – 4P, labirin simetris 4-sudut 3 ronde)
 games/catchstar.js    game Tangkap Bintang (1P, 2P, 4P, tangkap bintang jatuh 3 level)
 games/sumoarena.js    game Sumo Arena (2P, 4P, aksi adu dorong panggung mengecil)
+games/tugofwar.js     game Tarik Tambang (2P, 4P, adu kekuatan & koordinasi tim)
 styles/app.css        gaya antarmuka, tata letak layar lebar, dan kontrol sentuh
 ```
 
@@ -56,16 +57,16 @@ Safari dan iPhone tidak mendukung Web Bluetooth (keyboard tetap bisa dipakai).
 Format: angka lalu `#` (mis. `3#`). Tombol atau gerakan micro:bit yang mengirim tiap angka diatur di MakeCode.
 Daftar angkanya milik kernel (`0#` sampai `9#`), tetapi **artinya milik tiap game**.
 
-| Perintah | Arti di Ping Pong | Arti di Space Invaders | Arti di Tank Battle | Arti di Endless Racer | Arti di Dino Jump | Arti di Flappy Bird | Arti di Maze Race | Arti di Tangkap Bintang | Arti di Sumo Arena |
-|---|---|---|---|---|---|---|---|---|---|
-| `99#` | mulai permainan | mulai permainan | mulai permainan | mulai permainan | mulai permainan | mulai permainan (Player 1) | mulai permainan (Player 1) | mulai permainan (Player 1) | mulai permainan (Player 1) |
-| `0#` | berhenti | berhenti | berhenti | berhenti | netral / tidak ada aksi | diabaikan | robot berhenti di tempat | keranjang berhenti | berhenti dorong (meluncur) |
-| `1#` | paddle ke kiri | pesawat ke kiri | tank maju (atas) | geser ke kiri | lompat | diabaikan | robot bergerak ke atas | keranjang geser ke kiri | dorong ke atas |
-| `2#` | paddle ke kanan | pesawat ke kanan | tank mundur (bawah) | geser ke kanan | lompat | diabaikan | robot bergerak ke bawah | keranjang geser ke kanan | dorong ke bawah |
-| `3#` | paddle ke kiri | pesawat ke kiri | tank belok kiri | geser ke kiri | lompat | terbang (flap) | robot belok ke kiri | keranjang geser ke kiri | dorong ke kiri |
-| `4#` | paddle ke kanan | pesawat ke kanan | tank belok kanan | geser ke kanan | lompat | terbang (flap) | robot belok ke kanan | keranjang geser ke kanan | dorong ke kanan |
-| `5#` | diabaikan | menembak laser | tembak peluru | diabaikan | lompat | terbang (flap) | alternatif mulai (Player 1) | diabaikan | dorongan kuat (dash) |
-| lainnya | diabaikan | diabaikan | diabaikan | diabaikan | lompat | diabaikan | diabaikan | diabaikan | diabaikan |
+| Perintah | Arti di Ping Pong | Arti di Space Invaders | Arti di Tank Battle | Arti di Endless Racer | Arti di Dino Jump | Arti di Flappy Bird | Arti di Maze Race | Arti di Tangkap Bintang | Arti di Sumo Arena | Arti di Tarik Tambang |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `99#` | mulai permainan | mulai permainan | mulai permainan | mulai permainan | mulai permainan | mulai permainan (Player 1) | mulai permainan (Player 1) | mulai permainan (Player 1) | mulai permainan (Player 1) | mulai permainan (Player 1) |
+| `0#` | berhenti | berhenti | berhenti | berhenti | netral / tidak ada aksi | diabaikan | robot berhenti di tempat | keranjang berhenti | berhenti dorong (meluncur) | diabaikan |
+| `1#` | paddle ke kiri | pesawat ke kiri | tank maju (atas) | geser ke kiri | lompat | diabaikan | robot bergerak ke atas | keranjang geser ke kiri | dorong ke atas | tarik tali (1 tarikan) |
+| `2#` | paddle ke kanan | pesawat ke kanan | tank mundur (bawah) | geser ke kanan | lompat | diabaikan | robot bergerak ke bawah | keranjang geser ke kanan | dorong ke bawah | tarik tali (1 tarikan) |
+| `3#` | paddle ke kiri | pesawat ke kiri | tank belok kiri | geser ke kiri | lompat | terbang (flap) | robot belok ke kiri | keranjang geser ke kiri | dorong ke kiri | tarik tali (1 tarikan) |
+| `4#` | paddle ke kanan | pesawat ke kanan | tank belok kanan | geser ke kanan | lompat | terbang (flap) | robot belok ke kanan | keranjang geser ke kanan | dorong ke kanan | tarik tali (1 tarikan) |
+| `5#` | diabaikan | menembak laser | tembak peluru | diabaikan | lompat | terbang (flap) | alternatif mulai (Player 1) | diabaikan | dorongan kuat (dash) | tarik tali (1 tarikan) |
+| lainnya | diabaikan | diabaikan | diabaikan | diabaikan | lompat | diabaikan | diabaikan | diabaikan | diabaikan | diabaikan |
 
 Klik layar kanvas juga berfungsi untuk memulai permainan di semua game.
 

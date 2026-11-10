@@ -25,8 +25,13 @@ const CAR_H  = 60;   // panjang mobil pemain
 const OBS_W  = 36;   // lebar halangan
 const OBS_H  = 60;   // panjang halangan
 
-// Warna pemain
-const PCOLORS = ['#4b83ff', '#ff9a2e'];
+// Warna slot pemain resmi
+const SLOT_COLORS = {
+  1: '#4b83ff', // Biru
+  2: '#ff9a2e', // Oranye
+  3: '#3ccf8e', // Hijau
+  4: '#b98cff'  // Ungu
+};
 
 // Warna kendaraan halangan
 const OBS_COLORS = ['#e53935','#8e24aa','#00897b','#f4511e','#c0ca33','#039be5'];
@@ -47,20 +52,23 @@ export default {
   id: 'endlessracer',
   name: 'Endless Racer',
   icon: '🚗',
-  description: 'Kebut di jalan tanpa henti! Hindari kendaraan dari atas, bertahan selama mungkin. Dukung 1P dan 2P.',
+  description: 'Kebut di jalan tanpa henti! Hindari kendaraan dari atas, bertahan selama mungkin. Dukung 1P hingga 4P.',
   modes: [
-    {id: '1p', label: '1 Player',  sub: 'Bertahan Sendirian',    players: 1},
-    {id: '2p', label: '2 Player',  sub: 'Siapa Bertahan Lama?',  players: 2},
+    { id: '1p', label: '1 Player', sub: 'Bertahan Sendirian',   players: 1 },
+    { id: '2p', label: '2 Player', sub: 'Siapa Bertahan Lama?', players: 2 },
+    { id: '3p', label: '3 Player', sub: 'Adu Gesit Ber-3',      players: 3 },
+    { id: '4p', label: '4 Player', sub: 'Balapan Berempat',     players: 4 },
   ],
-  canvas: {width: W, height: H},
+  canvas: { width: W, height: H },
 
-  create({canvas, kernel, players, mode, finish, audio}) {
+  create({ canvas, kernel, players, mode, finish, audio }) {
     canvas.width = W;
     canvas.height = H;
     const ctx = canvas.getContext('2d');
 
     const solo = mode.players === 1;
-    const numP  = players.length;
+    const numP = players.length;
+    const starterPlayer = players[0];
 
     // Pemetaan slot → indeks pemain
     const slotToP = {};
@@ -69,7 +77,7 @@ export default {
     // =====================================================
     // State game
     // =====================================================
-    const st = {ready: false, over: false};
+    const st = { ready: false, over: false };
     let scrollY    = 0;      // posisi scroll marka jalan
     let scrollSpeed = SCROLL_INIT;
     let obsTimer   = 0;
@@ -79,16 +87,15 @@ export default {
     let lastTime   = null;
 
     let obstacles  = [];
+    let lastLane   = -1;
 
     // =====================================================
     // Inisialisasi mobil pemain
     // =====================================================
     function initCarX(i) {
-      if (solo) return ROAD_LEFT + ROAD_W/2 - CAR_W/2;
-      // 2P: kiri dan kanan
-      return i === 0
-        ? ROAD_LEFT + ROAD_W/4 - CAR_W/2
-        : ROAD_LEFT + 3*ROAD_W/4 - CAR_W/2;
+      if (solo) return ROAD_LEFT + ROAD_W / 2 - CAR_W / 2;
+      // Posisi awal tersebar merata di jalan sesuai jumlah pemain
+      return ROAD_LEFT + (i + 0.5) * (ROAD_W / numP) - CAR_W / 2;
     }
 
     const cars = players.map((slot, i) => ({
@@ -99,17 +106,22 @@ export default {
       dir:  0,       // -1=kiri, 0=diam, 1=kanan
       alive: true,
       survived: 0,   // dtk bertahan saat mati
-      color: PCOLORS[i % PCOLORS.length],
-      label: `P${i+1}`,
+      color: SLOT_COLORS[slot] || '#4b83ff',
+      label: `P${slot}`,
     }));
 
     // =====================================================
     // Spawn halangan dari atas
     // =====================================================
     function spawnObstacle() {
-      // Pilih jalur acak (4 jalur) — untuk 2P hindari jalur yang sama dua kali
       const laneCount = 4;
-      const lane = Math.floor(Math.random() * laneCount);
+      let lane = Math.floor(Math.random() * laneCount);
+      // Variasikan lajur agar tidak berturut-turut di lajur yang sama
+      if (lane === lastLane) {
+        lane = (lane + 1 + Math.floor(Math.random() * (laneCount - 1))) % laneCount;
+      }
+      lastLane = lane;
+
       const x = ROAD_LEFT + lane * LANE_W + (LANE_W - OBS_W) / 2;
       obstacles.push({
         x,
@@ -117,8 +129,7 @@ export default {
         w: OBS_W,
         h: OBS_H,
         color: OBS_COLORS[Math.floor(Math.random() * OBS_COLORS.length)],
-        // Variasi kecepatan halangan
-        speedMult: 0.6 + Math.random() * 0.5,
+        speedMult: 0.65 + Math.random() * 0.45,
       });
     }
 
@@ -126,7 +137,7 @@ export default {
     // Periksa AABB collision
     // =====================================================
     function aabb(ax, ay, aw, ah, bx, by, bw, bh) {
-      return ax < bx+bw && ax+aw > bx && ay < by+bh && ay+ah > by;
+      return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
     }
 
     // =====================================================
@@ -168,7 +179,7 @@ export default {
           if (!car.alive) continue;
           if (aabb(car.x, car.y, CAR_W, CAR_H, obs.x, obs.y, obs.w, obs.h)) {
             // Tabrak!
-            car.alive   = false;
+            car.alive    = false;
             car.survived = elapsed;
             audio?.play('lose');
             checkAllDead();
@@ -181,25 +192,26 @@ export default {
     }
 
     // =====================================================
-    // Periksa apakah semua pemain mati
+    // Periksa apakah semua pemain gugur
     // =====================================================
     function checkAllDead() {
       const aliveCars = cars.filter(c => c.alive);
       if (aliveCars.length > 0) return; // masih ada yang hidup
 
       st.over = true;
-      const best = cars.reduce((a, b) => a.survived >= b.survived ? a : b);
+      const maxSurvived = Math.max(...cars.map(c => c.survived));
+      const winners = cars.filter(c => Math.abs(c.survived - maxSurvived) < 0.08);
 
       setTimeout(() => {
         if (solo) {
-          finish(`Bertahan ${best.survived.toFixed(1)} detik! 🏁`);
+          finish(`Bertahan ${cars[0].survived.toFixed(1)} detik! 🏁`);
         } else {
-          // Siapa bertahan lebih lama?
-          const winner = cars.reduce((a, b) => a.survived >= b.survived ? a : b);
-          const tied = cars.every(c => Math.abs(c.survived - winner.survived) < 0.05);
-          finish(tied
-            ? `Seri! Semua bertahan ${winner.survived.toFixed(1)} dtk`
-            : `${winner.label} Bertahan Paling Lama! (${winner.survived.toFixed(1)} dtk)`);
+          if (winners.length === 1) {
+            finish(`${winners[0].label} Bertahan Paling Lama! (${maxSurvived.toFixed(1)} dtk) 🏆`);
+          } else {
+            const names = winners.map(w => w.label).join(' & ');
+            finish(`Seri: ${names}! (${maxSurvived.toFixed(1)} dtk)`);
+          }
         }
       }, 500);
     }
@@ -239,18 +251,33 @@ export default {
       ctx.setLineDash([]);
       ctx.lineDashOffset = 0;
 
-      // Tanaman/batas (opsional dekoratif)
+      // Tanaman/batas dekoratif
       ctx.fillStyle = '#2d5a2d';
-      ctx.fillRect(0, 0, ROAD_LEFT-4, H);
-      ctx.fillRect(ROAD_RIGHT+4, 0, W-ROAD_RIGHT-4, H);
+      ctx.fillRect(0, 0, ROAD_LEFT - 4, H);
+      ctx.fillRect(ROAD_RIGHT + 4, 0, W - ROAD_RIGHT - 4, H);
     }
 
     // =====================================================
     // Gambar mobil pemain
     // =====================================================
     function drawCar(car) {
-      if (!car.alive) return;
-      const {x, y, color} = car;
+      if (!car.alive) {
+        // Tanda lokasi kecelakaan transparan
+        ctx.save();
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = car.color;
+        ctx.beginPath();
+        ctx.arc(car.x + CAR_W / 2, car.y + CAR_H / 2, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.font = '14px sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.fillText('💥', car.x + CAR_W / 2, car.y + CAR_H / 2 + 5);
+        ctx.restore();
+        return;
+      }
+
+      const { x, y, color } = car;
 
       ctx.save();
 
@@ -262,20 +289,20 @@ export default {
 
       // Kaca depan (atas)
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.fillRect(x+4, y+6, CAR_W-8, 14);
+      ctx.fillRect(x + 4, y + 6, CAR_W - 8, 14);
 
       // Roda
       ctx.fillStyle = '#222';
-      ctx.fillRect(x-5,       y+8,       8, 14);  // kiri depan
-      ctx.fillRect(x+CAR_W-3, y+8,       8, 14);  // kanan depan
-      ctx.fillRect(x-5,       y+CAR_H-22, 8, 14);  // kiri belakang
-      ctx.fillRect(x+CAR_W-3, y+CAR_H-22, 8, 14);  // kanan belakang
+      ctx.fillRect(x - 5,         y + 8,          8, 14); // kiri depan
+      ctx.fillRect(x + CAR_W - 3, y + 8,          8, 14); // kanan depan
+      ctx.fillRect(x - 5,         y + CAR_H - 22, 8, 14); // kiri belakang
+      ctx.fillRect(x + CAR_W - 3, y + CAR_H - 22, 8, 14); // kanan belakang
 
       // Label
-      ctx.font = 'bold 10px sans-serif';
+      ctx.font = 'bold 11px sans-serif';
       ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
-      ctx.fillText(car.label, x + CAR_W/2, y - 5);
+      ctx.fillText(car.label, x + CAR_W / 2, y - 6);
 
       ctx.restore();
     }
@@ -292,45 +319,52 @@ export default {
 
       // Kaca
       ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      ctx.fillRect(obs.x+4, obs.y+obs.h-20, obs.w-8, 14);
+      ctx.fillRect(obs.x + 4, obs.y + obs.h - 20, obs.w - 8, 14);
 
       // Roda
       ctx.fillStyle = '#111';
-      ctx.fillRect(obs.x-4,       obs.y+6,        7, 12);
-      ctx.fillRect(obs.x+obs.w-3, obs.y+6,        7, 12);
-      ctx.fillRect(obs.x-4,       obs.y+obs.h-18, 7, 12);
-      ctx.fillRect(obs.x+obs.w-3, obs.y+obs.h-18, 7, 12);
+      ctx.fillRect(obs.x - 4,         obs.y + 6,          7, 12);
+      ctx.fillRect(obs.x + obs.w - 3, obs.y + 6,          7, 12);
+      ctx.fillRect(obs.x - 4,         obs.y + obs.h - 18, 7, 12);
+      ctx.fillRect(obs.x + obs.w - 3, obs.y + obs.h - 18, 7, 12);
       ctx.restore();
     }
 
     // =====================================================
-    // Gambar HUD (skor waktu)
+    // Gambar HUD (skor waktu & status pemain)
     // =====================================================
     function drawHUD() {
       ctx.save();
       ctx.font = 'bold 20px sans-serif';
       ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
-      ctx.fillText(`⏱ ${elapsed.toFixed(1)} dtk`, W/2, 32);
+      ctx.fillText(`⏱ ${elapsed.toFixed(1)} dtk`, W / 2, 32);
 
       // Kecepatan
       ctx.font = '13px sans-serif';
       ctx.fillStyle = '#aaa';
-      ctx.fillText(`🚀 ${Math.round(scrollSpeed)} px/s`, W/2, 52);
+      ctx.fillText(`🚀 ${Math.round(scrollSpeed)} px/s`, W / 2, 52);
 
-      // Status pemain
+      // Status pemain di panel bawah untuk mode multipemain
       if (!solo) {
+        const barH = 34;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.fillRect(0, H - barH, W, barH);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, H - barH);
+        ctx.lineTo(W, H - barH);
+        ctx.stroke();
+
+        const colW = W / numP;
         cars.forEach((car, i) => {
-          const hx = i === 0 ? ROAD_LEFT + 10 : W/2 + 10;
+          const cx = i * colW + colW / 2;
           ctx.font = 'bold 12px sans-serif';
-          ctx.fillStyle = car.alive ? car.color : '#555';
-          ctx.textAlign = 'left';
-          ctx.fillText(
-            car.alive
-              ? `${car.label}: ✅`
-              : `${car.label}: 💥 ${car.survived.toFixed(1)}s`,
-            hx, H - 15
-          );
+          ctx.fillStyle = car.alive ? car.color : '#71717a';
+          ctx.textAlign = 'center';
+          const status = car.alive ? '✅ Bertahan' : `💥 ${car.survived.toFixed(1)}s`;
+          ctx.fillText(`${car.label}: ${status}`, cx, H - 12);
         });
       }
       ctx.restore();
@@ -350,19 +384,19 @@ export default {
       // Banner siap
       if (!st.ready) {
         ctx.save();
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.fillRect(0, H/2 - 80, W, 160);
+        ctx.fillStyle = 'rgba(0,0,0,0.72)';
+        ctx.fillRect(0, H / 2 - 85, W, 170);
         ctx.font = 'bold 30px sans-serif';
         ctx.fillStyle = '#fff';
         ctx.textAlign = 'center';
-        ctx.fillText('🚗 Endless Racer', W/2, H/2 - 38);
-        ctx.font = '17px sans-serif';
-        ctx.fillStyle = '#aaa';
-        ctx.fillText('Kirim  99#  dari micro:bit Player 1', W/2, H/2 + 2);
-        ctx.fillText('atau klik layar untuk mulai', W/2, H/2 + 30);
+        ctx.fillText('🚗 Endless Racer', W / 2, H / 2 - 40);
+        ctx.font = '16px sans-serif';
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillText(`Kirim  99#  dari micro:bit pemain pertama (P${starterPlayer})`, W / 2, H / 2 - 2);
+        ctx.fillText('atau klik layar untuk mulai', W / 2, H / 2 + 25);
         ctx.font = '13px sans-serif';
         ctx.fillStyle = '#6af';
-        ctx.fillText('← → geser  |  hindari kendaraan dari atas!', W/2, H/2 + 60);
+        ctx.fillText('← → geser  |  hindari kendaraan dari atas!', W / 2, H / 2 + 55);
         ctx.restore();
       }
 
@@ -400,12 +434,12 @@ export default {
     // =====================================================
     // Handler input
     // =====================================================
-    function onInput({player, cmd}) {
+    function onInput({ player, cmd }) {
       const pi = slotToP[player];
       if (pi == null) return;
 
       if (!st.ready) {
-        if (cmd === '99') beginGame();
+        if (cmd === '99' && player === starterPlayer) beginGame();
         return;
       }
       if (st.over) return;
@@ -442,4 +476,3 @@ export default {
     };
   }
 };
-

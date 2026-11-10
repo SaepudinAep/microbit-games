@@ -1,4 +1,4 @@
-﻿# Sektor 06: Indeks Katalog Game
+# Sektor 06: Indeks Katalog Game
 
 Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/index.js`). Setiap game memiliki
 **dokumentasi individual** di `plan/games/` (lihat kolom "Dokumentasi"). Semua game memenuhi *Game Contract*
@@ -12,9 +12,13 @@ Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/i
 | 1 | `pingpong` | Ping Pong | 🏓 | 1P, 2P | `games/pingpong.js` | [plan/games/pingpong.md](games/pingpong.md) |
 | 2 | `spaceinvaders` | Space Invaders | 👾 | 1P, 2P (Co-op) | `games/spaceinvaders.js` | [plan/games/spaceinvaders.md](games/spaceinvaders.md) |
 | 3 | `tankbattle` | Tank Battle | 🪖 | 1v1, 2v2, 4P FFA | `games/tankbattle.js` | [plan/games/tankbattle.md](games/tankbattle.md) |
-| 4 | `endlessracer` | Endless Racer | 🚗 | 1P, 2P | `games/endlessracer.js` | [plan/games/endlessracer.md](games/endlessracer.md) |
+| 4 | `endlessracer` | Endless Racer | 🚗 | 1P – 4P | `games/endlessracer.js` | [plan/games/endlessracer.md](games/endlessracer.md) |
 | 5 | `dinorush` | Dino Jump | 🦖 | 1P – 4P | `games/dinorush.js` | [plan/games/dinorush.md](games/dinorush.md) |
 | 6 | `flappybird` | Flappy Bird | 🐦 | 1P – 4P | `games/flappybird.js` | [plan/games/flappybird.md](games/flappybird.md) |
+| 7 | `maze` | Maze Race | 🧭 | 1P – 4P | `games/maze.js` | [plan/games/maze.md](games/maze.md) |
+| 8 | `catchstar` | Tangkap Bintang | ⭐ | 1P, 2P, 4P | `games/catchstar.js` | [plan/games/catchstar.md](games/catchstar.md) |
+| 9 | `sumoarena` | Sumo Arena | 🥋 | 2P, 4P | `games/sumoarena.js` | [plan/games/sumoarena.md](games/sumoarena.md) |
+| 10 | `tugofwar` | Tarik Tambang | 🪢 | 2P, 4P | `games/tugofwar.js` | [plan/games/tugofwar.md](games/tugofwar.md) |
 
 > **Konvensi umum** (lihat `01-core-kernel.md`): kernel meneruskan angka standar `0#`–`9#` + `99#` berlabel pemain;
 > **arti angka bersifat milik tiap game** (*deterministic commands*). Semua game memakai ready-state: permainan
@@ -128,14 +132,14 @@ Balap *endless scroller* *top-down*: pemain menyusuri jalan 4 jalur dan menghind
 
 | Aspek | Spesifikasi |
 |---|---|
-| **Mode** | `1p` = *Bertahan Sendirian*; `2p` = *Siapa Bertahan Lama?* (players 2) |
+| **Mode** | `1p`, `2p`, `3p`, `4p` (1 sampai 4 pemain) |
 | **Canva** | 600 × 800 |
 | **Jalan** | Kiri `80`, kanan `520` (lebar 440), 4 jalur, marka putus-putus |
 | **Mobil pemain** | 36×60 px, kecepatan geser `320 px/dtk` |
 | **Halangan** | 36×60 px, 6 warna, kecepatan relatif acak (0.6–1.1×) |
 | **Scroll** | Mulai `220 px/dtk`, naik `14 px/dtk` tiap detik, maks `600 px/dtk` |
 | **Spawn** | Interval mulai 1.4 dtk, memendek ke min 0.6 dtk seiring waktu |
-| **Posisi mulai** | 1P di tengah; 2P di jalur kiri & kanan |
+| **Posisi mulai** | Tersebar merata di jalan (1P di tengah, 4P tepat di tiap 4 lajur) |
 
 **Kontrol:**
 
@@ -148,7 +152,7 @@ Balap *endless scroller* *top-down*: pemain menyusuri jalan 4 jalur dan menghind
 
 **Mekanik:**
 - Tabrakan dengan halangan → mobil hancur, catat waktu `survived`.
-- 1P: berakhir saat mobil hancur → tampil durasi bertahan. 2P: berakhir saat **semua** mobil hancur
+- 1P: berakhir saat mobil hancur → tampil durasi bertahan. Multipemain (2P, 3P, 4P): berakhir saat **semua** mobil hancur
   → tampil pemenang dengan durasi bertahan terlama (atau seri bila selisih < 50 ms).
 - Mobil hanya bisa berpindah antar lajur dalam batas jalan (diclamp ke `ROAD_LEFT..ROAD_RIGHT-CAR_W`).
 
@@ -195,6 +199,12 @@ Permainan aksi reaksi menangkap bintang jatuh multi-pemain (1, 2, atau 4 pemain)
 ## 9. Sumo Arena (games/sumoarena.js)
 
 Permainan aksi adu dorong multi-pemain (2 atau 4 pemain) di atas panggung bundar mengecil. Dilengkapi dorongan arah, dash kejut berkecepatan 700 px/dtk, tabrakan elastis impuls massa, dan sistem 3 ronde (dengan ronde penentu bila seri). Rincian: [plan/games/sumoarena.md](games/sumoarena.md).
+
+---
+
+## 10. Tarik Tambang (games/tugofwar.js)
+
+Permainan pesta adu kekuatan dan koordinasi multi-pemain (2 atau 4 pemain) menarik tali tambang horizontal. Menghadirkan format turnamen Best of 3 Ronde, bonus kekompakan 1.5× saat rekan setim menarik bersamaan (200 ms), penentuan sudden death bila seri saat batas waktu 45 detik habis, serta visual bilah ketegangan di bawah layar. Rincian: [plan/games/tugofwar.md](games/tugofwar.md).
 
 ## Panduan Menjaga Dokumentasi
 

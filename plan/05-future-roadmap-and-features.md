@@ -72,13 +72,25 @@ Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapa
 
 ---
 
-### 1.5 Game: Tug of War (Tarik Tambang - Shake Battle)
-- **Konsep**: Permainan pesta berenergi tinggi. Pemain mengocok/menggoyang micro:bit secepat mungkin untuk menarik tambang ke sisi timnya.
-- **Kebutuhan Slot**: 2 hingga 4 Pemain.
+### 1.5 Game: Tug of War (Tarik Tambang)
+- **Konsep**: Permainan pesta berenergi tinggi. Pemain menarik tali tambang ke sisi timnya dengan koordinasi dan kecepatan tarikan tombol (1–5).
+- **Kebutuhan Slot**: 2 Player (1v1) dan 4 Player (2v2).
 - **Skema Kontrol micro:bit**:
-  - micro:bit mendeteksi `on shake` dan mengirim pulsa `1#`.
-  - Kernel menghitung akumulasi frekuensi getaran per detik (RPM).
-- **Fitur Khusus**: Sangat cocok untuk demonstrasi cepat di kelas karena tidak memerlukan pemahaman koordinasi tombol rumit.
+  - `1#`–`5#`: Masing-masing satu tarikan (maks 8 tarikan/dtk).
+  - `99#`: Mulai permainan (P1).
+- **Fitur Khusus**: Bonus kompak 1.5× saat rekan setim menarik bersamaan (200 ms), format Best of 3 Ronde, dan Sudden Death.
+- **Status**: ✅ Selesai diimplementasikan di `games/tugofwar.js`.
+
+---
+
+### 1.6 Game: Hill Climbing (Balap Bukit micro:bit) — *Game Berikutnya*
+- **Konsep**: Permainan balap bukit fisika 2D di medan bergelombang. Pemain mengontrol gas, rem, dan keseimbangan tilt kendaraan agar tidak terbalik saat mendaki dan melompati bukit.
+- **Kebutuhan Slot**: 1 hingga 4 Pemain (balap adu jarak/waktu).
+- **Skema Kontrol micro:bit**:
+  - `1#` / `2#`: Gas / Rem (Akselerasi & Mundur).
+  - `3#` / `4#`: Condong ke belakang / depan (Pitch Tilt).
+  - `99#`: Mulai permainan (P1).
+- **Status**: ⏳ Masuk antrean pengembangan berikutnya.
 
 ---
 
