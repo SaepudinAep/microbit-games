@@ -20,6 +20,7 @@ Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/i
 | 9 | `sumoarena` | Sumo Arena | 🥋 | 2P, 4P | `games/sumoarena.js` | [plan/games/sumoarena.md](games/sumoarena.md) |
 | 10 | `tugofwar` | Tarik Tambang | 🪢 | 2P, 4P | `games/tugofwar.js` | [plan/games/tugofwar.md](games/tugofwar.md) |
 | 11 | `hillclimb` | Hill Climbing | ⛰️ | 1P, 2P, 4P | `games/hillclimb.js` | [plan/games/hillclimb.md](games/hillclimb.md) |
+| 12 | `cacingrakus` | Cacing Rakus | 🪱 | 1P, 2P, 4P | `games/cacingrakus.js` | [plan/games/cacingrakus.md](games/cacingrakus.md) |
 
 > **Konvensi umum** (lihat `01-core-kernel.md`): kernel meneruskan angka standar `0#`–`9#` + `99#` berlabel pemain;
 > **arti angka bersifat milik tiap game** (*deterministic commands*). Semua game memakai ready-state: permainan
@@ -212,6 +213,12 @@ Permainan pesta adu kekuatan dan koordinasi multi-pemain (2 atau 4 pemain) menar
 ## 11. Hill Climbing (games/hillclimb.js)
 
 Permainan balapan daki bukit fisika 2D multi-pemain (1, 2, atau 4 pemain) sepanjang 500 meter di kontur lereng bergelombang. Menampilkan tata letak split viewport adaptif (1P solo, 2P atas-bawah, 4P grid 2x2), bilah progres balapan bersama di atas layar, mekanika manajemen bensin & momentum turunan, serta kemiringan lereng maksimal 25 derajat. Rincian: [plan/games/hillclimb.md](games/hillclimb.md).
+
+---
+
+## 12. Cacing Rakus (games/cacingrakus.js)
+
+Permainan ular arkade multi-pemain (1, 2, atau 4 pemain) di arena grid 40x40 ($1280 \times 720\text{ px}$, $32 \times 18\text{ sel}$). Menampilkan sistem tembus dinding (Pac-Man style wrap-around), buffer input 2 antrian anti-latensi Bluetooth, sistem 3 nyawa dengan respawn dan makanan bangkai, serta kemunculan makanan emas berkala. Rincian: [plan/games/cacingrakus.md](games/cacingrakus.md).
 
 ## Panduan Menjaga Dokumentasi
 
