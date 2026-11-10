@@ -57,7 +57,22 @@ Sesuai filosofi arsitektur "Satu Kernel, Banyak Game", penambahan game baru dapa
 
 ---
 
-### 1.4 Game: Tug of War (Tarik Tambang - Shake Battle)
+### 1.4 Game: Sumo Arena — ✅ Terimplementasi
+
+*Dokumentasi spesifikasi lengkap: lihat [plan/games/sumoarena.md](games/sumoarena.md).*
+
+- **Konsep**: Permainan aksi adu dorong multi-pemain (2 atau 4 pemain) di panggung bundar yang menyusut.
+- **Fitur Unggulan**:
+  - **Fisika Tumbukan Realistis**: Model tabrakan elastis impuls massa dan momentum, gesekan eksponensial, dan sub-langkah 1/120 dtk.
+  - **Mekanik Dash & Panggung Mengecil**: Dash 700 px/dtk berbobot massa 2x, panggung mengecil dari 280 ke 45 px sejak detik ke-8.
+  - **Sistem Ronde & Tie-Break**: 3 ronde berurutan otomatis ditambah ronde penentu (*sudden death*) khusus untuk pemain seri di puncak.
+- **Kebutuhan Slot**: 2 atau 4 Pemain (`modes: 2p, 4p`).
+- **Skema Kontrol**: `1#` Atas, `2#` Bawah, `3#` Kiri, `4#` Kanan, `0#` Berhenti, `5#` Dash, `99#` Mulai (P1).
+- **Status**: ✅ Selesai diimplementasikan di `games/sumoarena.js`.
+
+---
+
+### 1.5 Game: Tug of War (Tarik Tambang - Shake Battle)
 - **Konsep**: Permainan pesta berenergi tinggi. Pemain mengocok/menggoyang micro:bit secepat mungkin untuk menarik tambang ke sisi timnya.
 - **Kebutuhan Slot**: 2 hingga 4 Pemain.
 - **Skema Kontrol micro:bit**:

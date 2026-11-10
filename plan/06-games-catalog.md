@@ -188,6 +188,14 @@ Permainan adu cepat eksplorasi labirin multi-pemain (1–4 pemain) dengan labiri
 
 Permainan aksi reaksi menangkap bintang jatuh multi-pemain (1, 2, atau 4 pemain) di kanvas 1280x720. Berjalan otomatis melewati 3 level bertingkat (*Hujan Bintang*, *Hujan Deras*, dan *Badai Bintang*) dengan bintang emas berpoin tinggi dan bintang bergoyang. Rincian: [plan/games/catchstar.md](games/catchstar.md).
 
+
+
+---
+
+## 9. Sumo Arena (games/sumoarena.js)
+
+Permainan aksi adu dorong multi-pemain (2 atau 4 pemain) di atas panggung bundar mengecil. Dilengkapi dorongan arah, dash kejut berkecepatan 700 px/dtk, tabrakan elastis impuls massa, dan sistem 3 ronde (dengan ronde penentu bila seri). Rincian: [plan/games/sumoarena.md](games/sumoarena.md).
+
 ## Panduan Menjaga Dokumentasi
 
 - Setiap kali game baru ditambahkan ke `games/index.js`, tambahkan barisnya di **tabel daftar game**

@@ -29,28 +29,41 @@ export default {
     {id: '1p', label: '1 Player', sub: 'Lawan komputer', players: 1},
     {id: '2p', label: '2 Player', sub: 'Dua pemain berhadapan', players: 2}
   ],
-  options: {
-    speed: {
-      label: 'Kecepatan Bola',
-      default: 'normal',
-      choices: [
-        {value: 'slow', label: 'Lambat'},
-        {value: 'normal', label: 'Normal'},
-        {value: 'fast', label: 'Cepat'}
-      ]
-    }
-  },
   canvas: {width: W, height: H},
 
-  create({canvas, kernel, players, mode, finish, audio, options}){
+  create({canvas, kernel, players, mode, finish, audio}){
     canvas.width = W; canvas.height = H;
     const x = canvas.getContext('2d');
     const solo = mode.players === 1;
-    const spd = SPEED_PRESETS[options?.speed] || SPEED_PRESETS.normal;
-    const baseSpeed = spd.base;
-    const maxVy = spd.maxVy;
-    const maxVx = spd.maxVx;
-    const aiSpeed = spd.ai;
+
+    // Ambil preferensi kecepatan in-game yang tersimpan di localStorage (default: normal)
+    const SPEED_KEYS = ['slow', 'normal', 'fast'];
+    let currentSpeedKey = 'normal';
+    try {
+      const saved = localStorage.getItem('opt_pingpong_speed');
+      if (saved && SPEED_PRESETS[saved]) currentSpeedKey = saved;
+    } catch(_){}
+
+    let baseSpeed = SPEED_PRESETS[currentSpeedKey].base;
+    let maxVy = SPEED_PRESETS[currentSpeedKey].maxVy;
+    let maxVx = SPEED_PRESETS[currentSpeedKey].maxVx;
+    let aiSpeed = SPEED_PRESETS[currentSpeedKey].ai;
+
+    function applySpeedPreset(key){
+      if (!SPEED_PRESETS[key]) return;
+      currentSpeedKey = key;
+      baseSpeed = SPEED_PRESETS[key].base;
+      maxVy = SPEED_PRESETS[key].maxVy;
+      maxVx = SPEED_PRESETS[key].maxVx;
+      aiSpeed = SPEED_PRESETS[key].ai;
+    }
+
+    // Tombol pemilihan kecepatan in-game di layar overlay siap
+    const speedButtons = [
+      { key: 'slow',   label: 'Lambat', x: 121,       y: H / 2 - 25, w: 110, h: 44 },
+      { key: 'normal', label: 'Normal', x: 121 + 124, y: H / 2 - 25, w: 110, h: 44 },
+      { key: 'fast',   label: 'Cepat',  x: 121 + 248, y: H / 2 - 25, w: 110, h: 44 }
+    ];
 
     const slotToPaddle = {};
     players.forEach((n, i) => { slotToPaddle[n] = i; });
@@ -134,11 +147,18 @@ export default {
       x.fillText(solo ? 'Kamu' : 'Player 1', W / 2, H - 14);
       x.fillText(solo ? 'Komputer' : 'Player 2', W / 2, 30);
 
-      // Tampilan overlay menunggu aba-aba Player 1 (terbaca jelas dan tidak tertutup tombol)
+      // Indikator kecepatan bola aktif di garis tengah lapangan
+      x.font = '600 15px Fredoka, system-ui, sans-serif';
+      x.textAlign = 'left';
+      x.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      const activeSpeedLabel = currentSpeedKey === 'slow' ? '⚡ Bola: Lambat' : currentSpeedKey === 'fast' ? '⚡ Bola: Cepat' : '⚡ Bola: Normal';
+      x.fillText(activeSpeedLabel, 24, H / 2 - 14);
+
+      // Tampilan overlay menunggu aba-aba Player 1 & Pemilihan Kecepatan Bola In-Game
       if (!st.ready) {
-        const bx = 40, by = H / 2 - 95, bw = W - 80, bh = 190;
+        const bx = 30, by = H / 2 - 135, bw = W - 60, bh = 270;
         x.save();
-        x.fillStyle = 'rgba(16, 24, 38, 0.94)';
+        x.fillStyle = 'rgba(16, 24, 38, 0.96)';
         x.fillRect(bx, by, bw, bh);
         x.strokeStyle = '#4b83ff';
         x.lineWidth = 3;
@@ -147,15 +167,44 @@ export default {
         x.textAlign = 'center';
         x.fillStyle = '#fff';
         x.font = '700 28px Fredoka, system-ui, sans-serif';
-        x.fillText('SIAP BERMAIN?', W / 2, H / 2 - 42);
+        x.fillText('SIAP BERMAIN?', W / 2, H / 2 - 82);
 
+        // Judul Pilihan Kecepatan
+        x.font = '600 15px Fredoka, system-ui, sans-serif';
+        x.fillStyle = '#94a3b8';
+        x.fillText('PILIH KECEPATAN BOLA:', W / 2, H / 2 - 46);
+
+        // Tombol-Tombol Kecepatan Bola In-Game
+        speedButtons.forEach(btn => {
+          const isActive = btn.key === currentSpeedKey;
+
+          // Kotak Tombol
+          x.fillStyle = isActive ? '#2f6df6' : 'rgba(255, 255, 255, 0.08)';
+          x.beginPath();
+          x.roundRect(btn.x, btn.y, btn.w, btn.h, 12);
+          x.fill();
+
+          // Border Tombol
+          x.strokeStyle = isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.25)';
+          x.lineWidth = isActive ? 2.5 : 1.5;
+          x.stroke();
+
+          // Teks Tombol
+          x.fillStyle = isActive ? '#ffffff' : '#cbd5e1';
+          x.font = isActive ? '700 17px Fredoka, system-ui, sans-serif' : '600 16px Fredoka, system-ui, sans-serif';
+          x.textAlign = 'center';
+          x.textBaseline = 'middle';
+          x.fillText(btn.label, btn.x + btn.w / 2, btn.y + btn.h / 2);
+        });
+
+        x.textBaseline = 'alphabetic';
         x.fillStyle = '#ff9a2e';
         x.font = '600 20px Fredoka, system-ui, sans-serif';
-        x.fillText('Kirim perintah 99# dari Player 1', W / 2, H / 2 + 2);
+        x.fillText('Kirim perintah 99# dari Player 1', W / 2, H / 2 + 58);
 
         x.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        x.font = '500 16px Fredoka, system-ui, sans-serif';
-        x.fillText('(atau klik layar untuk mulai)', W / 2, H / 2 + 45);
+        x.font = '500 15px Fredoka, system-ui, sans-serif';
+        x.fillText('(atau sentuh layar untuk mulai)', W / 2, H / 2 + 92);
         x.restore();
       }
     }
@@ -167,10 +216,33 @@ export default {
 
     // Masukan: 99 = mulai dari Player 1, 1 atau 3 = kiri, 2 atau 4 = kanan, 0 = berhenti.
     const off = kernel.on('input', ({player, cmd}) => {
-      if (!st.ready && player === players[0] && cmd === '99') {
-        beginGame();
+      if (!st.ready) {
+        if (player === players[0] && cmd === '99') {
+          beginGame();
+          return;
+        }
+        // Ganti opsi kecepatan via tombol arah micro:bit atau keyboard di layar standby
+        if (cmd === '1' || cmd === '3') {
+          const idx = SPEED_KEYS.indexOf(currentSpeedKey);
+          if (idx > 0) {
+            applySpeedPreset(SPEED_KEYS[idx - 1]);
+            try { localStorage.setItem('opt_pingpong_speed', currentSpeedKey); } catch(_){}
+            audio?.play('click');
+          }
+          return;
+        }
+        if (cmd === '2' || cmd === '4') {
+          const idx = SPEED_KEYS.indexOf(currentSpeedKey);
+          if (idx < SPEED_KEYS.length - 1) {
+            applySpeedPreset(SPEED_KEYS[idx + 1]);
+            try { localStorage.setItem('opt_pingpong_speed', currentSpeedKey); } catch(_){}
+            audio?.play('click');
+          }
+          return;
+        }
         return;
       }
+
       const i = slotToPaddle[player];
       if (i === undefined) return;
       if (cmd === '1' || cmd === '3') st.p[i].dir = -1;
@@ -178,7 +250,26 @@ export default {
       else if (cmd === '0') st.p[i].dir = 0;
     });
 
-    const onCanvasClick = () => { if (!st.ready) beginGame(); };
+    const onCanvasClick = (e) => {
+      if (st.ready) return;
+      if (e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const cx = (e.clientX - rect.left) * scaleX;
+        const cy = (e.clientY - rect.top) * scaleY;
+
+        for (const btn of speedButtons) {
+          if (cx >= btn.x && cx <= btn.x + btn.w && cy >= btn.y && cy <= btn.y + btn.h) {
+            applySpeedPreset(btn.key);
+            try { localStorage.setItem('opt_pingpong_speed', btn.key); } catch(_){}
+            audio?.play('click');
+            return; // Klik tombol kecepatan: hanya ganti kecepatan, jangan mulai game
+          }
+        }
+      }
+      beginGame();
+    };
     canvas.addEventListener('click', onCanvasClick);
 
     t0 = performance.now();

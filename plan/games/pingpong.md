@@ -17,11 +17,16 @@ Tenis meja klasik berorientasi vertikal (aspek 3:4, 600×800). Player 1 di bawah
 | `1p` | 1 Player | Lawan komputer | 1 |
 | `2p` | 2 Player | Dua pemain berhadapan | 2 |
 
-## Opsi Permainan
+## Opsi Kecepatan Bola (In-Game)
 
-| Opsi | Label | Pilihan Nilai | Default | Efek |
-|---|---|---|---|---|
-| `speed` | Kecepatan Bola | `slow` (Lambat), `normal` (Normal), `fast` (Cepat) | `normal` | Mengatur kecepatan awal bola (280 / 380 / 480 px/dtk), batas kecepatan pantulan maksimal, dan kecepatan paddle komputer pada mode 1P |
+Opsi kecepatan bola ditempatkan **langsung di dalam layar permainan (*in-game overlay*)** pada fase standby sebelum mulai, sehingga tampilan kartu game di lobi tetap bersih dan rapi:
+
+| Opsi | Pilihan Nilai | Default | Efek |
+|---|---|---|---|
+| `speed` | `slow` (Lambat), `normal` (Normal), `fast` (Cepat) | `normal` | Mengatur kecepatan awal bola (280 / 380 / 480 px/dtk), batas pantulan maksimal, dan kecepatan bot AI |
+
+- **Pemilihan In-Game**: Dapat dipilih langsung dengan menyentuh/mengklik tombol `[ Lambat ]`, `[ Normal ]`, atau `[ Cepat ]` pada kanvas, atau dengan menekan tombol arah (`1`/`3` geser kiri, `2`/`4` geser kanan) pada micro:bit/keyboard saat di layar tunggu.
+- **Penyimpanan**: Pilihan tersimpan otomatis di `localStorage` (`opt_pingpong_speed`) sehingga preferensi pemain tetap terjaga antar sesi.
 
 ## Spesifikasi Teknis
 
