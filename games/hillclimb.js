@@ -36,6 +36,13 @@ const REV_MAX_SPEED           = -140;   // Kecepatan mundur maksimal (px/dtk)
 const MAX_SPEED               = 520;    // Kecepatan maju maksimal (px/dtk)
 const MAX_DT                  = 0.05;   // Pembatas dt frame rate
 
+// Keseimbangan & Titik Terjungkal (Pitch Torque & Balance)
+const PITCH_TORQUE_ACC        = 9.0;    // Torsi angkat moncong saat gas aktif (wheelie)
+const PITCH_TORQUE_BRAKE      = 14.0;   // Torsi turunkan moncong saat rem aktif
+const PITCH_SPRING            = 11.0;   // Kekuatan pegas suspensi menyejajarkan mobil dengan lereng
+const PITCH_DAMP              = 4.0;    // Redaman putaran suspensi
+const FLIP_DIFF               = 1.25;   // Ambang selisih sudut mobil vs lereng (~72°) untuk terjungkal
+
 // Bensin & Penyetelan (Tuned: Full gas kehabisan bensin di 60-95%, Eco finish < 150s)
 const FUEL_MAX                = 100;    // Kapasitas tangki maksimal
 const FUEL_USE                = 10.3;   // Konsumsi bensin per detik saat gas aktif
@@ -192,6 +199,9 @@ export default {
         vx: 0,
         y: 0,
         angle: 0,
+        pitch: 0,
+        angVel: 0,
+        crashed: false,
         wheelAngle: 0,
         fuel: FUEL_MAX,
         gasHeld: false,
@@ -199,7 +209,7 @@ export default {
         finished: false,
         finishTime: 0,
         done: false,
-        doneReason: '', // 'finis' | 'out_of_fuel'
+        doneReason: '', // 'finis' | 'out_of_fuel' | 'flipped'
         stoppedTimer: 0,
         collectedCans: new Set(),
         lowFuelBeepTimer: 0,
@@ -276,8 +286,11 @@ export default {
         const p1 = playerList[0];
         if (p1.finished) {
           finishText = `Selesai! 500 m dalam ${p1.finishTime.toFixed(1)} dtk`;
+        } else if (p1.doneReason === 'flipped') {
+          const meters = Math.min(500, Math.round(p1.x / METER));
+          finishText = `Terjungkal di ${meters} m!`;
         } else {
-          const meters = Math.round(p1.x / METER);
+          const meters = Math.min(500, Math.round(p1.x / METER));
           finishText = `Bensin habis di ${meters} m`;
         }
       } else {
@@ -290,15 +303,18 @@ export default {
           winner = finishers.reduce((a, b) => a.finishTime <= b.finishTime ? a : b);
 
           const listStr = playerList.map(p => {
-            const m = Math.round(p.x / METER);
-            return `${p.label} ${m} m${p.finished ? ' (finis)' : ''}`;
+            const m = Math.min(500, Math.round(p.x / METER));
+            if (p.finished) return `${p.label} ${m} m (finis)`;
+            if (p.doneReason === 'flipped') return `${p.label} ${m} m (terjungkal)`;
+            return `${p.label} ${m} m`;
           }).join(', ');
           finishText = `${winner.label} menang! ${listStr}`;
         } else {
           // Tidak ada yang finis: pemenang = jarak terjauh
           winner = playerList.reduce((a, b) => a.x >= b.x ? a : b);
           const listStr = playerList.map(p => {
-            const m = Math.round(p.x / METER);
+            const m = Math.min(500, Math.round(p.x / METER));
+            if (p.doneReason === 'flipped') return `${p.label} ${m} m (terjungkal)`;
             return `${p.label} ${m} m`;
           }).join(', ');
           finishText = `${winner.label} terjauh! ${listStr}`;
@@ -345,7 +361,38 @@ export default {
             // Evaluasi medan saat ini
             const terrainData = track.getHeightAndSlope(p.x);
             p.y = terrainData.h;
-            p.angle = terrainData.angle;
+
+            // Fisika Torsi & Keseimbangan Mobil (Pitch)
+            // Gas mengangkat moncong mobil (wheelie, pitch counter-clockwise)
+            // Rem menurunkan moncong mobil (dive, pitch clockwise)
+            let pitchTorque = 0;
+            if (p.gasHeld && p.fuel > 0) {
+              pitchTorque -= PITCH_TORQUE_ACC;
+            }
+            if (p.brakeHeld && p.vx > 0) {
+              pitchTorque += PITCH_TORQUE_BRAKE;
+            }
+
+            // Gaya pemulih pegas suspensi & redaman terhadap kemiringan lereng
+            const springTorque = PITCH_SPRING * (terrainData.angle - p.pitch);
+            const dampTorque = -PITCH_DAMP * p.angVel;
+            const angAcc = pitchTorque + springTorque + dampTorque;
+
+            p.angVel += angAcc * dt;
+            p.pitch += p.angVel * dt;
+            p.angle = p.pitch;
+
+            // Deteksi Mobil Terjungkal (Flip)
+            if (Math.abs(p.pitch - terrainData.angle) > FLIP_DIFF) {
+              p.crashed = true;
+              p.done = true;
+              p.doneReason = 'flipped';
+              p.gasHeld = false;
+              p.brakeHeld = false;
+              p.angle = terrainData.angle + Math.PI; // Posisi mobil terbalik di tanah
+              playAudio('hurt', { pan, volume: 0.6 });
+              checkGameEnd();
+            }
 
             // Akselerasi
             let ax = 0;
@@ -434,6 +481,13 @@ export default {
             } else {
               p.stoppedTimer = 0;
             }
+          } else if (p.crashed) {
+            // Gesekan mobil terseret di tanah setelah terjungkal hingga berhenti
+            p.vx -= p.vx * 3.0 * dt;
+            p.x += p.vx * dt;
+            const terrainData = track.getHeightAndSlope(p.x);
+            p.y = terrainData.h;
+            p.angle = terrainData.angle + Math.PI;
           }
         }
 
@@ -675,6 +729,15 @@ export default {
       drawWheel(WHEEL_OFFSET_BACK, -WHEEL_RADIUS, p.wheelAngle);
       drawWheel(WHEEL_OFFSET_FRONT, -WHEEL_RADIUS, p.wheelAngle);
 
+      // Efek Terjungkal (Asap / Tanda Tabrakan)
+      if (p.crashed) {
+        ctx.save();
+        ctx.font = '22px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('💥', 0, 8);
+        ctx.restore();
+      }
+
       ctx.restore();
     }
 
@@ -773,12 +836,14 @@ export default {
       ctx.textAlign = 'left';
       ctx.fillText(`⛽ Bensin: ${Math.round(p.fuel)}%`, fuelBarX, fuelBarY + fuelBarH + 15);
 
-      // 3. Lencana Status (GAS, REM, BENSIN HABIS, FINIS)
+      // 3. Lencana Status (GAS, REM, TERJUNGKAL, BENSIN HABIS, FINIS)
       const badgeX = vp.x + vp.w - padX;
       const badgeY = vp.y + padY + 14;
 
       if (p.finished) {
         drawBadge(badgeX, badgeY, '🏆 FINIS!', '#22c55e');
+      } else if (p.crashed) {
+        drawBadge(badgeX, badgeY, '💥 TERJUNGKAL!', '#ef4444');
       } else if (p.done && p.doneReason === 'out_of_fuel') {
         drawBadge(badgeX, badgeY, '⚠️ BENSIN HABIS!', '#ef4444');
       } else if (p.gasHeld) {
@@ -930,7 +995,7 @@ export default {
         ctx.fillStyle = '#94a3b8';
         ctx.fillText('1, 4, atau 5 = GAS  |  2 atau 3 = REM / MUNDUR  |  0 = LEPAS', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 75);
         ctx.fillStyle = '#fef08a';
-        ctx.fillText('💡 Tip: Lepas gas di turunan untuk menghemat bensin dan capai finis!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 105);
+        ctx.fillText('💡 Tip: Jaga keseimbangan! Kurangi gas di puncak bukit agar mobil tidak terjungkal.', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 105);
 
         ctx.restore();
       }

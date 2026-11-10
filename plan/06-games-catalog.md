@@ -212,7 +212,7 @@ Permainan pesta adu kekuatan dan koordinasi multi-pemain (2 atau 4 pemain) menar
 
 ## 11. Hill Climbing (games/hillclimb.js)
 
-Permainan balapan daki bukit fisika 2D multi-pemain (1, 2, atau 4 pemain) sepanjang 500 meter di kontur lereng bergelombang. Menampilkan tata letak split viewport adaptif (1P solo, 2P atas-bawah, 4P grid 2x2), bilah progres balapan bersama di atas layar, mekanika manajemen bensin & momentum turunan, serta kemiringan lereng maksimal 25 derajat. Rincian: [plan/games/hillclimb.md](games/hillclimb.md).
+Permainan balapan daki bukit fisika 2D multi-pemain (1, 2, atau 4 pemain) sepanjang 500 meter di kontur lereng bergelombang. Menampilkan tata letak split viewport adaptif (1P solo, 2P atas-bawah, 4P grid 2x2), bilah progres balapan bersama di atas layar, mekanika manajemen bensin & momentum turunan, serta simulasi keseimbangan sasis (torsi angkat gas/rem) di mana pengemudi ceroboh yang membejek gas di puncak bukit dapat terjungkal (*flip/crash*). Rincian: [plan/games/hillclimb.md](games/hillclimb.md).
 
 ---
 

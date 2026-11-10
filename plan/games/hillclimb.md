@@ -43,6 +43,11 @@ Game ini mengusung format layar terbagi (*split viewport*) adaptif: 1P layar pen
 | **Redaman Gesekan (`DRAG`)** | `0.35 per detik` | Hambatan udara dan gesekan mekanis |
 | **Gigi Mundur (`ENGINE_REV`)** | `200 px/dtk²` | Kecepatan mundur maksimal $-140\text{ px/dtk}$ (tanpa bensin) |
 | **Kecepatan Maksimal** | `520 px/dtk` | Batas kecepatan puncak mobil |
+| **Torsi Angkat Gas (`PITCH_TORQUE_ACC`)** | `9.0 rad/dtk²` | Mengangkat moncong mobil saat akselerasi (*wheelie*) |
+| **Torsi Turun Rem (`PITCH_TORQUE_BRAKE`)** | `14.0 rad/dtk²` | Menurunkan moncong mobil saat pengereman maju (*dive*) |
+| **Pegas Suspensi (`PITCH_SPRING`)** | `11.0` | Daya pemulih keselarasan orientasi mobil dengan sudut lereng |
+| **Redaman Suspensi (`PITCH_DAMP`)** | `4.0` | Meredam osilasi getaran putaran sasis |
+| **Ambang Terjungkal (`FLIP_DIFF`)** | `1.25 rad (~72°)` | Selisih sudut sasis vs lereng yang memicu mobil terbalik (*flip*) |
 | **Bensin Awal & Maksimal** | `100 unit` | Tangki bahan bakar penuh saat start |
 | **Konsumsi Bensin (`FUEL_USE`)** | `10.3 unit/dtk` | Hanya berkurang saat tombol gas ditekan |
 | **Kaleng Bensin (`FUEL_PICKUP`)**| `+34 unit` | Tersebar tiap ~2400 px dengan jitter $\pm 300\text{ px}$ |
@@ -72,12 +77,13 @@ Perintah gas dan rem bersifat **menetap** (*latching*) sampai ada perintah baru 
 1. **Kondisi Selesai Pemain (`done`)**:
    - Pemain dinyatakan selesai jika:
      (a) Berhasil melintasi garis finis ($x \ge 20000\text{ px}$).
-     (b) Kehabisan bensin ($fuel = 0$) dan mobil terhenti ($|vx| < 5\text{ px/dtk}$) selama 1.5 detik berturut-turut.
+     (b) Terjungkal / terbalik (*flipped*): sudut sasis mobil menyimpang melebihi $1.25\text{ rad}$ ($\approx 72^\circ$) dari kontur lereng bukit akibat gas terlalu agresif di puncak bukit atau salah mengontrol pendaratan. Mobil terbalik di tanah, mengeluarkan efek ledakan/asap `💥`, dan berstatus `crashed`.
+     (c) Kehabisan bensin ($fuel = 0$) dan mobil terhenti ($|vx| < 5\text{ px/dtk}$) selama 1.5 detik berturut-turut.
 2. **Kondisi Berakhirnya Permainan**:
-   - Balapan berakhir seketika saat ada pemain yang berhasil mencapai garis finis (dengan jeda perayaan 2 detik), ATAU ketika seluruh pemain sudah berstatus `done`.
+   - Balapan berakhir seketika saat ada pemain yang berhasil mencapai garis finis (dengan jeda perayaan 2 detik), ATAU ketika seluruh pemain sudah berstatus `done` (habis bensin atau terjungkal).
 3. **Peringkat & Juara**:
    - Jika ada yang finis: Pemenang adalah pemain yang finis tercepat.
-   - Jika tidak ada yang finis: Pemenang adalah pemain dengan jarak tempuh terjauh.
+   - Jika tidak ada yang finis: Pemenang adalah pemain dengan jarak tempuh terjauh (meskipun terjungkal di titik terjauh).
 
 ---
 
@@ -87,15 +93,16 @@ Teks hasil akhir yang dikirimkan ke callback `finish(teks)`:
 
 - **Mode 1 Pemain (Solo)**:
   - Berhasil finis: `Selesai! 500 m dalam 78.4 dtk`
+  - Terjungkal: `Terjungkal di 234 m!`
   - Bensin habis: `Bensin habis di 312 m`
 
 - **Mode 2 dan 4 Pemain (Ada yang Finis)**:
-  - Contoh 2P: `P2 menang! P1 412 m, P2 500 m (finis)`
-  - Contoh 4P: `P1 menang! P1 500 m (finis), P2 445 m, P3 380 m, P4 490 m`
-  *(Mencantumkan seluruh pemain berurutan berdasarkan nomor slot, dengan penanda `(finis)` bagi yang mencapai akhir)*
+  - Contoh 2P: `P2 menang! P1 412 m (terjungkal), P2 500 m (finis)`
+  - Contoh 4P: `P1 menang! P1 500 m (finis), P2 445 m, P3 380 m (terjungkal), P4 490 m`
+  *(Mencantumkan seluruh pemain berurutan berdasarkan nomor slot, dengan penanda `(finis)` atau `(terjungkal)`)*
 
-- **Mode 2 dan 4 Pemain (Tidak Ada yang Finis / Semua Habis Bensin)**:
-  - Contoh: `P3 terjauh! P1 210 m, P2 188 m, P3 305 m, P4 240 m`
+- **Mode 2 dan 4 Pemain (Tidak Ada yang Finis)**:
+  - Contoh: `P3 terjauh! P1 210 m (terjungkal), P2 188 m, P3 305 m, P4 240 m (terjungkal)`
 
 ---
 
@@ -114,6 +121,11 @@ Teks hasil akhir yang dikirimkan ke callback `finish(teks)`:
 | `ENGINE_REV` | `number` | `200` | Akselerasi gigi mundur (px/dtk²) |
 | `REV_MAX_SPEED` | `number` | `-140` | Batas kecepatan mundur maksimal (px/dtk) |
 | `MAX_SPEED` | `number` | `520` | Batas kecepatan maju maksimal (px/dtk) |
+| `PITCH_TORQUE_ACC` | `number` | `9.0` | Torsi angkat moncong saat gas (wheelie) |
+| `PITCH_TORQUE_BRAKE` | `number` | `14.0` | Torsi turun moncong saat rem |
+| `PITCH_SPRING` | `number` | `11.0` | Kekuatan pegas suspensi ke arah sudut lereng |
+| `PITCH_DAMP` | `number` | `4.0` | Redaman ayunan putaran suspensi |
+| `FLIP_DIFF` | `number` | `1.25` | Ambang selisih sudut untuk terjungkal (~72°) |
 | `FUEL_MAX` | `number` | `100` | Batas kapasitas bahan bakar (unit) |
 | `FUEL_USE` | `number` | `10.3` | Konsumsi bensin per detik saat gas aktif |
 | `FUEL_PICKUP` | `number` | `34` | Penambahan bensin per kaleng bahan bakar |
