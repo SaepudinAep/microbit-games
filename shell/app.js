@@ -131,9 +131,6 @@ function renderPick(){
     header.append(titleBox);
     c.append(header);
 
-    // Deskripsi game (tinggi konsisten agar semua kartu sejajar)
-    c.append(el('p', 'gcard-desc', g.description));
-
     // Baris opsi game jika didefinisikan (tetap didukung jika suatu saat ada)
     if (g.options) {
       const curOpts = getGameOptions(g);
@@ -164,7 +161,6 @@ function renderPick(){
 
     // Bagian pemilihan jumlah pemain: ringkas dan jelas (1P, 2P, 3P, 4P)
     const modeSec = el('div', 'gcard-modes');
-    modeSec.append(el('span', 'mode-legend', 'PILIH JUMLAH PEMAIN'));
 
     const modeRow = el('div', 'mode-buttons');
     g.modes.forEach(m => {

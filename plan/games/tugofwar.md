@@ -18,10 +18,11 @@ Game ini mengusung format turnamen otomatis **Best of 3 Ronde** (tim pertama yan
 
 | `id` | Label | Sub | `players` | Deskripsi Tim |
 |---|---|---|---|---|
+| `1p` | 1 Player | Lawan Komputer | 1 | P1 (Tim Kiri) vs AI Komputer / BOT (Tim Kanan) |
 | `2p` | 2 Player | Satu lawan satu | 2 | P1 (Tim Kiri) vs P2 (Tim Kanan) |
 | `4p` | 4 Player | Dua lawan dua | 4 | Tim Kiri (P1 & P2) vs Tim Kanan (P3 & P4) |
 
-*Catatan: Tidak ada mode 1P atau 3P. Shell secara otomatis hanya menampilkan tombol 2P dan 4P, serta menonaktifkan mode yang melebihi jumlah controller terhubung.*
+*Catatan: Menyediakan mode 1P (vs AI Komputer), 2P (1v1), dan 4P (2v2 tim). Mode 3P ditiadakan demi keseimbangan tim.*
 
 ---
 

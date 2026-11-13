@@ -18,10 +18,11 @@ Game ini mengusung desain **antarmuka bersih tanpa menu opsi**: peraturan berlan
 
 | `id` | Label | Sub | `players` | Keterangan |
 |---|---|---|---|---|
+| `1p` | 1 Player | Lawan Komputer | 1 | Duel 1v1 melawan AI Sumo Bot otomatis |
 | `2p` | 2 Player | Adu dorong | 2 | Duel 1v1 adu dorong di arena bersama |
 | `4p` | 4 Player | Sumo berempat | 4 | Pertarungan bebas 4 pemain serentak di satu panggung |
 
-> **Catatan Mode**: Game ini secara sengaja **tidak menyediakan mode 1 atau 3 pemain**. Shell menampilkan dua tombol mode (`2P` dan `4P`) dan menonaktifkan tombol yang melebihi jumlah pemain terhubung.
+> **Catatan Mode**: Menyediakan mode 1P (vs AI Komputer), 2P (duel), dan 4P (pesta berempat). Mode 3 pemain tidak didukung demi simetri arena.
 
 ---
 

@@ -63,8 +63,9 @@ export default {
   icon: '🥋',
   description: 'Dorong lawanmu keluar dari panggung sebelum kamu yang terdorong! Bertahan hingga akhir.',
   modes: [
-    { id: '2p', label: '2 Player', sub: 'Adu dorong', players: 2 },
-    { id: '4p', label: '4 Player', sub: 'Sumo berempat', players: 4 }
+    { id: '1p', label: '1 Player', sub: 'Lawan Komputer', players: 1 },
+    { id: '2p', label: '2 Player', sub: 'Adu dorong',     players: 2 },
+    { id: '4p', label: '4 Player', sub: 'Sumo berempat',  players: 4 }
   ],
   canvas: { width: CANVAS_WIDTH, height: CANVAS_HEIGHT },
 
@@ -95,12 +96,14 @@ export default {
     let roundElapsed = 0;
     let roundBannerText = '';
 
-    // Skor Total Berdasarkan Nomor Slot Controller
+    // Skor Total Berdasarkan Nomor Slot Controller (atau BOT jika solo)
+    const isSolo = players.length === 1;
+    const initialParticipants = isSolo ? [players[0], 'BOT'] : [...players];
     const totalScores = {};
-    for (const p of players) totalScores[p] = 0;
+    for (const p of initialParticipants) totalScores[p] = 0;
 
     // Pemain yang Berpartisipasi pada Ronde Ini
-    let activeRoundSlots = [...players];
+    let activeRoundSlots = [...initialParticipants];
     let balls = [];
 
     // ── Suara Aman ────────────────────────────────────────────────
@@ -114,7 +117,11 @@ export default {
 
     // ── Inisialisasi Posisi Ronde ──────────────────────────────────
     function initRound(roundSlots) {
-      activeRoundSlots = [...roundSlots];
+      if (isSolo && roundSlots.length === 1 && roundSlots[0] === players[0]) {
+        activeRoundSlots = [players[0], 'BOT'];
+      } else {
+        activeRoundSlots = [...roundSlots];
+      }
       roundElapsed = 0;
       shrinkSoundPlayed = false;
 
@@ -143,7 +150,7 @@ export default {
 
         return {
           slot: slotNum,
-          color: SLOT_COLORS[slotNum] || '#ffffff',
+          color: slotNum === 'BOT' ? '#ff9a2e' : (SLOT_COLORS[slotNum] || '#ffffff'),
           x: startX,
           y: startY,
           vx: 0,
@@ -160,7 +167,9 @@ export default {
           fallRot: 0,
           fallScale: 1.0,
           eliminatedOrder: -1,
-          eliminatedTime: -1
+          eliminatedTime: -1,
+          isAi: slotNum === 'BOT',
+          aiTimer: 0,
         };
       });
     }
@@ -263,14 +272,14 @@ export default {
       if (!isTieBreak && currentRound < TOTAL_ROUNDS) {
         // Lanjut ke Ronde Normal Berikutnya
         currentRound++;
-        initRound(players);
+        initRound(initialParticipants);
         state = 'countdown';
         countdownVal = COUNTDOWN_SEC;
         countdownTimer = 0;
         safePlay('click');
       } else {
         // Cek Peringkat Akhir (apakah perlu ronde penentu / tie-break)
-        const sortedSlots = [...players].sort((a, b) => a - b);
+        const sortedSlots = isSolo ? [players[0], 'BOT'] : [...players].sort((a, b) => a - b);
         const maxScore = Math.max(...sortedSlots.map(s => totalScores[s]));
         const topScorers = sortedSlots.filter(s => totalScores[s] === maxScore);
 
@@ -294,20 +303,32 @@ export default {
       state = 'over';
       safePlay('win');
 
-      const sortedSlots = [...players].sort((a, b) => a - b);
-      const scoreDetails = sortedSlots.map(s => `P${s} ${totalScores[s]}`).join(', ');
-
       let resultText = '';
-      if (topScorers.length === 1) {
-        resultText = `P${topScorers[0]} juara! ${scoreDetails}`;
-      } else {
-        let tieStr = '';
-        if (topScorers.length === 2) {
-          tieStr = `P${topScorers[0]} dan P${topScorers[1]}`;
+      if (isSolo) {
+        const pScore = totalScores[players[0]];
+        const botScore = totalScores['BOT'];
+        if (pScore > botScore) {
+          resultText = `Player ${players[0]} juara! 🏆 Skor: ${pScore} vs BOT ${botScore}`;
+        } else if (botScore > pScore) {
+          resultText = `Komputer (BOT) juara! Skor: BOT ${botScore} vs P${players[0]} ${pScore}`;
         } else {
-          tieStr = topScorers.slice(0, -1).map(s => `P${s}`).join(', ') + ' dan P' + topScorers[topScorers.length - 1];
+          resultText = `Pertarungan sengit berakhir seri! Skor ${pScore}-${botScore}`;
         }
-        resultText = `Seri antara ${tieStr}! ${scoreDetails}`;
+      } else {
+        const sortedSlots = [...players].sort((a, b) => a - b);
+        const scoreDetails = sortedSlots.map(s => `P${s} ${totalScores[s]}`).join(', ');
+
+        if (topScorers.length === 1) {
+          resultText = `P${topScorers[0]} juara! ${scoreDetails}`;
+        } else {
+          let tieStr = '';
+          if (topScorers.length === 2) {
+            tieStr = `P${topScorers[0]} dan P${topScorers[1]}`;
+          } else {
+            tieStr = topScorers.slice(0, -1).map(s => `P${s}`).join(', ') + ' dan P' + topScorers[topScorers.length - 1];
+          }
+          resultText = `Seri antara ${tieStr}! ${scoreDetails}`;
+        }
       }
 
       // Jeda 600 ms sebelum panggil finish()
@@ -357,6 +378,42 @@ export default {
       }
 
       const currentArenaR = getCurrentArenaRadius(roundElapsed);
+
+      // Logika AI Sumo Bot saat mode 1P
+      if (isSolo) {
+        for (const b of balls) {
+          if (!b.isAi || b.state !== 'alive') continue;
+          b.aiTimer = (b.aiTimer || 0) + dt;
+          if (b.aiTimer >= 0.1) {
+            b.aiTimer = 0;
+            const target = balls.find(o => !o.isAi && o.state === 'alive');
+            const distCenter = Math.hypot(b.x - ARENA_CX, b.y - ARENA_CY);
+
+            // Jika bot dekat tepi (72% dari radius panggung), utamakan dorong balik ke tengah
+            if (distCenter > currentArenaR * 0.72) {
+              const toCenterX = (ARENA_CX - b.x) / (distCenter || 1);
+              const toCenterY = (ARENA_CY - b.y) / (distCenter || 1);
+              b.pushDx = toCenterX;
+              b.pushDy = toCenterY;
+            } else if (target) {
+              const toTargetX = target.x - b.x;
+              const toTargetY = target.y - b.y;
+              const distTarget = Math.hypot(toTargetX, toTargetY) || 1;
+              b.pushDx = toTargetX / distTarget;
+              b.pushDy = toTargetY / distTarget;
+
+              // Dash jika berhadapan dan jarak cukup dekat
+              if (b.dashCooldown <= 0 && distTarget < 170 && distTarget > 50) {
+                b.dashCooldown = DASH_COOLDOWN;
+                b.dashTimer = DASH_TIME;
+                b.vx = b.facingX * DASH_SPEED;
+                b.vy = b.facingY * DASH_SPEED;
+                safePlay('shoot', { pan: 0.5 });
+              }
+            }
+          }
+        }
+      }
 
       // Sub-langkah Integrasi Fisika (Maksimal 1/120 detik per sub-langkah)
       const substeps = Math.ceil(dt / (1 / 120));
@@ -661,12 +718,12 @@ export default {
         ctx.arc(rightEyeX + b.facingX * 1.5, rightEyeY + b.facingY * 1.5, pupilR, 0, Math.PI * 2);
         ctx.fill();
 
-        // Label P{slot} di Tengah Bola
+        // Label P{slot} / BOT di Tengah Bola
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 15px sans-serif';
+        ctx.font = b.slot === 'BOT' ? 'bold 12px sans-serif' : 'bold 15px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`P${b.slot}`, 0, 0);
+        ctx.fillText(b.slot === 'BOT' ? 'BOT' : `P${b.slot}`, 0, 0);
 
         ctx.restore();
       }
@@ -714,7 +771,10 @@ export default {
       const chipLeftX = HUD_SAFE_MARGIN_X + 60; // Aman dari tombol keluar (#quit)
       const chipRightX = CANVAS_WIDTH - (HUD_SAFE_MARGIN_X + 220); // Aman dari tombol kanan (#mon, #snd, #fs)
 
-      if (players.length === 2) {
+      if (isSolo) {
+        drawPlayerChip(players[0], chipLeftX, 15);
+        drawPlayerChip('BOT', chipRightX, 15);
+      } else if (players.length === 2) {
         drawPlayerChip(players[0], chipLeftX, 15);
         drawPlayerChip(players[1], chipRightX, 15);
       } else if (players.length === 4) {
@@ -730,7 +790,7 @@ export default {
       const chipH = 34;
       const b = balls.find(ball => ball.slot === slotNum);
       const isAlive = b ? b.state === 'alive' : false;
-      const color = SLOT_COLORS[slotNum] || '#ffffff';
+      const color = slotNum === 'BOT' ? '#ff9a2e' : (SLOT_COLORS[slotNum] || '#ffffff');
 
       ctx.save();
       ctx.globalAlpha = isAlive ? 1.0 : 0.4;
@@ -752,7 +812,8 @@ export default {
       ctx.font = 'bold 15px sans-serif';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`P${slotNum}: ${totalScores[slotNum]} pts`, x + 28, y + chipH / 2);
+      const chipLabel = slotNum === 'BOT' ? 'BOT' : `P${slotNum}`;
+      ctx.fillText(`${chipLabel}: ${totalScores[slotNum]} pts`, x + 28, y + chipH / 2);
 
       ctx.restore();
     }

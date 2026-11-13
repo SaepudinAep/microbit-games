@@ -11,14 +11,14 @@ Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/i
 |---|------|------|:---:|------|-----------|-------------|
 | 1 | `pingpong` | Ping Pong | 🏓 | 1P, 2P | `games/pingpong.js` | [plan/games/pingpong.md](games/pingpong.md) |
 | 2 | `spaceinvaders` | Space Invaders | 👾 | 1P, 2P (Co-op) | `games/spaceinvaders.js` | [plan/games/spaceinvaders.md](games/spaceinvaders.md) |
-| 3 | `tankbattle` | Tank Battle | 🪖 | 1v1, 2v2, 4P FFA | `games/tankbattle.js` | [plan/games/tankbattle.md](games/tankbattle.md) |
+| 3 | `tankbattle` | Tank Battle | 🪖 | 1P (vs AI), 1v1, 2v2, 4P FFA | `games/tankbattle.js` | [plan/games/tankbattle.md](games/tankbattle.md) |
 | 4 | `endlessracer` | Endless Racer | 🚗 | 1P – 4P | `games/endlessracer.js` | [plan/games/endlessracer.md](games/endlessracer.md) |
 | 5 | `dinorush` | Dino Jump | 🦖 | 1P – 4P | `games/dinorush.js` | [plan/games/dinorush.md](games/dinorush.md) |
 | 6 | `flappybird` | Flappy Bird | 🐦 | 1P – 4P | `games/flappybird.js` | [plan/games/flappybird.md](games/flappybird.md) |
 | 7 | `maze` | Maze Race | 🧭 | 1P – 4P | `games/maze.js` | [plan/games/maze.md](games/maze.md) |
 | 8 | `catchstar` | Tangkap Bintang | ⭐ | 1P, 2P, 4P | `games/catchstar.js` | [plan/games/catchstar.md](games/catchstar.md) |
-| 9 | `sumoarena` | Sumo Arena | 🥋 | 2P, 4P | `games/sumoarena.js` | [plan/games/sumoarena.md](games/sumoarena.md) |
-| 10 | `tugofwar` | Tarik Tambang | 🪢 | 2P, 4P | `games/tugofwar.js` | [plan/games/tugofwar.md](games/tugofwar.md) |
+| 9 | `sumoarena` | Sumo Arena | 🥋 | 1P (vs AI), 2P, 4P | `games/sumoarena.js` | [plan/games/sumoarena.md](games/sumoarena.md) |
+| 10 | `tugofwar` | Tarik Tambang | 🪢 | 1P (vs AI), 2P, 4P | `games/tugofwar.js` | [plan/games/tugofwar.md](games/tugofwar.md) |
 | 11 | `hillclimb` | Hill Climbing | ⛰️ | 1P, 2P, 4P | `games/hillclimb.js` | [plan/games/hillclimb.md](games/hillclimb.md) |
 | 12 | `cacingrakus` | Cacing Rakus | 🪱 | 1P, 2P, 4P | `games/cacingrakus.js` | [plan/games/cacingrakus.md](games/cacingrakus.md) |
 | 13 | `pecahbalok` | Pecah Balok | 🧱 | 1P, 2P, 4P | `games/pecahbalok.js` | [plan/games/pecahbalok.md](games/pecahbalok.md) |

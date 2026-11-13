@@ -28,19 +28,20 @@ Permainan arkade aksi retro multi-pemain (*competitive breakout / arkanoid battl
 | Aspek | Nilai | Keterangan |
 |---|---|---|
 | **Canvas** | `1280 × 720 px` | Rasio standar 16:9 widescreen |
+| **Target Usia** | **TK & SD (4–12 Tahun)** | Parameter toleran, papan lebar, bola santai |
 | **Posisi Paddle Y** | `Y = 665 px` | Garis dasar bersama di bagian bawah kanvas |
-| **Tinggi Paddle** | `18 px` | Sudut membulat dengan pencahayaan gradien |
-| **Lebar Paddle** | 1P: `160 px`, 2P: `140 px`, 4P: `120 px` | Melebar menjadi $1.5\times$ saat efek *Expand* aktif |
-| **Kecepatan Paddle** | `560 px/dtk` | Kecepatan geser mulus (*smooth velocity*) |
+| **Tinggi Paddle** | `20 px` | Sudut membulat dengan pencahayaan gradien |
+| **Lebar Paddle** | 1P: `220 px`, 2P: `180 px`, 4P: `150 px` | Papan ekstra lebar, melebar $1.5\times$ saat efek *Expand* aktif |
+| **Kecepatan Paddle** | `580 px/dtk` | Kecepatan geser mulus membantu menangkap bola |
 | **Interaksi Antar Paddle** | *Non-blocking ghost overlap* | Paddle dapat saling menembus tanpa benturan fisik |
-| **Kecepatan Bola** | Base `490 px/dtk`, Max `640 px/dtk` | Radius 9 px; sudut pantul dinamis sesuai titik benturan |
+| **Kecepatan Bola** | Base `290 px/dtk`, Max `380 px/dtk` | Kecepatan santai ramah refleks anak; radius 13 px jelas terlihat di PID |
 | **Sistem Bola** | 1 bola awal per pemain | Bola dapat dipantulkan oleh paddle mana pun & berganti warna kepemilikan |
 | **Grid Balok** | 14 kolom × 6 baris (84 balok/wave) | Mulai di Y = 85 px (di bawah area aman HUD) |
-| **Jenis Balok** | Normal (1 hit, 10 pt), Baja (2 hit, 25 pt), Emas (1 hit, 50 pt) | Emas berpeluang 55% menjatuhkan power-up |
+| **Jenis Balok** | Normal (1 hit, 10 pt), Baja (2 hit, 25 pt), Emas (1 hit, 50 pt) | Emas berpeluang 80% menjatuhkan power-up |
 | **Durasi Game** | `90 detik` | Hitung mundur waktu pertandingan |
-| **Nyawa Awal** | `3 Nyawa` | Diwakili ikon ❤️ pada kartu HUD |
-| **Penalti Bola Jatuh** | -1 Nyawa & -10 poin | Bola respawn menempel di paddle pemilik selama 1.5 detik |
-| **Kapsul Power-Up** | 22% peluang jatuh (kecepatan 150 px/dtk) | **EXPAND** (🟢 10s), **MULTI-BALL** (🟡 +1 bola), **FIREBALL** (🔴 6s tembus balok) |
+| **Nyawa Awal** | `5 Nyawa` | Diwakili 5 ikon ❤️ pada kartu HUD agar tidak cepat game over |
+| **Penalti Bola Jatuh** | -1 Nyawa (Tanpa penalti poin) | Poin tidak dikurangi agar anak tidak putus asa; respawn 1.0 dtk |
+| **Kapsul Power-Up** | 45% peluang jatuh (kecepatan 110 px/dtk) | **EXPAND** (🟢 15s), **MULTI-BALL** (🟡 +1 bola), **FIREBALL** (🔴 10s tembus balok) |
 | **Warna Khas Slot** | P1 Merah (`#EF4444`), P2 Biru (`#3B82F6`), P3 Hijau (`#22C55E`), P4 Kuning (`#EAB308`) | Sesuai slot fisik controller platform |
 
 ---

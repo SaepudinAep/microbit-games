@@ -14,6 +14,7 @@ Pertempuran tank *top-down* dalam arena berpagar 600×800, dengan 11 dinding pen
 
 | `id` | Label | Sub | `players` |
 |---|---|---|---|
+| `1p` | 1 Player | Lawan Komputer | 1 (vs AI Bot) |
 | `1v1` | 1 vs 1 | Duel Satu Lawan Satu | 2 |
 | `2v2` | 2 vs 2 | Duel Tim Merah vs Biru | 4 |
 | `ffa` | 4 Player FFA | Semua Lawan Semua | 4 |

@@ -16,18 +16,18 @@ const GAME_DURATION_SEC     = 90;
 const COUNTDOWN_SEC         = 3;
 const FINISH_DELAY_MS       = 800;
 
-// Paddle & Balok
+// Paddle & Balok (Disesuaikan ramah anak usia TK & SD)
 const PADDLE_Y              = 665;
-const PADDLE_H              = 18;
-const PADDLE_SPEED          = 560; // px/dtk
-const PADDLE_WIDTHS         = { 1: 160, 2: 140, 4: 120 };
+const PADDLE_H              = 20;
+const PADDLE_SPEED          = 580; // px/dtk (gerak lincah membantu anak menangkap bola)
+const PADDLE_WIDTHS         = { 1: 220, 2: 180, 4: 150 }; // Papan lebar & toleran
 
-// Bola
-const BALL_RADIUS           = 9;
-const BALL_BASE_SPEED       = 490;
-const BALL_MAX_SPEED        = 640;
-const BALL_RESPAWN_DELAY    = 1.5;
-const INITIAL_LIVES         = 3;
+// Bola (Ukuran besar & kecepatan santai ramah refleks anak usia 4-12 tahun)
+const BALL_RADIUS           = 13;  // Bola besar, jelas terlihat di layar PID / TV kelas
+const BALL_BASE_SPEED       = 290; // Kecepatan terukur, memberi cukup waktu manuver micro:bit
+const BALL_MAX_SPEED        = 380;
+const BALL_RESPAWN_DELAY    = 1.0;
+const INITIAL_LIVES         = 5;   // 5 nyawa awal agar anak tidak cepat game over
 
 // Grid Balok
 const BRICK_COLS            = 14;
@@ -39,14 +39,14 @@ const BRICK_GAP_Y           = 6;
 const BRICK_START_X         = Math.round((CANVAS_WIDTH - (BRICK_COLS * BRICK_W + (BRICK_COLS - 1) * BRICK_GAP_X)) / 2); // ~54 px
 const BRICK_START_Y         = 85;
 
-// Power-Up
-const POWERUP_CHANCE        = 0.22;
-const POWERUP_GOLD_CHANCE   = 0.55;
-const POWERUP_SPEED         = 150;
-const POWERUP_W             = 34;
-const POWERUP_H             = 18;
-const EXPAND_DURATION       = 10.0;
-const FIREBALL_DURATION     = 6.0;
+// Power-Up (Melimpah & melayang perlahan menyenangkan untuk anak-anak)
+const POWERUP_CHANCE        = 0.45; // Hampir setengah balok menjatuhkan hadiah
+const POWERUP_GOLD_CHANCE   = 0.80;
+const POWERUP_SPEED         = 110; // Kapsul melayang santai ke bawah
+const POWERUP_W             = 36;
+const POWERUP_H             = 20;
+const EXPAND_DURATION       = 15.0; // Durasi power-up panjang
+const FIREBALL_DURATION     = 10.0;
 
 // Warna Khas Slot Platform
 const SLOT_COLORS = {
@@ -900,7 +900,7 @@ class GameEngine {
           const curOwnerPad = this.paddles.find(p => p.slot === ball.owner);
           if (curOwnerPad && curOwnerPad.lives > 0) {
             curOwnerPad.lives--;
-            curOwnerPad.score = Math.max(0, curOwnerPad.score - 10);
+            // Ramah anak TK/SD: poin tidak dipotong saat bola jatuh
             this.playAudio('hurt', { volume: 0.4 });
 
             if (curOwnerPad.lives > 0) {

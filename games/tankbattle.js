@@ -80,6 +80,7 @@ export default {
   icon: '🪖',
   description: 'Duel tank! Hancurkan tank lawan & raih poin tim. Dukung 1v1, 2v2 tim (Merah vs Biru), dan 4P FFA.',
   modes: [
+    {id:'1p',  label:'1 Player',        sub:'Lawan Komputer',         players:1},
     {id:'1v1', label:'1 vs 1',          sub:'Duel Satu Lawan Satu',   players:2},
     {id:'2v2', label:'2 vs 2',          sub:'Duel Tim Merah vs Biru', players:4},
     {id:'ffa', label:'4 Player FFA',    sub:'Semua Lawan Semua',      players:4},
@@ -95,7 +96,8 @@ export default {
     const slotToTank = {};
     players.forEach((slot, i) => { slotToTank[slot] = i; });
 
-    const numPlayers = players.length;
+    const isSolo = players.length === 1;
+    const numPlayers = isSolo ? 2 : players.length;
     const starts = STARTS[numPlayers] || STARTS[2];
 
     // State game
@@ -106,30 +108,68 @@ export default {
     let particles  = [];
     let frameId    = null;
     let lastTime   = null;
+    const timeouts = [];
 
     // --- Inisialisasi Tank ---
-    const tanks = players.map((slot, i) => ({
-      i,                              // indeks lokal
-      slot,                           // nomor slot micro:bit
-      x:    starts[i].x,
-      y:    starts[i].y,
-      dir:  starts[i].dir,
-      dirMove: null,                  // null = diam
-      lives: LIVES,
-      alive: true,
-      invuln: 0,                      // sisa waktu invulnerable (dtk)
-      shootCd: 0,                     // sisa cooldown tembak (dtk)
-      color: mode.id === '2v2' ? (i < 2 ? TEAM_COLORS[0] : TEAM_COLORS[1]) : PCOLORS[i],
-      label: `P${i+1}`,
-    }));
+    const tanks = isSolo
+      ? [
+          {
+            i: 0,
+            slot: players[0],
+            x: starts[0].x,
+            y: starts[0].y,
+            dir: starts[0].dir,
+            dirMove: null,
+            lives: LIVES,
+            alive: true,
+            invuln: 0,
+            shootCd: 0,
+            color: PCOLORS[0],
+            label: `P${players[0]}`,
+            isAi: false,
+          },
+          {
+            i: 1,
+            slot: null,
+            x: starts[1].x,
+            y: starts[1].y,
+            dir: starts[1].dir,
+            dirMove: null,
+            lives: LIVES,
+            alive: true,
+            invuln: 0,
+            shootCd: 0,
+            color: PCOLORS[1],
+            label: 'BOT',
+            isAi: true,
+            aiTimer: 0,
+          }
+        ]
+      : players.map((slot, i) => ({
+          i,                              // indeks lokal
+          slot,                           // nomor slot micro:bit
+          x:    starts[i].x,
+          y:    starts[i].y,
+          dir:  starts[i].dir,
+          dirMove: null,                  // null = diam
+          lives: LIVES,
+          alive: true,
+          invuln: 0,                      // sisa waktu invulnerable (dtk)
+          shootCd: 0,                     // sisa cooldown tembak (dtk)
+          color: mode.id === '2v2' ? (i < 2 ? TEAM_COLORS[0] : TEAM_COLORS[1]) : PCOLORS[i],
+          label: `P${i+1}`,
+          isAi: false,
+        }));
 
     // --- Sistem tim & skor ---
-    // 2v2 = 2 tim (Merah: P1+P2, Biru: P3+P4); 1v1/FFA = tiap pemain timnya sendiri.
+    // 2v2 = 2 tim (Merah: P1+P2, Biru: P3+P4); 1v1/Solo/FFA = tiap pemain timnya sendiri.
     const TEAMS   = mode.id === '2v2' ? [[0, 1], [2, 3]] : tanks.map((_, i) => [i]);
     const teamOf  = ti => TEAMS.findIndex(team => team.includes(ti));
-    const TEAM_LABELS = mode.id === '2v2'
-      ? ['Tim Merah', 'Tim Biru']
-      : tanks.map((_, i) => `P${i + 1}`);
+    const TEAM_LABELS = isSolo
+      ? [`Player ${players[0]}`, 'Komputer (BOT)']
+      : (mode.id === '2v2'
+        ? ['Tim Merah', 'Tim Biru']
+        : tanks.map((_, i) => `P${i + 1}`));
     const scores  = TEAMS.map(() => 0);
 
     // =====================================================
@@ -228,14 +268,14 @@ export default {
         // Poin untuk tim penembak (pastikan bukan kawan setim)
         if (killer != null && teamOf(killer) !== teamOf(t.i)) addScore(killer);
         // Delay untuk periksa menang
-        setTimeout(() => {
+        timeouts.push(setTimeout(() => {
           if (!st.over) checkWin();
-        }, 300);
+        }, 300));
       } else {
         // Masih hidup → invulnerable + respawn
         t.alive  = false;
         t.invuln = INVULN;
-        setTimeout(() => {
+        timeouts.push(setTimeout(() => {
           if (st.over) return;
           const sp = starts[t.i];
           t.x   = sp.x;
@@ -245,7 +285,7 @@ export default {
           t.alive = true;
           // invuln mulai countdown setelah respawn
           t.invuln = INVULN;
-        }, RESPAWN_DELAY);
+        }, RESPAWN_DELAY));
       }
     }
 
@@ -268,7 +308,7 @@ export default {
         const txt = winner >= 0
           ? `${TEAM_LABELS[winner]} Menang! 🏆 (${scores[winner]} poin)`
           : 'Seri! Semua habis.';
-        setTimeout(() => finish(txt), 600);
+        timeouts.push(setTimeout(() => finish(txt), 600));
       }
     }
 
@@ -276,6 +316,46 @@ export default {
     // Update state per frame
     // =====================================================
     function step(dt) {
+      // Logika AI Tank (Bot) saat bermain 1P
+      for (const t of tanks) {
+        if (!t.isAi || !t.alive) continue;
+        t.aiTimer = (t.aiTimer || 0) + dt;
+        if (t.aiTimer >= 0.28) {
+          t.aiTimer = 0;
+          const target = tanks[0];
+          if (target && target.alive) {
+            const dx = (target.x + TS / 2) - (t.x + TS / 2);
+            const dy = (target.y + TS / 2) - (t.y + TS / 2);
+
+            // Cek jika sejajar horizontal atau vertikal untuk menembak
+            if (Math.abs(dx) <= 22) {
+              t.dir = dy > 0 ? 'd' : 'u';
+              t.dirMove = t.dir;
+              shoot(t);
+            } else if (Math.abs(dy) <= 22) {
+              t.dir = dx > 0 ? 'r' : 'l';
+              t.dirMove = t.dir;
+              shoot(t);
+            } else {
+              // Menuju posisi pemain
+              const preferX = Math.abs(dx) > Math.abs(dy);
+              const primDir = preferX ? (dx > 0 ? 'r' : 'l') : (dy > 0 ? 'd' : 'u');
+              const secDir  = preferX ? (dy > 0 ? 'd' : 'u') : (dx > 0 ? 'r' : 'l');
+
+              const v = DVEC[primDir];
+              if (!collidesWall(t.x + v.dx * 12, t.y + v.dy * 12, TS, TS)) {
+                t.dir = primDir;
+                t.dirMove = primDir;
+              } else {
+                t.dir = secDir;
+                t.dirMove = secDir;
+              }
+              if (Math.random() < 0.2) shoot(t);
+            }
+          }
+        }
+      }
+
       // Update cooldown tembak & invulnerable
       for (const t of tanks) {
         if (t.shootCd > 0) t.shootCd = Math.max(0, t.shootCd - dt);
@@ -652,6 +732,8 @@ export default {
     return {
       stop() {
         cancelAnimationFrame(frameId);
+        for (const tid of timeouts) clearTimeout(tid);
+        timeouts.length = 0;
         off();
         canvas.removeEventListener('click', onCanvasClick);
       }

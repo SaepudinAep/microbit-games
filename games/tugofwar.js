@@ -66,6 +66,7 @@ export default {
   icon: '🪢',
   description: 'Tarik tali sekuat dan sekompak mungkin untuk menyeret tim lawan! Kunci kemenangan ada pada koordinasi.',
   modes: [
+    { id: '1p', label: '1 Player', sub: 'Lawan Komputer', players: 1 },
     { id: '2p', label: '2 Player', sub: 'Satu lawan satu', players: 2 },
     { id: '4p', label: '4 Player', sub: 'Dua lawan dua',   players: 4 }
   ],
@@ -76,16 +77,19 @@ export default {
     canvas.width = CANVAS_WIDTH;
     canvas.height = CANVAS_HEIGHT;
 
-    const numP = players.length;
+    const isSolo = players.length === 1;
+    const numP = isSolo ? 2 : players.length;
     const starterPlayer = players[0]; // Hanya players[0] yang boleh '99'
 
     // =====================================================
     // Pemetaan Tim & Inisialisasi Pemain
-    // Tim Kiri: 2P -> [players[0]], 4P -> [players[0], players[1]]
-    // Tim Kanan: 2P -> [players[1]], 4P -> [players[2], players[3]]
+    // Tim Kiri: 2P/Solo -> [players[0]], 4P -> [players[0], players[1]]
+    // Tim Kanan: Solo -> ['BOT'], 2P -> [players[1]], 4P -> [players[2], players[3]]
     // =====================================================
     const playerMap = {};
-    const playerList = players.map((slot, idx) => {
+    const effectiveSlots = isSolo ? [players[0], 'BOT'] : players;
+
+    const playerList = effectiveSlots.map((slot, idx) => {
       const isLeft = (numP === 2) ? (idx === 0) : (idx < 2);
       const teamId = isLeft ? 'left' : 'right';
 
@@ -116,17 +120,21 @@ export default {
         teamId,
         offset,
         teammateSlot,
-        color: SLOT_COLORS[slot] || '#ffffff',
-        label: `P${slot}`,
+        color: slot === 'BOT' ? '#ff9a2e' : (SLOT_COLORS[slot] || '#ffffff'),
+        label: slot === 'BOT' ? 'BOT' : `P${slot}`,
         lastPullTime: -999,
         lastPullPaired: false,
         pullCount: 0,
         pullAnim: 0, // Animasi ayunan mundur saat menarik
-        dustList: []
+        dustList: [],
+        isAi: slot === 'BOT'
       };
       playerMap[slot] = pData;
       return pData;
     });
+
+    let botPullTimer = 0;
+    let nextBotInterval = 0.22;
 
     // =====================================================
     // State Game & Variabel Fisika
@@ -208,7 +216,13 @@ export default {
 
         // Bentuk teks finish() persis sesuai spesifikasi kontrak
         let finishText = '';
-        if (numP === 2) {
+        if (isSolo) {
+          if (scoreLeft > scoreRight) {
+            finishText = `Player ${players[0]} menang lawan Komputer! 🏆 Skor ronde ${scoreLeft}-${scoreRight}`;
+          } else {
+            finishText = `Komputer (BOT) menang! Skor ronde ${scoreRight}-${scoreLeft}`;
+          }
+        } else if (numP === 2) {
           const winnerSlot = scoreLeft > scoreRight ? players[0] : players[1];
           const s1 = scoreLeft;
           const s2 = scoreRight;
@@ -421,6 +435,19 @@ export default {
         if (tarikBannerTimer > 0) {
           tarikBannerTimer = Math.max(0, tarikBannerTimer - dt);
         }
+
+        // Tarikan otomatis bot saat 1P
+        if (isSolo) {
+          botPullTimer += dt;
+          if (botPullTimer >= nextBotInterval) {
+            botPullTimer = 0;
+            // Interval acak antara 0.17 s.d. 0.28 dtk (~4-5 tarikan per dtk)
+            nextBotInterval = 0.17 + Math.random() * 0.11;
+            const botP = playerMap['BOT'];
+            if (botP) handlePull(botP);
+          }
+        }
+
         updatePhysics(dt);
       } else if (state === 'roundEnd') {
         roundEndTimer -= dt;
