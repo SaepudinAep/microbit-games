@@ -25,37 +25,37 @@ const FLOOR_Y       = 540; // Batas lantai pipa/tanah
 const CEIL_Y        = 0;   // Batas atas langit-langit
 const GROUND_H      = H - FLOOR_Y; // 60 px tinggi tanah
 
-// Ukuran & Fisika Burung
+// Ukuran & Fisika Burung (Disesuaikan Ramah Anak Usia TK & SD)
 const BIRD_W        = 34;
 const BIRD_H        = 26;
-const HITBOX_RATIO  = 0.85; // 85% ukuran visual burung
-const GRAV          = 1400; // px/dtk² gravitasi
-const FLAP_V        = -420; // px/dtk kecepatan vertikal saat flap
-const MAX_FALL      = 700;  // px/dtk batas kecepatan jatuh maksimal
-const FLAP_COOLDOWN_MS = 80;// ms jeda minimum antar kepakan per burung (anti-spam)
+const HITBOX_RATIO  = 0.70; // 70% ukuran visual (toleransi benturan ramah anak)
+const GRAV          = 780;  // px/dtk² gravitasi lembut (burung melayang santai, tidak jatuh drastis)
+const FLAP_V        = -310; // px/dtk kepakan lembut teratur
+const MAX_FALL      = 400;  // px/dtk batas kecepatan jatuh terkontrol
+const FLAP_COOLDOWN_MS = 60;// ms jeda minimum antar kepakan per burung
 
 // Posisi Horizontal Burung (staggered)
 const BIRD_BASE_X   = 160;
 const BIRD_STAGGER_X = 30;
 
-// Pipa
+// Pipa (Ramah Anak: Celah Ekstra Lebar & Jarak Antar Pipa Lega)
 const PIPE_W        = 70;
-const SPEED_ACCEL   = 4;    // px/dtk tambahan kecepatan per detik
-const SPEED_MAX     = 320;  // px/dtk batas kecepatan scroll pipa
-const PIPE_SPACING_SEC = 1.6; // jarak antar pipa = kecepatan saat itu * 1.6 dtk
+const SPEED_ACCEL   = 1.0;  // px/dtk akselerasi sangat halus
+const SPEED_MAX     = 175;  // px/dtk batas kecepatan maksimal yang tetap ramah anak
+const PIPE_SPACING_SEC = 2.4; // jeda 2.4 dtk antar pipa memberi waktu stabilisasi
 const TOP_MARGIN    = 60;   // margin aman dari langit-langit
 const BOTTOM_MARGIN = 60;   // margin aman dari lantai
-const MAX_GAP_SHIFT = 150;  // pergeseran vertikal maksimal antar celah pipa berturut-turut
+const MAX_GAP_SHIFT = 100;  // pergeseran celah tidak terlalu curam
 
-// Konfigurasi Tingkat Kesulitan
+// Konfigurasi Tingkat Kesulitan (Standar TK & SD)
 const LEVELS = {
-  mudah:  { gap: 210, speed: 150 },
-  sedang: { gap: 170, speed: 180 },
-  sulit:  { gap: 140, speed: 210 }
+  mudah:  { gap: 260, speed: 110 },
+  sedang: { gap: 240, speed: 125 }, // Celah 240px (~10x tinggi burung), santai & menyenangkan
+  sulit:  { gap: 200, speed: 150 }
 };
 
 // Nyawa & Kebal
-const INVULN_SEC    = 1.5;  // durasi kebal setelah tabrakan (detik)
+const INVULN_SEC    = 2.5;  // durasi kebal 2.5 detik setelah tabrakan
 const BLINK_HZ      = 8;    // frekuensi kedip saat kebal
 const COUNTDOWN_SEC = 3;    // hitung mundur sebelum mulai
 
@@ -103,8 +103,8 @@ export default {
     canvas.height = H;
     const ctx = canvas.getContext('2d');
 
-    // ── Peraturan Permainan Bersih (Nyawa 3 & Game sampai Semua Mati) ──
-    const MAX_LIVES = 3;
+    // ── Peraturan Permainan Bersih (Nyawa 5 Ramah Anak & Game sampai Semua Mati) ──
+    const MAX_LIVES = 5;
     const END_MODE  = 'all'; // permainan berlangsung sampai semua burung gugur
     const LVL_CFG   = LEVELS.sedang; // celah seimbang & nyaman untuk dinikmati bersama
 
@@ -590,13 +590,13 @@ export default {
         for (let l = 0; l < MAX_LIVES; l++) {
           hearts += (l < bird.lives ? '♥ ' : '♡ ');
         }
-        ctx.font = "16px 'Fredoka', sans-serif";
-        ctx.fillText(hearts.trim(), 58, yPos);
+        ctx.font = "15px 'Fredoka', sans-serif";
+        ctx.fillText(hearts.trim(), 50, yPos);
 
         // Skor pemain
         ctx.fillStyle = '#fff';
         ctx.font = "bold 18px 'Fredoka', sans-serif";
-        ctx.fillText(`${bird.score}`, 115, yPos);
+        ctx.fillText(`${bird.score}`, 135, yPos);
       });
 
       ctx.restore();

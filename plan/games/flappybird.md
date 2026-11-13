@@ -30,21 +30,22 @@ Game ini mengusung desain **antarmuka bersih tanpa menu opsi**: peraturan paten 
 | Aspek | Nilai | Keterangan |
 |---|---|---|
 | **Canvas** | `800 × 600 px` | Rasio 4:3, tampil proporsional di panggung dengan letterbox gelap |
-| **Nyawa** | `3 Nyawa` | Tabrakan memberi kebal 1.5 detik di tengah celah pipa berikutnya |
+| **Target Usia** | **TK & SD (4–12 Tahun)** | Parameter ramah anak: burung melayang santai, celah lebar |
+| **Nyawa** | `5 Nyawa` (❤️❤️❤️❤️❤️) | Tabrakan memberi kebal 2.5 detik di tengah celah pipa berikutnya |
 | **Aturan Selesai** | Sampai semua mati (`all`) | Pemain terakhir tetap bermain sendirian memaksimalkan skor |
-| **Celah Pipa** | `170 px` | Lebar celah nyaman dan adil untuk dinikmati bersama |
-| **Kecepatan Awal** | `180 px/dtk` | Kecepatan scroll bertambah bertahap `+4 px/dtk` per detik |
+| **Celah Pipa** | `240 px` | Celah ekstra lebar (~10× tinggi burung), sangat ramah anak |
+| **Kecepatan Awal** | `125 px/dtk` | Kecepatan scroll santai bertambah halus `+1 px/dtk` per detik (max 175) |
 | **Lantai & Langit** | Lantai di `y = 540`, langit di `y = 0` | Menyentuh lantai atau langit dihitung sebagai tabrakan |
 | **Ukuran Burung** | `34 × 26 px` | Digambar murni dengan bentuk canvas (badan elips, sayap, mata, paruh) |
-| **Hitbox Burung** | 85 % dari ukuran visual | Toleransi tabrakan untuk kompensasi latensi nirkabel BLE |
+| **Hitbox Burung** | 70 % dari ukuran visual | Toleransi tabrakan tinggi untuk kompensasi latensi nirkabel BLE |
 | **Posisi Horizontal (X)** | `x = 160 + (indeks × 30) px` | Posisi X tetap (staggered agar tidak menumpuk), hanya sumbu Y yang bergerak |
-| **Gravitasi** | `GRAV = 1400 px/dtk²` | Percepatan jatuh ke bawah |
-| **Kepakan (Flap)** | `FLAP_V = -420 px/dtk` | Menyetel kecepatan vertikal langsung (bukan menambah) |
-| **Batas Jatuh** | `MAX_FALL = 700 px/dtk` | Kecepatan terminal vertikal maksimal |
-| **Anti-Spam Flap** | `80 ms` | Jeda minimum antar kepakan per burung untuk mencegah spam tombol |
+| **Gravitasi** | `GRAV = 780 px/dtk²` | Jatuh perlahan & melayang (*floaty*), tidak langsung anjlok |
+| **Kepakan (Flap)** | `FLAP_V = -310 px/dtk` | Lompatan teratur dan terukur, tidak melonjak ke langit-langit |
+| **Batas Jatuh** | `MAX_FALL = 400 px/dtk` | Kecepatan terminal vertikal maksimal aman |
+| **Anti-Spam Flap** | `60 ms` | Jeda minimum antar kepakan per burung |
 | **Pipa** | Lebar `70 px`, celah ber-seed RNG | Pipa sama persis untuk semua pemain |
-| **Jarak Antar Pipa** | `kecepatan × 1.6 detik` | Dihitung saat pipa dibuat, selalu memberi ruang manuver |
-| **Margin Celah** | Min `60 px` dari langit/lantai | Pergeseran vertikal maksimal antar celah berturut-turut `150 px` |
+| **Jarak Antar Pipa** | `kecepatan × 2.4 detik` | Jeda 2.4 detik memberi waktu anak menstabilkan ketinggian burung |
+| **Margin Celah** | Min `60 px` dari langit/lantai | Pergeseran vertikal maksimal antar celah berturut-turut `100 px` |
 | **Warna Pemain** | P1 `#4b83ff`, P2 `#ff9a2e`, P3 `#3ccf8e`, P4 `#b98cff` | Mengikuti **nomor slot fisik**, bukan urutan array |
 
 ---
