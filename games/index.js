@@ -12,5 +12,6 @@ import tugofwar from './tugofwar.js';
 import hillclimb from './hillclimb.js';
 import cacingrakus from './cacingrakus.js';
 import pecahbalok from './pecahbalok.js';
+import kejarlabirin from './kejarlabirin.js';
 
-export const games = [pingpong, spaceinvaders, tankbattle, endlessracer, dinorush, flappybird, maze, catchstar, sumoarena, tugofwar, hillclimb, cacingrakus, pecahbalok];
+export const games = [pingpong, spaceinvaders, tankbattle, endlessracer, dinorush, flappybird, maze, catchstar, sumoarena, tugofwar, hillclimb, cacingrakus, pecahbalok, kejarlabirin];

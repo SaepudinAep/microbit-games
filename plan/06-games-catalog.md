@@ -22,6 +22,7 @@ Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/i
 | 11 | `hillclimb` | Hill Climbing | ⛰️ | 1P, 2P, 4P | `games/hillclimb.js` | [plan/games/hillclimb.md](games/hillclimb.md) |
 | 12 | `cacingrakus` | Cacing Rakus | 🪱 | 1P, 2P, 4P | `games/cacingrakus.js` | [plan/games/cacingrakus.md](games/cacingrakus.md) |
 | 13 | `pecahbalok` | Pecah Balok | 🧱 | 1P, 2P, 4P | `games/pecahbalok.js` | [plan/games/pecahbalok.md](games/pecahbalok.md) |
+| 14 | `kejarlabirin` | Kejar Labirin | 🟡 | 1P, 2P, 4P | `games/kejarlabirin.js` | [plan/games/kejarlabirin.md](games/kejarlabirin.md) |
 
 > **Konvensi umum** (lihat `01-core-kernel.md`): kernel meneruskan angka standar `0#`–`9#` + `99#` berlabel pemain;
 > **arti angka bersifat milik tiap game** (*deterministic commands*). Semua game memakai ready-state: permainan
@@ -226,6 +227,12 @@ Permainan ular arkade multi-pemain (1, 2, atau 4 pemain) di arena grid 40x40 ($1
 ## 13. Pecah Balok (games/pecahbalok.js)
 
 Permainan arkade aksi retro multi-pemain (1, 2, atau 4 pemain) di kanvas 1280x720. Seluruh pemain mengendalikan paddle di garis bawah bersama dengan sistem *ghost overlap* (tanpa saling tabrak), bola bebas memantul dengan pergantian warna kepemilikan, formasi gelombang balok bertingkat (klasik pelangi, benteng pilar, piramida baja/emas), serta kapsul *power-up* ramah anak (Expand, Multi-Ball, Fireball). Rincian: [plan/games/pecahbalok.md](games/pecahbalok.md).
+
+---
+
+## 14. Kejar Labirin (games/kejarlabirin.js)
+
+Permainan arkade labirin aksi retro multi-pemain (1, 2, atau 4 pemain) di kanvas 1280x720. Seluruh pemain mengendalikan karakter pemakan titik (*Chomper*) di labirin simetris 4-sudut (31 kolom × 17 baris) dengan terowongan tembus (*wrap-around*), pre-turn buffer anti-macet di tikungan, 4 hantu NPC AI berpatroli (Blinky, Pinky, Inky, Clyde), pil kekuatan (*Power Pellet*) yang memicu status hantu biru ketakutan selama 8 detik, serta buah bonus berkala. Rincian: [plan/games/kejarlabirin.md](games/kejarlabirin.md).
 
 ## Panduan Menjaga Dokumentasi
 
