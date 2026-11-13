@@ -21,6 +21,7 @@ Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/i
 | 10 | `tugofwar` | Tarik Tambang | 🪢 | 2P, 4P | `games/tugofwar.js` | [plan/games/tugofwar.md](games/tugofwar.md) |
 | 11 | `hillclimb` | Hill Climbing | ⛰️ | 1P, 2P, 4P | `games/hillclimb.js` | [plan/games/hillclimb.md](games/hillclimb.md) |
 | 12 | `cacingrakus` | Cacing Rakus | 🪱 | 1P, 2P, 4P | `games/cacingrakus.js` | [plan/games/cacingrakus.md](games/cacingrakus.md) |
+| 13 | `pecahbalok` | Pecah Balok | 🧱 | 1P, 2P, 4P | `games/pecahbalok.js` | [plan/games/pecahbalok.md](games/pecahbalok.md) |
 
 > **Konvensi umum** (lihat `01-core-kernel.md`): kernel meneruskan angka standar `0#`–`9#` + `99#` berlabel pemain;
 > **arti angka bersifat milik tiap game** (*deterministic commands*). Semua game memakai ready-state: permainan
@@ -219,6 +220,12 @@ Permainan balapan daki bukit fisika 2D multi-pemain (1, 2, atau 4 pemain) sepanj
 ## 12. Cacing Rakus (games/cacingrakus.js)
 
 Permainan ular arkade multi-pemain (1, 2, atau 4 pemain) di arena grid 40x40 ($1280 \times 720\text{ px}$, $32 \times 18\text{ sel}$). Menampilkan sistem tembus dinding (Pac-Man style wrap-around), buffer input 2 antrian anti-latensi Bluetooth, sistem 3 nyawa dengan respawn dan makanan bangkai, serta kemunculan makanan emas berkala. Rincian: [plan/games/cacingrakus.md](games/cacingrakus.md).
+
+---
+
+## 13. Pecah Balok (games/pecahbalok.js)
+
+Permainan arkade aksi retro multi-pemain (1, 2, atau 4 pemain) di kanvas 1280x720. Seluruh pemain mengendalikan paddle di garis bawah bersama dengan sistem *ghost overlap* (tanpa saling tabrak), bola bebas memantul dengan pergantian warna kepemilikan, formasi gelombang balok bertingkat (klasik pelangi, benteng pilar, piramida baja/emas), serta kapsul *power-up* ramah anak (Expand, Multi-Ball, Fireball). Rincian: [plan/games/pecahbalok.md](games/pecahbalok.md).
 
 ## Panduan Menjaga Dokumentasi
 

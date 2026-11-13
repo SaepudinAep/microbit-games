@@ -119,7 +119,15 @@ function renderPick(){
     const maxP = Math.max(...g.modes.map(m => m.players));
     const minP = Math.min(...g.modes.map(m => m.players));
     const pLabel = minP === maxP ? `${maxP}P` : `${minP}–${maxP}P`;
-    titleBox.append(el('span', 'pbadge', `👥 ${pLabel}`));
+    const badgeRow = el('div', 'pbadge-row');
+    badgeRow.style.display = 'flex';
+    badgeRow.style.alignItems = 'center';
+    badgeRow.style.gap = '6px';
+    badgeRow.append(el('span', 'pbadge', `👥 ${pLabel}`));
+    if (g.tag) {
+      badgeRow.append(el('span', 'pbadge tag', `🕹️ ${g.tag}`));
+    }
+    titleBox.append(badgeRow);
     header.append(titleBox);
     c.append(header);
 

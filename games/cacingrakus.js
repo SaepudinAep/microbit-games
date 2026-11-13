@@ -13,7 +13,7 @@ const GRID_ROWS          = 18; // 720 / 40
 
 const GAME_DURATION_SEC  = 90;
 const COUNTDOWN_SEC      = 3;
-const MOVE_INTERVAL_SEC  = 0.125; // 8 langkah per detik
+const MOVE_INTERVAL_SEC  = 0.250; // 8 langkah per detik
 const RESPAWN_DELAY_SEC  = 1.0;
 const INVULN_TIME_SEC    = 2.0;
 const GOLDEN_INTERVAL    = 15.0;
@@ -58,41 +58,54 @@ class InputHandler {
     this.players = players;
     this.onCommand = onCommand;
 
-    // Pasang listener kernel micro:bit
-    this.offKernel = kernel.on('input', ({ player, cmd }) => {
-      this.onCommand(player, cmd);
-    });
+    // Pasang listener kernel micro:bit & keyboard platform
+    this.offKernel = (kernel && typeof kernel.on === 'function')
+      ? kernel.on('input', ({ player, cmd }) => {
+          this.onCommand(player, cmd);
+        })
+      : null;
 
-    // Pasang keyboard fallback
-    this.onKeyDown = (e) => {
-      const key = e.key.toLowerCase();
-
-      // P1: W / A / S / D + Spasi
-      if (players[0] != null) {
+    // Pasang keyboard fallback HANYA jika dijalankan mandiri di luar kernel platform (mis. cacingrakus.html)
+    this.onKeyDown = null;
+    const isPlatformKernel = kernel && typeof kernel.filled === 'function';
+    if (!isPlatformKernel) {
+      this.onKeyDown = (e) => {
+        const key = e.key.toLowerCase();
         const p1 = players[0];
-        if (key === 'w') this.onCommand(p1, '1');
-        else if (key === 's') this.onCommand(p1, '2');
-        else if (key === 'a') this.onCommand(p1, '3');
-        else if (key === 'd') this.onCommand(p1, '4');
-        else if (key === ' ' || key === 'enter') this.onCommand(p1, '99');
-      }
-
-      // P2: Arrow Keys
-      if (players[1] != null) {
         const p2 = players[1];
-        if (e.key === 'ArrowUp') this.onCommand(p2, '1');
-        else if (e.key === 'ArrowDown') this.onCommand(p2, '2');
-        else if (e.key === 'ArrowLeft') this.onCommand(p2, '3');
-        else if (e.key === 'ArrowRight') this.onCommand(p2, '4');
-      }
-    };
 
-    window.addEventListener('keydown', this.onKeyDown);
+        // Mulai permainan (Spasi atau Enter)
+        if (key === ' ' || key === 'enter') {
+          if (p1 != null) this.onCommand(p1, '99');
+          return;
+        }
+
+        // P1: Panah Keyboard atau WASD (bila solo)
+        if (p2 == null) {
+          if (e.key === 'ArrowUp' || key === 'w') this.onCommand(p1, '1');
+          else if (e.key === 'ArrowDown' || key === 's') this.onCommand(p1, '2');
+          else if (e.key === 'ArrowLeft' || key === 'a') this.onCommand(p1, '3');
+          else if (e.key === 'ArrowRight' || key === 'd') this.onCommand(p1, '4');
+        } else {
+          // Mode 2P Standar Platform: P1 = Panah, P2 = WASD
+          if (e.key === 'ArrowUp') this.onCommand(p1, '1');
+          else if (e.key === 'ArrowDown') this.onCommand(p1, '2');
+          else if (e.key === 'ArrowLeft') this.onCommand(p1, '3');
+          else if (e.key === 'ArrowRight') this.onCommand(p1, '4');
+
+          if (key === 'w') this.onCommand(p2, '1');
+          else if (key === 's') this.onCommand(p2, '2');
+          else if (key === 'a') this.onCommand(p2, '3');
+          else if (key === 'd') this.onCommand(p2, '4');
+        }
+      };
+      window.addEventListener('keydown', this.onKeyDown);
+    }
   }
 
   destroy() {
     if (this.offKernel) this.offKernel();
-    window.removeEventListener('keydown', this.onKeyDown);
+    if (this.onKeyDown) window.removeEventListener('keydown', this.onKeyDown);
   }
 }
 
@@ -119,12 +132,14 @@ class FoodManager {
       }
     }
 
-    // 2. Timer kemunculan makanan emas
+    // 2. Timer kemunculan makanan emas (terjadwal tiap 15 detik)
     this.goldenTimer -= dt;
-    if (this.goldenTimer <= 0 && !this.goldenFood) {
-      const pos = this.findEmptyCell(snakes);
-      if (pos) {
-        this.goldenFood = { x: pos.x, y: pos.y, timeLeft: GOLDEN_LIFETIME };
+    if (this.goldenTimer <= 0) {
+      if (!this.goldenFood) {
+        const pos = this.findEmptyCell(snakes);
+        if (pos) {
+          this.goldenFood = { x: pos.x, y: pos.y, timeLeft: GOLDEN_LIFETIME };
+        }
       }
       this.goldenTimer = GOLDEN_INTERVAL;
     }
@@ -160,7 +175,7 @@ class FoodManager {
     const freeCells = [];
     for (let x = 0; x < GRID_COLS; x++) {
       for (let y = 0; y < GRID_ROWS; y++) {
-        // Jangan spawn di baris HUD paling atas jika memungkinkan
+        // Jangan spawn di baris HUD paling atas (y < 2) agar selalu terlihat jelas
         if (y < 2) continue;
         if (!occupied.has(`${x},${y}`)) {
           freeCells.push({ x, y });
@@ -173,10 +188,12 @@ class FoodManager {
   }
 
   addFoodAt(x, y) {
-    // Cek apakah sel sudah ada makanan
-    const exists = this.normalFoods.some(f => f.x === x && f.y === y);
+    // Pastikan makanan bangkai cacing tidak tercecer di baris teratas (y < 2)
+    const clampedY = Math.max(2, Math.min(GRID_ROWS - 1, y));
+    const clampedX = Math.max(0, Math.min(GRID_COLS - 1, x));
+    const exists = this.normalFoods.some(f => f.x === clampedX && f.y === clampedY);
     if (!exists) {
-      this.normalFoods.push({ x, y });
+      this.normalFoods.push({ x: clampedX, y: clampedY });
     }
   }
 
@@ -473,6 +490,8 @@ class Snake {
 class GameEngine {
   constructor({ canvas, kernel, players, mode, finish, audio }) {
     this.canvas = canvas;
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
     this.ctx = canvas.getContext('2d');
     this.kernel = kernel;
     this.players = players;
@@ -481,6 +500,7 @@ class GameEngine {
     this.audio = audio;
 
     this.state = 'waiting'; // 'waiting' | 'countdown' | 'play' | 'over'
+    this.overReason = '';   // 'time_up' | 'all_eliminated'
     this.timeLeft = GAME_DURATION_SEC;
     this.countdownTimer = COUNTDOWN_SEC;
     this.moveTimer = 0;
@@ -530,8 +550,8 @@ class GameEngine {
     if (this.stopped) return;
 
     if (this.state === 'waiting') {
-      // 99 dari P1 atau spasi memulai permainan
-      if (cmd === '99' && slot === this.players[0]) {
+      // 99 dari P1 atau 5 (Spasi/Enter keyboard) dari P1 memulai permainan
+      if ((cmd === '99' || cmd === '5') && slot === this.players[0]) {
         this.startCountdown();
       }
       return;
@@ -565,7 +585,7 @@ class GameEngine {
     // 1. Kurangi sisa waktu permainan
     this.timeLeft = Math.max(0, this.timeLeft - dt);
     if (this.timeLeft <= 0) {
-      this.gameOver();
+      this.gameOver('time_up');
       return;
     }
 
@@ -587,7 +607,7 @@ class GameEngine {
     // Cek apakah seluruh cacing gugur habis nyawa
     const anyAlive = this.snakes.some(s => !s.eliminated);
     if (!anyAlive) {
-      this.gameOver();
+      this.gameOver('all_eliminated');
     }
   }
 
@@ -618,12 +638,14 @@ class GameEngine {
     // 3. Deteksi Tabrakan Kepala vs Badan Cacing
     const dyingSnakes = new Set();
     for (const { snake, head } of newHeads) {
-      // Abaikan jika cacing masih dalam masa kebal
+      // Abaikan jika cacing penabrak masih dalam masa kebal
       if (snake.invulnerableTimer > 0) continue;
 
       // Cek tabrakan dengan badan seluruh cacing
       for (const targetSnake of this.snakes) {
         if (!targetSnake.alive) continue;
+        // Cacing kebal/transparan (baru respawn) tidak mematikan cacing lain
+        if (targetSnake.invulnerableTimer > 0) continue;
 
         // Jika cacing sendiri, lewati kepala (index 0)
         const startIndex = (targetSnake === snake) ? 1 : 0;
@@ -646,9 +668,10 @@ class GameEngine {
     }
   }
 
-  gameOver() {
+  gameOver(reason) {
     if (this.state === 'over') return;
     this.state = 'over';
+    this.overReason = reason || (this.timeLeft <= 0 ? 'time_up' : 'all_eliminated');
     this.playAudio('win');
 
     let finishText = '';
@@ -661,9 +684,14 @@ class GameEngine {
     } else {
       // Urutkan pemenang berdasarkan skor tertinggi
       const sorted = [...this.snakes].sort((a, b) => b.score - a.score);
-      const winner = sorted[0];
       const scoreStr = this.snakes.map(s => `P${s.slot} ${s.score} poin`).join(', ');
-      finishText = `${winner.colorData.name} (P${winner.slot}) menang! ${scoreStr}`;
+
+      if (sorted.length > 1 && sorted[0].score === sorted[1].score) {
+        finishText = `Seri! ${scoreStr}`;
+      } else {
+        const winner = sorted[0];
+        finishText = `${winner.colorData.name} (P${winner.slot}) menang! ${scoreStr}`;
+      }
     }
 
     this.finishTimeoutId = setTimeout(() => {
@@ -692,42 +720,81 @@ class GameEngine {
   drawHUD() {
     this.ctx.save();
 
-    // 1. Bar Semi-Transparan di Bagian Atas
-    this.ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-    this.ctx.fillRect(0, 0, CANVAS_WIDTH, 56);
-    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    this.ctx.lineWidth = 1;
+    // 1. Timer Countdown di Tengah (Floating Glass Chip)
+    const timerW = 130;
+    const timerH = 38;
+    const timerX = (CANVAS_WIDTH - timerW) / 2;
+    const timerY = 8;
+
+    this.ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+    this.ctx.strokeStyle = this.timeLeft <= 15 ? '#ef4444' : 'rgba(255, 255, 255, 0.25)';
+    this.ctx.lineWidth = 2;
     this.ctx.beginPath();
-    this.ctx.moveTo(0, 56); this.ctx.lineTo(CANVAS_WIDTH, 56);
+    this.ctx.roundRect(timerX, timerY, timerW, timerH, 10);
+    this.ctx.fill();
     this.ctx.stroke();
 
-    // 2. Timer Countdown di Tengah
-    this.ctx.font = 'bold 22px sans-serif';
+    this.ctx.font = 'bold 20px sans-serif';
     this.ctx.fillStyle = this.timeLeft <= 15 ? '#ef4444' : '#f8fafc';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText(`⏱ ${Math.ceil(this.timeLeft)}s`, CANVAS_WIDTH / 2, 36);
+    this.ctx.fillText(`⏱ ${Math.ceil(this.timeLeft)}s`, timerX + timerW / 2, timerY + 26);
 
-    // 3. Statistik Tiap Pemain (Skor & Nyawa)
-    const slotW = (CANVAS_WIDTH - 200) / this.snakes.length;
+    // 2. Statistik Tiap Pemain (Floating Glass Badges dengan Area Aman)
+    let playerPositions = [];
+    if (this.snakes.length === 1) {
+      playerPositions = [{ x: 330, w: 220 }];
+    } else if (this.snakes.length === 2) {
+      playerPositions = [
+        { x: 320, w: 220 },
+        { x: 740, w: 220 }
+      ];
+    } else {
+      playerPositions = [
+        { x: 75,  w: 220 },
+        { x: 320, w: 220 },
+        { x: 740, w: 200 },
+        { x: 960, w: 200 }
+      ];
+    }
+
     this.snakes.forEach((s, idx) => {
-      const isLeftHalf = idx < this.snakes.length / 2;
-      const x = isLeftHalf
-        ? 30 + idx * slotW
-        : CANVAS_WIDTH / 2 + 100 + (idx - Math.ceil(this.snakes.length / 2)) * slotW;
+      const pos = playerPositions[idx] || { x: 75 + idx * 220, w: 200 };
+      const px = pos.x;
+      const py = 8;
+      const pw = pos.w;
+      const ph = 42;
+
+      this.ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      this.ctx.strokeStyle = s.colorData.hex;
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.roundRect(px, py, pw, ph, 8);
+      this.ctx.fill();
+      this.ctx.stroke();
 
       // Label P{slot} & Skor
-      this.ctx.font = 'bold 16px sans-serif';
+      this.ctx.font = 'bold 15px sans-serif';
       this.ctx.fillStyle = s.colorData.hex;
       this.ctx.textAlign = 'left';
-      this.ctx.fillText(`P${s.slot}: ${s.score} pts`, x, 25);
+      this.ctx.fillText(`P${s.slot}: ${s.score} pts`, px + 10, py + 19);
 
-      // Sisa Nyawa (Hearts)
-      let hearts = '';
-      for (let i = 0; i < INITIAL_LIVES; i++) {
-        hearts += (i < s.lives) ? '❤️ ' : '💔 ';
+      // Status: Hati Nyawa / Status Gugur / Kebal
+      if (s.eliminated) {
+        this.ctx.font = 'bold 12px sans-serif';
+        this.ctx.fillStyle = '#ef4444';
+        this.ctx.fillText('💀 GUGUR', px + 10, py + 36);
+      } else if (s.invulnerableTimer > 0) {
+        this.ctx.font = 'bold 12px sans-serif';
+        this.ctx.fillStyle = '#fde047';
+        let hearts = '';
+        for (let i = 0; i < INITIAL_LIVES; i++) hearts += (i < s.lives) ? '❤️' : '💔';
+        this.ctx.fillText(`${hearts} 🛡️ KEBAL`, px + 10, py + 36);
+      } else {
+        let hearts = '';
+        for (let i = 0; i < INITIAL_LIVES; i++) hearts += (i < s.lives) ? '❤️ ' : '💔 ';
+        this.ctx.font = '12px sans-serif';
+        this.ctx.fillText(hearts, px + 10, py + 36);
       }
-      this.ctx.font = '13px sans-serif';
-      this.ctx.fillText(hearts, x, 45);
     });
 
     this.ctx.restore();
@@ -755,12 +822,12 @@ class GameEngine {
 
       this.ctx.font = '19px sans-serif';
       this.ctx.fillStyle = '#38bdf8';
-      this.ctx.fillText(`Kirim 99# dari micro:bit P${this.players[0]} atau klik layar / Spasi untuk mulai`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 5);
+      this.ctx.fillText(`Kirim 99# dari micro:bit P${this.players[0]}, atau klik layar / Spasi untuk mulai`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 5);
 
       this.ctx.font = '14px sans-serif';
       this.ctx.fillStyle = '#94a3b8';
       this.ctx.fillText('Kontrol Arah: 1=Atas, 2=Bawah, 3=Kiri, 4=Kanan | Tembus Dinding Aktif', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
-      this.ctx.fillText('P1: W/A/S/D  |  P2: Panah Keyboard', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 80);
+      this.ctx.fillText('P1: Panah Keyboard / WASD  |  P2: WASD (jika 2 keyboard)', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 80);
 
       this.ctx.restore();
     }
@@ -785,13 +852,14 @@ class GameEngine {
       this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
       this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+      const overText = (this.overReason === 'all_eliminated') ? 'SEMUA CACING GUGUR!' : 'WAKTU HABIS!';
       this.ctx.font = 'bold 50px sans-serif';
       this.ctx.fillStyle = '#fde047';
       this.ctx.strokeStyle = '#000000';
       this.ctx.lineWidth = 5;
       this.ctx.textAlign = 'center';
-      this.ctx.strokeText('WAKTU HABIS!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 20);
-      this.ctx.fillText('WAKTU HABIS!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 20);
+      this.ctx.strokeText(overText, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 20);
+      this.ctx.fillText(overText, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 20);
       this.ctx.restore();
     }
   }

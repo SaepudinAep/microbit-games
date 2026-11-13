@@ -11,5 +11,6 @@ import sumoarena from './sumoarena.js';
 import tugofwar from './tugofwar.js';
 import hillclimb from './hillclimb.js';
 import cacingrakus from './cacingrakus.js';
+import pecahbalok from './pecahbalok.js';
 
-export const games = [pingpong, spaceinvaders, tankbattle, endlessracer, dinorush, flappybird, maze, catchstar, sumoarena, tugofwar, hillclimb, cacingrakus];
+export const games = [pingpong, spaceinvaders, tankbattle, endlessracer, dinorush, flappybird, maze, catchstar, sumoarena, tugofwar, hillclimb, cacingrakus, pecahbalok];
