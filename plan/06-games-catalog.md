@@ -23,6 +23,8 @@ Dokumen ini adalah **indeks/registry** game yang terdaftar di platform (`games/i
 | 12 | `cacingrakus` | Cacing Rakus | 🪱 | 1P, 2P, 4P | `games/cacingrakus.js` | [plan/games/cacingrakus.md](games/cacingrakus.md) |
 | 13 | `pecahbalok` | Pecah Balok | 🧱 | 1P, 2P, 4P | `games/pecahbalok.js` | [plan/games/pecahbalok.md](games/pecahbalok.md) |
 | 14 | `kejarlabirin` | Kejar Labirin | 🟡 | 1P, 2P, 4P | `games/kejarlabirin.js` | [plan/games/kejarlabirin.md](games/kejarlabirin.md) |
+| 15 | `bomberman` | Bomberman | 💣 | 1P (vs AI), 2P, 4P | `games/bomberman.js` | [plan/games/bomberman.md](games/bomberman.md) |
+| 16 | `petualangkoin` | Petualang Koin | 🪙 | 1P, 2P, 4P | `games/petualangkoin.js` | [plan/games/petualangkoin.md](games/petualangkoin.md) |
 
 > **Konvensi umum** (lihat `01-core-kernel.md`): kernel meneruskan angka standar `0#`–`9#` + `99#` berlabel pemain;
 > **arti angka bersifat milik tiap game** (*deterministic commands*). Semua game memakai ready-state: permainan
@@ -233,6 +235,18 @@ Permainan arkade aksi retro multi-pemain (1, 2, atau 4 pemain) di kanvas 1280x72
 ## 14. Kejar Labirin (games/kejarlabirin.js)
 
 Permainan arkade labirin aksi retro multi-pemain (1, 2, atau 4 pemain) di kanvas 1280x720. Seluruh pemain mengendalikan karakter pemakan titik (*Chomper*) di labirin simetris 4-sudut (31 kolom × 17 baris) dengan terowongan tembus (*wrap-around*), pre-turn buffer anti-macet di tikungan, 4 hantu NPC AI berpatroli (Blinky, Pinky, Inky, Clyde), pil kekuatan (*Power Pellet*) yang memicu status hantu biru ketakutan selama 8 detik, serta buah bonus berkala. Rincian: [plan/games/kejarlabirin.md](games/kejarlabirin.md).
+
+---
+
+## 15. Bomberman (games/bomberman.js)
+
+Permainan arkade arena ledak retro multi-pemain (1, 2, atau 4 pemain) di kanvas 1280x720 berbasis grid 17x11 dengan pilar baja permanen dan balok bata hancur. Menampilkan peletakan bom dengan hitung mundur 2.5 detik, pola ledakan tanda tambah (`+`), reaksi berantai antar bom, corner sliding assist anti-tersangkut di sudut pilar, power-up item (Extra Bomb 💣, Fire Up 🔥, Speed Up 👟), sistem 3 nyawa dengan respawn berkedip 3 detik di sudut awal, serta 3 bot AI pada mode solo 1P. Rincian: [plan/games/bomberman.md](games/bomberman.md).
+
+---
+
+## 16. Petualang Koin (games/petualangkoin.js)
+
+Permainan petualangan platformer aksi retro multi-pemain (1, 2, atau 4 pemain) di kanvas 1280x720 bergulir horizontal side-scrolling (panjang 5200 px). Menampilkan karakter petualang bertopi, optimasi lompatan ramah anak dengan *Air Momentum Lock*, *Coyote Time*, dan *Jump Buffer*, balok interaktif ('?' koin/item dan bata), musuh klasik Goomba & Koopa yang dapat diinjak atau ditabrak bintang kebal, power-up Jamur Super dan Bintang Pelangi, tiang bendera finis bertingkat, serta sistem Gelembung Penyelamat (*Catch-Up Bubble*) anti-tertinggal saat pemain jatuh atau tertinggal kamera. Rincian: [plan/games/petualangkoin.md](games/petualangkoin.md).
 
 ## Panduan Menjaga Dokumentasi
 
