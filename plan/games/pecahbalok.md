@@ -32,7 +32,7 @@ Permainan arkade aksi retro multi-pemain (*competitive breakout / arkanoid battl
 | **Posisi Paddle Y** | `Y = 665 px` | Garis dasar bersama di bagian bawah kanvas |
 | **Tinggi Paddle** | `20 px` | Sudut membulat dengan pencahayaan gradien |
 | **Lebar Paddle** | 1P: `220 px`, 2P: `180 px`, 4P: `150 px` | Papan ekstra lebar, melebar $1.5\times$ saat efek *Expand* aktif |
-| **Kecepatan Paddle** | `580 px/dtk` | Kecepatan geser mulus membantu menangkap bola |
+| **Kecepatan Paddle** | `420 px/dtk` | Kecepatan geser mulus membantu menangkap bola |
 | **Interaksi Antar Paddle** | *Non-blocking ghost overlap* | Paddle dapat saling menembus tanpa benturan fisik |
 | **Kecepatan Bola** | Base `290 px/dtk`, Max `380 px/dtk` | Kecepatan santai ramah refleks anak; radius 13 px jelas terlihat di PID |
 | **Sistem Bola** | 1 bola awal per pemain | Bola dapat dipantulkan oleh paddle mana pun & berganti warna kepemilikan |
